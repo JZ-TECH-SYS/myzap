@@ -1,21 +1,15 @@
-<!--
-    /*
- * @Author: Eduardo Policarpo
- * @contact: +55 43996611437
- * @Date: 2021-05-10 18:09:49
- * @LastEditTime: 2021-06-07 03:18:01
- */
--->
 <!DOCTYPE html>
 <html>
 
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>MyZAP 2.0</title>
+    <title>API do WhatsApp</title>
     <link rel="stylesheet" href="/css/style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {# <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" /> #}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link
@@ -116,7 +110,7 @@
 
 <body>
     <div class="container">
-        <h4>MyZAP 2.0</h4>
+        <h4>API do WhatsApp</h4>
         <div class="row" style="margin-top: 50px;">
             <div class="col-sm-8">
                 <form class="form-horizontal">
@@ -207,7 +201,7 @@
 
         document.getElementById('image').style.visibility = "hidden";
 
-        async function getSession(session) {
+        async function getClient(session) {
             const config = {
                 headers: {
                     apitoken: document.getElementById("apitoken").value,
@@ -221,6 +215,8 @@
                 wh_message: document.getElementById("wh_message").value,
                 wh_qrcode: document.getElementById("wh_qrcode").value,
                 wh_connect: document.getElementById("wh_connect").value,
+                number: document.getElementById("session").value,
+                whatsapp_version: document.getElementById("whatsapp_version").value
             }
             axios.post("http://<%=host %>:<%=port %>/start", data, config)
                 .then((value) => {
@@ -245,7 +241,7 @@
                     else {
                         document.getElementById('image').style.visibility = "visible";
                         document.getElementById('send-btn').disabled = true
-                        await getSession(session)
+                        await getClient(session)
                     }
         }
 
@@ -261,6 +257,22 @@
                 alert(msg.reason)
             }
 
+        })
+
+        socket.on('code', (data) => {
+
+            let session = document.getElementById('session').value
+            if (session === data.session) {
+
+                Swal.fire({
+                    title: 'Código de autenticação',
+                    text: data.code,
+                    icon: 'info',
+                    confirmButtonText: 'OK'
+                })
+
+            }
+            
         })
 
         socket.on('qrCode', (qrCode) => {
