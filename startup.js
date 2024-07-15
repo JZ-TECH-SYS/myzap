@@ -1,82 +1,90 @@
-/*##############################################################################
-# File: startup.js                                                             #
-# Project: myzap2.0                                                            #
-# Created Date: 2021-06-27 02:34:00                                            #
-# Author: Eduardo Policarpo                                                    #
-# Last Modified: 2021-07-11 00:35:56                                           #
-# Modified By: Eduardo Policarpo                                               #
-##############################################################################*/
+const request = require('request-promise');
+const axios = require('axios');
+const config = require('./config');
+const logger = require('./util/logger');
 
-import SessionsDB from "./firebase/model.js";
-import { snapshot} from './firebase/db.js';
-import request from "request-promise";
-import config from "./config.js";
+const { exec } = require('child_process');
 
-async function getAllSessions() {
-    try {
-        const SessionsArray = [];
-        if (snapshot.empty) {
-            return null;
-        } else {
-            snapshot.forEach(doc => {
-                const Session = new SessionsDB(
-                    doc.id,
-                    doc.data().session,
-                    doc.data().apitoken,
-                    doc.data().sessionkey,
-                    doc.data().wh_status,
-                    doc.data().wh_message,
-                    doc.data().wh_qrcode,
-                    doc.data().wh_connect,
-                    doc.data().WABrowserId,
-                    doc.data().WASecretBundle,
-                    doc.data().WAToken1,
-                    doc.data().WAToken2,
-                    doc.data().Engine
-                );
-                SessionsArray.push(Session);
-            });
-            return (SessionsArray);
-        }
-    } catch (error) {
-        return (error.message);
-    }
-}
+const chalk = require('chalk');
+
+const DeviceModel = require('./Models/device');
+const Device = DeviceModel(config.sequelize);
 
 async function startAllSessions() {
-    let dados = await getAllSessions()
-    if (dados != null) {
-        if (dados === 'Missing or insufficient permissions.') {
-            console.log('######### ERRO DE CONFIGURACAO NO FIREBASE #########')
-            console.log('####### Missing or insufficient permissions. #######')
-            console.log('### Verifique as permissões de escrita e leitura ###')
-        } else {
-            dados.map((item) => {
-                var options = {
-                    'method': 'POST',
-                    'json': true,
-                    'url': `${config.host}:${config.port}/start`,
-                    'headers': {
-                        'apitoken': item.apitoken,
-                        'sessionkey': item.sessionkey
-                    },
-                    body: {
-                        "session": item.session,
-                        "wh_connect": item.wh_connect,
-                        "wh_qrcode": item.wh_qrcode,
-                        "wh_status": item.wh_status,
-                        "wh_message": item.wh_message
-                    }
 
-                };
-                request(options).then(result => {
-                    console.log(result)
-                }).catch(error => {
-                    console.log(error)
-                })
-            });
+	const host = config?.host ? `${config?.host}:${config?.port}` : config?.host_ssl;
+	const sessions = await Device.findAll();
 
-        }
-    }
+	if (sessions != null) {
+		
+        // update all devices without where
+        await Device.update({
+			
+			qrCode: '',
+			attempts: 0,
+			urlCode: '',
+			attempts_start: 0,
+			last_start: 'NULL',
+
+			state: 'DISCONNECTED',
+			status: 'notLogged',
+			
+			updated_at: new Date()
+		}, { where: {} });
+
+		logger.info(`Iniciando ${sessions.length} sessões...`);
+
+		async function startSession(object) {
+
+			const sessionData = {
+				...object.dataValues,
+				apitoken: config.token,
+			}
+
+			try {
+
+				await axios.post(`${host}/start`, {
+					session: sessionData.session,
+					wh_connect: sessionData.wh_connect,
+					wh_qrcode: sessionData.wh_qrcode,
+					wh_status: sessionData.wh_status,
+					wh_message: sessionData.wh_message,
+					AutoRejectCall: sessionData.AutoRejectCall,
+					AnswerMissedCall: sessionData.AnswerMissedCall
+				}, {
+					headers: {
+						apitoken: sessionData.apitoken,
+						sessionkey: sessionData.sessionkey
+					}
+				});
+		
+				console.log(chalk.green(`[SESSION] ${chalk.bold.green(sessionData.session)} - ${chalk.bold.green(`Iniciada com sucesso!`)}`));
+
+			} catch (error) {
+				console.log(error);
+			}
+		}
+
+		for (let i = 0; i < sessions.length; i++) {
+
+			sessionData = sessions[i];
+			await startSession(sessionData);
+
+			if (i < sessions.length - 1) {
+				await new Promise(resolve => setTimeout(resolve, 15000)); // 15 seconds
+			}
+
+		}
+
+	}else{
+		//clear instances folder
+		exec('rm -rf ./instances/*', (err) => {
+			if (err) {
+				console.error("Erro ao apagar instances folder:", err);
+			}
+		});
+
+	}
 }
-export default { startAllSessions };
+
+module.exports.startAllSessions = startAllSessions;
