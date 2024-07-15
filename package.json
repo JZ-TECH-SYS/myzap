@@ -1,16 +1,18 @@
 {
-  "name": "myzap2.0",
+  "name": "myzap",
   "description": "<h1 align=\"center\">\r     <a href=\"\">🔗 MyZAP</a>\r </h1>\r <p align=\"center\">🚀 Permite a integração do WhatsApp com qualquer aplicação por meio de requisições POST/GET</p>",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "swagger-autogen": "node swagger.js",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "release": "release-it"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/edupoli/MyZap2.0.git"
+    "url": "git+https://github.com/billbarsch/myzap.git"
   },
   "keywords": [
     "whatsapp",
@@ -19,41 +21,86 @@
     "opensource",
     "javascript",
     "wppconnect",
-    "venom"
+    "venom",
+    "apibrasil",
+    "whatsapp"
   ],
-  "author": "Eduardo Policarpo",
+  "author": "Bill Barsch",
+  "contributors": [
+    {
+      "name": "Eduardo Policarpo"
+    },
+    {
+      "name": "APIBrasil",
+      "email": "contato@apibrasil.com.br"
+    }
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/edupoli/MyZap2.0/issues"
+    "url": "https://github.com/billbarsch/myzap/issues"
   },
-  "homepage": "https://github.com/edupoli/MyZap2.0#readme",
+  "homepage": "https://github.com/billbarsch/myzap#readme",
   "dependencies": {
     "@wppconnect-team/wppconnect": "^*",
     "assert": "^*",
     "async-get-file": "^*",
-    "axios": "^0.21.2",
-    "buffer-to-stream": "^1.0.0",
+    "await-sleep": "^*",
+    "axios": "^*",
+    "boxen": "^*",
+    "bull": "^*",
+    "chalk": "4.1.2",
     "cors": "^*",
     "dotenv": "^*",
     "ejs": "^*",
     "express": "^*",
+    "express-fileupload": "^*",
+    "express-pino-logger": "^*",
+    "express-session": "^*",
     "ffmpeg": "^*",
-    "firebase": "^9.1.0",
+    "file-type": "16.5.4",
     "fluent-ffmpeg": "^*",
-    "form-data": "^3.0.1",
-    "mime-types": "^2.1.31",
+    "form-data": "^*",
+    "mime-types": "^*",
     "moment": "^*",
+    "package-json": "^*",
+    "pino": "^*",
+    "pino-http": "^*",
+    "pm2": "^5.4.2",
     "qrcode": "^*",
     "request": "^*",
     "request-promise": "^*",
-    "serve-index": "^*",
+    "sequelize": "^*",
+    "sha1": "^*",
+    "sharp": "^0.33.4",
     "socket.io": "^*",
-    "superagent": "^*",
-    "superagent-queue": "^*",
+    "sqlite3": "^*",
+    "swagger-autogen": "^*",
+    "swagger-ui-express": "^*",
     "url-exists": "^*",
     "valid-url": "^*",
     "venom-bot": "^*",
     "whatsapp-web.js": "^*",
-    "yoo-hoo": "^*"
+    "yoo-hoo": "^*",
+    "zip-lib": "^*"
+  },
+  "devDependencies": {
+    "@commitlint/cz-commitlint": "^15.0.0",
+    "commitizen": "^4.2.4",
+    "conventional-changelog-cli": "^2.1.1",
+    "eslint": "^8.12.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "github-latest-release": "^0.1.1",
+    "pino-multi-stream": "^6.0.0",
+    "pino-pretty": "^7.2.0",
+    "pino-tee": "^0.3.0",
+    "prettier": "^2.6.1",
+    "release-it": "^16.3.0",
+    "shx": "^0.3.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
   }
 }

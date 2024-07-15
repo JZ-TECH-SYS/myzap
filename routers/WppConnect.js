@@ -1,96 +1,136 @@
-/*
- * @Author: Eduardo Policarpo
- * @contact: +55 43996611437
- * @Date: 2021-05-10 18:09:49
- * @LastEditTime: 2021-06-07 03:18:01
- */
-import express from 'express';
-const Router = express.Router();
-import engine from '../engines/WppConnect.js';
-import Sessions from '../controllers/sessions.js';
-import Status from '../functions/WPPConnect/status.js';
-import Commands from '../functions/WPPConnect/commands.js';
-import Groups from '../functions/WPPConnect/groups.js';
-import Mensagens from '../functions/WPPConnect/mensagens.js';
-import Auth from '../functions/WPPConnect/auth.js';
-import config from '../config.js';
-import { checkParams } from '../middlewares/validations.js';
-import { checkNumber } from '../middlewares/checkNumber.js';
-import database from '../firebase/functions.js';
-import { setDoc, doc, db } from '../firebase/db.js';
 
-Router.post('/start', Auth.start)
+const express = require('express');
+const Router = express.Router();
+
+const engine = require('../engines/WppConnect');
+const Sessions = require('../controllers/SessionsController.js');
+const Mensagens = require('../functions/WPPConnect/mensagens');
+const Auth = require('../functions/WPPConnect/auth');
+
+const config = require('../config');
+
+const { checkParams } = require('../middlewares/validations');
+const { checkNumber } = require('../middlewares/checkNumber');
+const { checkAPITokenMiddleware } = require('../middlewares/checkAPITokenMiddleware');
+
+const DeviceModel = require('../Models/device.js');
+
+const Device = DeviceModel(config.sequelize);
+
+Router.post('/start', checkParams, async (req, res) => {
+	
+  	let session = req.body.session
+  	let data = await Sessions.getClient(session)
+	
+  	try {
+
+		// Exemplo de como acessar o número de solicitações de um usuário específico
+		const session = req.body.session;
+
+		let last_start = new Date(data.last_start);
+
+		await Device.update({
+			last_start: last_start,
+			attempts_start: data.attempts_start + 1
+		}, { where: { session: session } });
+
+		if (data) {
+
+			let status_permited = ['CONNECTED', 'inChat', 'isLogged', 'isConnected'];
+			
+			if (status_permited.includes(data?.status)) {
+				
+				return res.status(200).json({
+					result: 'success',
+					session: session,
+					state: 'CONNECTED',
+					status: data?.status,
+				});
+
+			}else if (data?.state === 'STARTING') {
+
+				return res.status(200).json({
+					result: 'success',
+					session: session,
+					state: 'STARTING',
+					status: data?.status,
+				});
+
+			}else if (data.state === 'QRCODE') {
+
+				return res.status(200).json({
+					result: 'success',
+					session: session,
+					state: data?.state,
+					status: data?.status,
+					qrcode: data?.qrCode,
+					urlcode: data?.urlCode,
+				});
+
+			}else if (data.status === 'INITIALIZING') {
+
+				return res.status(200).json({
+					result: 'success',
+					session: session,
+					state: 'STARTING',
+					status: data?.status,
+				});
+
+			}else{
+
+				engine.start(req, res);
+			
+				return res.status(200).json({
+					result: "success",
+					session: session,
+					state: "STARTING",
+					status: "INITIALIZING",
+				});
+				
+			}
+
+		} else {
+			
+			engine.start(req, res);
+
+			return res.status(200).json({
+				result: "success",
+				session: session,
+				state: "STARTING",
+				status: "INITIALIZING",
+			});
+		}
+		
+
+	} catch (error) {
+
+		console.log('error', error)
+
+		res.status(500).json({
+			"result": 500,
+			"status": "FAIL",
+			response: false,
+			data: error
+		});
+		
+	}
+
+})
+
+Router.post('/instances', checkAPITokenMiddleware, Sessions.instances);
+
 // Sessões 
-Router.post('/logout', checkParams, Auth.logoutSession);
-Router.post('/close', checkParams, Auth.closeSession);
-Router.post('/SessionState', checkParams, Auth.getSessionState);
-Router.post('/SessionConnect', checkParams, Auth.checkConnectionSession);
-Router.post('/deleteSession', database.deleteSession);
-Router.post('/getAllSessions', database.getAllSessions);
+// #swagger.tags = ['Sessions']
 Router.get('/getQrCode', Auth.getQrCode);
 
+Router.post('/getAllSessions', Sessions.getAllSessions);
+Router.post('/getConnectionStatus', checkParams, Sessions.getConnectionStatus);
+Router.post('/deleteSession', Sessions.deleteSession);
+
 // Mensagens
+// #swagger.tags = ['Messages']
 Router.post('/sendText', checkParams, checkNumber, Mensagens.sendText);
 Router.post('/sendImage', checkParams, checkNumber, Mensagens.sendImage);
 Router.post('/sendVideo', checkParams, checkNumber, Mensagens.sendVideo);
-Router.post('/sendSticker', checkParams, checkNumber, Mensagens.sendSticker);
-Router.post('/sendFile', checkParams, checkNumber, Mensagens.sendFile);
-Router.post('/sendFile64', checkParams, checkNumber, Mensagens.sendFile64);
-Router.post('/sendAudio', checkParams, checkNumber, Mensagens.sendAudio);
-Router.post('/sendAudio64', checkParams, checkNumber, Mensagens.sendVoiceBase64);
-Router.post('/sendLink', checkParams, checkNumber, Mensagens.sendLink);
-Router.post('/sendContact', checkParams, checkNumber, Mensagens.sendContact);
-Router.post('/sendLocation', checkParams, checkNumber, Mensagens.sendLocation);
-Router.post('/reply', checkParams, Mensagens.reply);
-Router.post('/forwardMessages', checkParams, Mensagens.forwardMessages);
-Router.post('/getMessagesChat', checkParams, checkNumber, Commands.getMessagesChat);
-Router.post('/getAllChats', checkParams, Commands.getAllChats);
-Router.post('/getAllChatsWithMessages', checkParams, Commands.getAllChatsWithMessages);
-Router.post('/getAllNewMessages', checkParams, Commands.getAllNewMessages);
-Router.post('/getAllUnreadMessages', checkParams, Commands.getAllUnreadMessages);
-Router.post('/getOrderbyMsg', checkParams, Mensagens.getOrderbyMsg);
-Router.post('/sendButton', checkParams, Mensagens.sendButton);
 
-// // Grupos
-Router.post('/getAllGroups', checkParams, Groups.getAllGroups);
-Router.post('/joinGroup', checkParams, Groups.joinGroup);
-Router.post('/createGroup', checkParams, Groups.createGroup);
-Router.post('/leaveGroup', checkParams, Groups.leaveGroup);
-Router.post('/getGroupMembers', checkParams, checkNumber, Groups.getGroupMembers);
-Router.post('/addParticipant', checkParams, checkNumber, Groups.addParticipant);
-Router.post('/removeParticipant', checkParams, checkNumber, Groups.removeParticipant);
-Router.post('/promoteParticipant', checkParams, checkNumber, Groups.promoteParticipant);
-Router.post('/demoteParticipant', checkParams, checkNumber, Groups.demoteParticipant);
-Router.post('/getGroupAdmins', checkParams, Groups.getGroupAdmins);
-Router.post('/changePrivacyGroup', checkParams, Groups.changePrivacyGroup); //nova
-Router.post('/getGroupInviteLink', checkParams, Groups.getGroupInviteLink);
-Router.post('/setGroupPic', checkParams, Groups.setGroupPic); // ver funcao nao exite
-Router.post('/setGroupDescription', checkParams, Groups.setGroupDescription);
-Router.post('/setGroupSubject', checkParams, Groups.setGroupSubject);
-
-// // Status
-Router.post('/sendTextToStorie', checkParams, Status.sendTextToStorie);
-Router.post('/sendImageToStorie', checkParams, Status.sendImageToStorie);
-Router.post('/sendVideoToStorie', checkParams, Status.sendVideoToStorie);
-
-// // Dispositivo, chats entre outras
-Router.post('/getBatteryLevel', checkParams, Commands.getBatteryLevel);
-Router.post('/getConnectionState', checkParams, Commands.getConnectionState);
-Router.post('/getHostDevice', checkParams, Commands.getHostDevice);
-Router.post('/getAllContacts', checkParams, Commands.getAllContacts);
-Router.post('/getBlockList', checkParams, Commands.getBlockList);
-
-Router.post('/getProfilePic', checkParams, checkNumber, Commands.getProfilePic);
-Router.post('/verifyNumber', checkParams, checkNumber, Commands.verifyNumber);
-Router.post('/deleteChat', checkParams, checkNumber, Commands.deleteChat);
-Router.post('/clearChat', checkParams, checkNumber, Commands.clearChat);
-Router.post('/archiveChat', checkParams, checkNumber, Commands.archiveChat);
-Router.post('/deleteMessage', checkParams, checkNumber, Commands.deleteMessage);
-
-Router.post('/markUnseenMessage', checkParams, checkNumber, Commands.markUnseenMessage);
-Router.post('/blockContact', checkParams, checkNumber, Commands.blockContact);
-Router.post('/unblockContact', checkParams, checkNumber, Commands.unblockContact);
-Router.post('/getNumberProfile', checkParams, checkNumber, Commands.getNumberProfile);
-
-
-export default { Router };
+module.exports = Router;

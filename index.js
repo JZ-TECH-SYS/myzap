@@ -1,157 +1,162 @@
-/*
- * @Author: Eduardo Policarpo
- * @contact: +55 43996611437
- * @Date: 2021-05-10 18:09:49
- * @LastEditTime: 2021-06-07 03:18:01
- */
-'use strict';
-import cors from "cors";
-import express from "express";
+"use strict";
+
+const fs = require("fs");
+const express = require("express");
+const session = require('express-session');
+const fileUpload = require("express-fileupload");
+const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const path = require("path");
+const { exec } = require("child_process");
+const { yo } = require("yoo-hoo");
+const config = require("./config");
+const CacheModel = require('./Models/cache');
+const { startAllSessions } = require("./startup");
+const logger = require("./util/logger");
+const expressPinoLogger = require("express-pino-logger");
+
+// Verifica se o diretório de instâncias existe, senão cria
+if (!fs.existsSync('./instances')) {
+    fs.mkdirSync('./instances');
+}
+
+// Inicialização do servidor Express
 const app = express();
-import path from "path";
-import { fileURLToPath } from 'url';
-import http from "http";
-import serveIndex from "serve-index";
-import motor from "./engines.js";
-import config from "./config.js";
-import { yo } from "yoo-hoo";
-import events from "events";
-import startup from "./startup.js";
-import { Server } from "socket.io";
+const server = require("http").Server(app);
 
-const __filename = fileURLToPath( import.meta.url);
-const __dirname = path.dirname(__filename);
+// Configuração do middleware de sessão
+app.use(session({
+  secret: config.token,
+  resave: false,
+  saveUninitialized: false
+}));
 
-events.EventEmitter.prototype._maxListeners = 999;
-
-const server = http.Server(app);
-const router = motor.engines[process.env.ENGINE].router
-const { startAllSessions } = startup;
-
-const io = new Server(server, {
-  cors: {
-    origins: ["*"],
-    methods: ["GET", "POST"],
-    transports: ['websocket', 'polling'],
-    credentials: true
-  },
-  allowEIO3: true
+// Configuração do logger
+const loggerMiddleware = expressPinoLogger({
+  logger: logger,
+  autoLogging: true,
 });
 
-app.use(cors());
-app.use(express.json({
-  limit: '50mb'
-}));
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.set('json spaces', 2);
-app.use(express.static('public'));
-express.static(path.join(__dirname, '/public'));
-app.use('/files', express.static('files-received'), serveIndex('files-received', {
-  icons: true
-}));
+// Configuração do CORS
+const allowlist = config.cors_origin.split(", ");
+app.use(cors({ origin: config.cors_origin == "*" ? "*" : allowlist }));
 
+// Configuração para tratamento de uploads de arquivos
+app.use(fileUpload({ createParentPath: true }));
+
+// Middleware para adicionar o objeto io a todas as requisições
 app.use((req, res, next) => {
   req.io = io;
+  var _send = res.send;
+  var sent = false;
+  res.send = (data) => {
+    if (sent) return;
+    _send.bind(res)(data);
+    sent = true;
+  };
   next();
 });
 
-app.use(router);
+// Configuração para aceitar JSON e formulários codificados
+app.use(express.json({ limit: "100mb", parameterLimit: 99999999999999 }));
+app.use(express.urlencoded({ extended: true, limit: "100mb", parameterLimit: 99999999999999 }));
 
-io.on('connection', sock => {
-  console.log(`ID: ${sock.id} socket in`)
+// Configuração da pasta de arquivos estáticos
+app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "/public")));
 
-  sock.on('event', data => {
-    console.log(data)
+// Configuração do view engine e da pasta de views
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "Views"));
+
+// Configuração da documentação Swagger
+const swaggerFile = require("./swagger_output.json");
+
+app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
+// Inicialização do socket.io
+const io = require("socket.io")(server, {
+  cors: { origin: config.cors_origin == "*" ? "*" : allowlist, methods: ["GET", "POST"] },
+});
+
+io.setMaxListeners(0); // Aumenta o número máximo de listeners
+
+// Configuração de eventos do socket.io
+io.on("connection", (socket) => {
+  logger.info(`ID: ${socket.id} socket connected`);
+
+  socket.on("event", (data) => {
+    logger.info(data);
   });
 
-  sock.on('disconnect', () => {
-    console.log(`ID: ${sock.id} socket out`)
+  socket.on("room", (room) => {
+    if (socket.room) {
+      socket.leave(socket.room);
+    }
+    socket.join(room);
+    socket.room = room;
+    logger.info(`Session: ${room} joined Socket.io`);
+  });
+
+  socket.on("disconnect", () => {
+    logger.info(`ID: ${socket.id} socket disconnected`);
   });
 });
 
-app.get('/start', function (req, res) {
-  res.render('index', {
-    port: config.port,
-    host: config.host,
-    host_ssl: config.host_ssl
-  })
-});
+// Configuração de rotas
+const router = require("./routers/WppConnect");
+const manager = require("./routers/Manager");
 
-if (config.https == 1) {
-  https.createServer({
-    key: fs.readFileSync(config.ssl_key_path),
-    cert: fs.readFileSync(config.ssl_cert_path)
-  },
-    server).listen(config.port, async (error) => {
-      if (error) {
-        console.log(error)
-      } else {
-        console.log('\n\nWelcome to')
-        yo('MyZAP', {
-          color: 'rainbow',
-          spacing: 1,
-        });
-        console.log(`Http server running on ${config.host}:${config.port}\n\n`);
-        if (config.start_all_sessions === 'true') {
-          let result = await startAllSessions()
-          if (result != undefined) {
-            console.log(result)
-          }
-        }
-      }
-    });
-} else {
-  server.listen(config.port, async (error) => {
-    if (error) {
-      console.log(error)
-    } else {
-      console.log('\n\nWelcome to')
-      yo('MyZAP', {
-        color: 'rainbow',
-        spacing: 1,
-      });
-      console.log(`Http server running on ${config.host}:${config.port}\n\n`);
-      if (config.start_all_sessions === 'true') {
-        let result = await startAllSessions()
-        if (result != undefined) {
-          console.log(result)
-        }
+app.use(router, loggerMiddleware);
+app.use(manager);
+
+// Inicialização do servidor
+server.listen(config.port, async (error) => {
+  if (error) {
+    logger.error(error);
+  } else {
+    yo("Myzap3", { color: "rainbow", spacing: 1, waitMode: "line" });
+
+    const serverURL = config.host_ssl ? config.host_ssl : `${config.host}:${config.port}`;
+    console.log(`\nServer running on ${serverURL}\nAccess ${serverURL}/doc to view API documentation\n`);
+
+    // Inicia todas as sessões se a configuração estiver ativada
+    if (config.start_all_sessions === "true") {
+      try {
+        await startAllSessions();
+      } catch (error) {
+        logger.error("Error starting all sessions:", error);
       }
     }
+  }
+});
+
+// Tratamento de sinais e eventos do processo Node.js
+process.on("SIGINT", gracefulShutdown);
+process.on("SIGTERM", gracefulShutdown);
+process.on("beforeExit", handleProcessExit);
+process.on("exit", handleProcessExit);
+process.on("uncaughtException", handleUncaughtException);
+process.on("unhandledRejection", handleUnhandledRejection);
+
+function gracefulShutdown(signal) {
+  logger.info(`Received ${signal}. Starting graceful shutdown...`);
+  server.close(() => {
+    logger.info("Server closed. Exiting process...");
+    process.exit(0);
   });
 }
 
-process.stdin.resume();
-
-async function exitHandler(options, exitCode) {
-  if (options.cleanup) {
-    console.log('cleanup');
-    await Sessions.getSessions().forEach(async session => {
-      await Sessions.closeSession(session);
-    });
-  }
-  if (exitCode || exitCode === 0) {
-    console.log(exitCode);
-  }
-
-  if (options.exit) {
-    process.exit();
-  }
+function handleProcessExit(code) {
+  logger.info(`Process exited with code: ${code}`);
 }
 
-process.on('exit', exitHandler.bind(null, {
-  cleanup: true
-}));
-process.on('SIGINT', exitHandler.bind(null, {
-  exit: true
-}));
-process.on('SIGUSR1', exitHandler.bind(null, {
-  exit: true
-}));
-process.on('SIGUSR2', exitHandler.bind(null, {
-  exit: true
-}));
-process.on('uncaughtException', exitHandler.bind(null, {
-  exit: true
-}));
+function handleUncaughtException(err) {
+  logger.error(`Uncaught Exception: ${err.message}`);
+  process.exit(1);
+}
+
+function handleUnhandledRejection(err, promise) {
+  logger.error("Unhandled rejection at ", promise, `reason: ${err}`);
+  process.exit(1);
+}

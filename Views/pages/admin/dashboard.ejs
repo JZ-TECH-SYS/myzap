@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+
+<%- include('../head.ejs', { pageTitle: pageTitle }) %>
+
+<body>
+  <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    <!-- Sidebar Start -->
+    <aside class="left-sidebar">
+      <!-- Sidebar scroll-->
+      <div>
+
+        <div class="brand-logo d-flex align-items-center justify-content-between">
+          <a href="/dashboard" class="text-nowrap logo-img">
+            <img src="<%= logo ? logo : 'https://upload.wikimedia.org/wikipedia/commons/f/f7/WhatsApp_logo.svg' %>" alt="logo" class="img-fluid" />
+          </a>
+          <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+            <i class="ti ti-x fs-8"></i>
+          </div>
+        </div>
+
+        <!-- Sidebar navigation-->
+        <%- include('../sidebar.ejs', { token: token , company: companyData }) %>
+        <!-- End Sidebar navigation -->
+      </div>
+      <!-- End Sidebar scroll-->
+    </aside>
+    <!--  Sidebar End -->
+    <!--  Main wrapper -->
+    <div class="body-wrapper">
+      <!--  Header Start -->
+      
+      <%- include('../header.ejs') %>
+
+      <!--  Header End -->
+      <div class="container-fluid">
+
+        <!--  Row 1 -->
+        <div class="row">
+
+          <div class="col-lg-12 d-flex align-items-stretch">
+            <div class="card w-100">
+              <div class="card-body p-4">
+                
+                <h5 class="card-title fw-semibold mb-4">Conexões ativas</h5>
+                <div class="table-responsive">
+                  <table class="table text-nowrap mb-0 align-items-strecht table-hover" style="width: 100%">
+                    <thead class="text-dark fs-4">
+                      <tr>
+                        
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Number</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                          <h6 class="fw-semibold mb-0">Session/Key</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                          <h6 class="fw-semibold mb-0">WA/JS Version</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                          <h6 class="fw-semibold mb-0">Criado/Up</h6>
+                        </th>
+                        
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">WebHook</h6>
+                        </th>
+                        
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Status</h6>
+                        </th>
+
+                        <th class="border-bottom-0">
+                          <h6 class="fw-semibold mb-0">Ações</h6>
+                        </th>
+
+                      </tr>
+
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+        
+        <%- include('../footer.ejs') %>
+        
+      </div>
+    </div>
+  </div>
+
+  <!--modal boostrap 5-->
+  <div class="modal fade" id="modalgeral" tabindex="-1" aria-labelledby="modalgeralLabel" aria-hidden="true" backdrop="static" keyboard="false">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="modalgeralLabel">Instância</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+            <div class="qrcode"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+  <%- include('../scripts.ejs') %>
+
+  <script src="/libs/dataTables/dataTables.min.js"></script>
+
+  <script>
+
+    $(document).ready(function() {
+
+        $('.table').DataTable({
+            "searching": true,
+            "processing": true,
+            "serverSide": false,
+            "paging": true,
+            "searching": true,
+
+            //style
+            "lengthMenu": [
+                [10, 25, 50, 100, -1],
+                [10, 25, 50, 100, "All"]
+            ],
+            //select
+            "select": true,
+            "ajax": {
+                "url": "/instances",
+                "type": "POST",
+                "headers": {
+                  "apitoken": "<%= token %>"
+                }
+            },
+            "columns": [
+                { "data": "pushname" },
+                { "data": "session" },
+                { "data": "wa_version" },
+                { "data": "created_at" },
+                { "data": "wh_qrcode" },
+                { "data": "status" },
+                { "data": "actions" }
+            ],
+            "columnDefs": [
+                {
+                    "targets": 0,
+                    "render": function (data, type, row) {
+
+                      let html = `<p class="fw-normal mb-1"><i class="fas fa-user"></i> ${row?.pushname ?? 'not name'}</p>`;
+                      html += `<p class="fw-normal mb-1"><i class="fas fa-phone"></i> ${row.number ? row.number : 'not_fount@c.us'}</p>`;
+
+                      return html;
+
+                    }
+                },
+                {
+                    "targets": 1,
+                    "render": function (data, type, row) {
+                        return `<p class="fw-normal mb-1">${data}</p><p class="fw-normal text-muted">${row.sessionkey}</p>`;
+                    }
+                },
+                {
+                    "targets": 2,
+                    "render": function (data, type, row) {
+                      
+                      let ios = `<i class="fab fa-apple text-success"></i>`
+                      let android = `<i class="fab fa-android text-success" title="Comum"></i>`
+                      let business = `<i class="fas fa-briefcase text-success" title="Business"></i>`
+                      let whatsapp = `<i class="fab fa-whatsapp text-success"></i>`
+
+                      if(row?.platform == 'iphone'){
+                        return `
+                          <p class="fw-normal mb-1">${whatsapp} ${row.wa_version ? row.wa_version : 'not detected'}</p>
+                          <p class="fw-normal mb-1">${ios} ${row.wa_js_version ? row.wa_js_version : 'not detected'}</p>
+                        `;
+                      }
+
+                      //smbi
+                      if(row?.platform == 'smbi'){
+                        return `
+
+                          <p class="fw-normal mb-1">${ios} ${row.wa_version ? row.wa_version : 'not detected'}</p>
+                          <p class="fw-normal mb-1">${business} ${row.wa_js_version ? row.wa_js_version : 'not detected'}</p>
+                        `;
+                      }
+
+                      if(row?.platform == 'smba'){
+
+                        return `
+                          <p class="fw-normal mb-1">${android} ${row.wa_version ? row.wa_version : 'not detected'}</p>
+                          <p class="fw-normal mb-1">${business} ${row.wa_js_version ? row.wa_js_version : 'not detected'}</p>
+                        `;
+
+                      } else {
+
+                        return `
+                          <p class="fw-normal mb-1">${android} ${row.wa_version ? row.wa_version : 'not detected'}</p>
+                          <p class="fw-normal mb-1">${whatsapp} ${row.wa_js_version ? row.wa_js_version : 'not detected'}</p>
+                        `;
+
+                      }
+                      
+                    }
+                },
+                {
+                    "targets": 3,
+                    "render": function (data, type, row) {
+                        return `
+                        <p class="mb-0 fw-normal">${new Date(row.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: true, day: '2-digit', month: '2-digit' })}</p>
+                        <p class="mb-0 fw-semibold">${new Date(row.updated_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: true, day: '2-digit', month: '2-digit' })}</p>
+                        `;
+                    }
+                },
+                {
+                    "targets": 4,
+                    "render": function (data, type, row) {
+                        
+                      let webhooks = "";
+
+                        if (row.wh_qrcode) {
+                          webhooks += `<i class="ti ti-qrcode"></i>`;  
+                        }
+
+                        if (row.wh_status) {
+                          webhooks += `<i class="ti ti-link"></i>`;
+                        }
+
+                        if (row.wh_connect) {
+                          webhooks += `<i class="fas fa-link"></i>`;
+                        }
+
+                        if (row.wh_message) {
+                          webhooks += `<i class="fas fa-comment"></i>`;
+                        }
+
+                        return webhooks;
+
+
+                    }
+                },
+                {
+                    "targets": 5,
+                    "render": function (data, type, row) {
+                        return `<span class="badge bg-${row.status == 'inChat' ? 'success' : 'danger'}">${row.status}</span>`;
+                    }
+                },
+                {
+                    "targets": 6,
+                    "render": function (data, type, row) {
+
+                      let btnDrop = `<button type="button" class="btn btn-sm btn-danger" title="Deletar conexão" onclick="dropInstance('${row.session}','${row.sessionkey}')"><i class="ti ti-trash"></i></button>`;
+
+                      if(row.status == 'inChat'){
+
+                        return `
+                            ${btnDrop}
+                        `;
+
+                      } else {
+
+                        return `
+                            ${btnDrop}
+                        `;
+
+                      }
+
+                    }
+                }
+            ]
+
+        });
+    });
+
+  const socket = io('<%=host %>/', { transports: ['polling'] });
+
+  myModal = new bootstrap.Modal(document.getElementById('modalgeral'), {
+      keyboard: false
+  })
+
+  socket.on('events', (event) => {
+  
+    console.log('events', event)
+
+    if(event.status === 'inChat'){
+      //modal 
+      $("#modalgeral").modal('hide')
+    }
+
+    $('.table').DataTable().ajax.reload();
+  
+  });
+
+  //socket qrcode
+  socket.on('qrcode', (qrcode) => {
+    console.log('qrcode', qrcode)
+    document.querySelector('.qrcode').innerHTML = `<img src="${qrcode?.qrCode}" alt="QRCode" class="img-fluid">`
+  });
+
+  //socket on code
+  socket.on('code', (data) => {
+    
+    Swal.fire({
+        title: 'Código de autenticação!',
+        text: `${data.code}`,
+        icon: 'info',
+        showCancelButton: false
+    });
+
+  });
+
+  async function dropInstance (session, sessionkey){
+
+    const { value: accept } = await Swal.fire({
+        title: 'Deseja realmente deletar?',
+        text: "Você será desconectado do WhatsApp, será necessário iniciar novamente!",
+        icon: 'warning',
+        showCancelButton: true
+    });
+
+    if (!accept) return;
+
+    const response = await axios.post('/deleteSession', { session: session }, {
+        headers: {
+            'Content-Type': 'application/json',
+            'sessionkey': sessionkey
+        }
+    });
+
+    if (response.status === 200) {
+
+        Swal.fire({
+            title: 'Sucesso!',
+            text: 'Sessão fechada com sucesso!',
+            icon: 'success',
+            showCancelButton: false,
+            showConfirmButton: false,
+            timer: 1500
+        }).then((result) => {
+            if (result.isConfirmed) {
+                
+              $('.table').DataTable().ajax.reload();
+
+            }
+        });
+
+    } else {
+
+        Swal.fire({
+            title: 'Erro!',
+            text: 'Não foi possível deletar a sessão!',
+            icon: 'error',
+            showCancelButton: false
+        });
+
+      }
+
+    }
+
+  </script>
+
+</body>
+
+</html>

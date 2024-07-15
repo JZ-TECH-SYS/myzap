@@ -1,59 +1,68 @@
-/*##############################################################################
-# File: config.js                                                              #
-# Project: myzap2.0                                                            #
-# Created Date: 2021-06-21 12:52:13                                            #
-# Author: Eduardo Policarpo                                                    #
-# Last Modified: 2021-07-23 15:07:40                                           #
-# Modified By: Eduardo Policarpo                                               #
-##############################################################################*/
-
 //'use strict';
-import dotenv from "dotenv";
-import assert from "assert";
+const dotenv = require('dotenv');
+const assert = require('assert');
+
+const { Sequelize } = require('sequelize');
+
+const database_config = JSON.parse(JSON.stringify(require('./config/config.json')));
 
 dotenv.config();
 
+const is_production = process.env.PRODUCTION === 'true';
+
+if (is_production) {
+    database_config.development.logging = false;
+}
+
+let sequelize = new Sequelize(database_config.development);
+
+(async () => {
+
+    try {
+
+        await sequelize.authenticate();
+        console.log('Connection has been established successfully.');
+    
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+    }
+
+})();
+
 const {
-  PORT,
-  HOST,
-  TOKEN,
-  HTTPS,
-  DOMAIN_SSL,
-  ENGINE,
-  SSL_KEY_PATH,
-  SSL_CERT_PATH,
-  API_KEY,
-  AUTH_DOMAIN,
-  PROJECT_ID,
-  STORAGE_BUCKET,
-  MESSAGING_SENDER_ID,
-  APP_ID,
-  START_ALL_SESSIONS,
-  FORCE_CONNECTION_USE_HERE
+    PORT,
+    HOST,
+    HOST_SSL,
+    TOKEN,
+    HTTPS,
+    VERSION,
+    COMPANY,
+    LOGO,
+    START_ALL_SESSIONS,
+    FORCE_CONNECTION_USE_HERE,
+    CORS_ORIGIN,
+    TIME_TYPING
 } = process.env;
 
 assert(PORT, 'PORT is required, please set the PORT variable value in the .env file');
-assert(HOST, 'HOST is required, please set the HOST variable value in the .env file');
 assert(TOKEN, 'TOKEN is required, please set the ENGINE variable value in the .env file');
-assert(ENGINE, 'ENGINE is required, please set the ENGINE variable value in the .env file');
+assert(CORS_ORIGIN, 'CORS_ORIGIN is required, please set the CORS_ORIGIN variable value in the .env file');
 
-export default {
-  port: PORT,
-  host: HOST,
-  token: TOKEN,
-  https: HTTPS,
-  host_ssl: DOMAIN_SSL,
-  engine: ENGINE,
-  ssl_key_path: SSL_KEY_PATH,
-  ssl_cert_path: SSL_CERT_PATH,
-  firebaseConfig: {
-    apiKey: API_KEY,
-    authDomain: AUTH_DOMAIN,
-    projectId: PROJECT_ID,
-    storageBucket: STORAGE_BUCKET,
-    messagingSenderId: MESSAGING_SENDER_ID,
-    appId: APP_ID
-  },
-  start_all_sessions: START_ALL_SESSIONS,
-  useHere: FORCE_CONNECTION_USE_HERE,
+module.exports = {
+    port: PORT,
+    host: "",
+    host_ssl: HOST_SSL ? HOST_SSL : `${HOST}:${PORT}`,
+    token: TOKEN,
+    https: HTTPS,
+    version: VERSION,
+    company: COMPANY ? COMPANY : "myzap",
+    logo: LOGO != "" ? LOGO : "https://upload.wikimedia.org/wikipedia/commons/f/f7/WhatsApp_logo.svg",
+    ssl_key_path: "",
+    ssl_cert_path: "",
+    start_all_sessions: START_ALL_SESSIONS,
+    useHere: FORCE_CONNECTION_USE_HERE,
+    device_name: "",
+    cors_origin: CORS_ORIGIN,
+    time_typing: TIME_TYPING,
+    sequelize
 }

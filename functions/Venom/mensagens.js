@@ -4,7 +4,7 @@
  * @Date: 2021-05-10 18:09:49
  * @LastEditTime: 2021-06-07 03:18:01
  */
-import Sessions from '../../controllers/sessions.js';
+import Sessions from '../../controllers/SessionsController.js';
 import get from "async-get-file";
 import path from 'path';
 import fs from 'fs';

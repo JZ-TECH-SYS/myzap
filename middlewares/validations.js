@@ -1,67 +1,65 @@
-/*
- * @Author: Eduardo Policarpo
- * @contact: +55 43996611437
- * @Date: 2021-05-10 18:09:49
- * @LastEditTime: 2021-06-07 03:18:01
- */
-import Sessions from '../controllers/sessions.js'
-import dotenv from "dotenv";
-dotenv.config();
-let engine = process?.env?.ENGINE;
+
+const Sessions = require('../controllers/SessionsController')
+require('dotenv').config();
 
 const checkParams = async (req, res, next) => {
-    let session = req?.body?.session
-    let data = Sessions.getSession(session)
-    if (!session) {
-        return res.status(401).json({ error: 'Sessão não informada.' });
-    }
-    else if (Sessions.session.length === 0) {
-        return res.status(503).json({
-            response: false,
-            status: "Service Unavailable",
-            message: 'O Serviço esta OffLine, indisponivel.'
-        })
-    }
-    else if (data.sessionkey != req.headers['sessionkey']) {
-        return res.status(401).json({
-            "result": 401,
-            "messages": "Não autorizado, verifique se o nome da sessão e o sessionkey estão corretos"
-        })
-    }
-    else {
-        if (engine === '1') {
-            //const client = await data.client.isOnline();
-            if (!data.client) {
-                return res.status(400).json({
-                    response: false,
-                    status: "Disconnected",
-                    message: 'A sessão do WhatsApp informada não está ativa.'
-                })
-            }
-            else {
-                next();
-            }
-        }
-        else {
-            const client = await data?.client?.isConnected();
-            if (!client) {
-                return res.status(400).json({
-                    response: false,
-                    status: "Disconnected",
-                    message: 'A sessão do WhatsApp informada não está ativa.'
-                })
-            }
-            else {
-                next();
-            }
-        }
-    }
-}
-//checar se o numero existe no whats ...... isso no whatsappwebjs
-const checkRegisteredNumber = async function (req, res) {
-    let data = Sessions.getSession(req.body.session)
-    const isRegistered = await data?.client?.isRegisteredUser(req.body.number);
-    return isRegistered;
+  
+	let session = req?.body?.session
+	let sessionkey = req?.headers['sessionkey']
+	let apitoken = req?.headers['apitoken']
+
+	if (!sessionkey) {
+		return res.status(401).json({
+			result: 401,
+			"status": "NOT_AUTHORIZED",
+			"reason": "Por favor, informe um valor para SESSIONKEY"
+		})
+	}
+
+	if (!session) {
+		return res.status(400).json({ error: 'session não informado no body.' });
+	} 
+
+	if (session) {
+		if ( session.match(/[^A-Za-z0-9\-_]/g) ) {
+			return res.status(400).json({ error: 'Sessão com nome inválido, utilize apenas letras, números, tracos, underline, sem caracteres especiais' });
+		}
+	}
+
+	let data = await Sessions?.getClient(session)
+	
+	if (req?.url == '/start' && req?.method === 'POST') {
+
+		if (!apitoken) {
+			return res.status(400).json({ error: 'apitoken não informado no header.' });
+		}
+
+		if (apitoken != process.env.TOKEN) {
+			return res.status(403).json({ error: "Unauthorized, please check the API TOKEN." });
+		}
+		
+	}else{
+	
+		if(!data) {
+			return res.status(404).json({
+				response: false,
+				status: "NOT FOUND",
+				messages: `A session (${session ?? ''}) informada não existe.`
+			})
+		}
+
+		if (data?.sessionkey !== sessionkey) {
+			return res.status(404).json({
+				response: false,
+				status: "NOT FOUND",
+				messages: `A sessionkey (${sessionkey ?? ''}) informada não existe ou não está associada a sessão (${session ?? ''}).`
+			})
+		}
+
+	}
+
+	next()
+
 }
 
-export { checkParams }
+exports.checkParams = checkParams

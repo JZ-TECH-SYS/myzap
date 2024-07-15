@@ -4,7 +4,7 @@
   @codigo escrito em 07/06/2021
   @Author Eduardo Policarpo
  */
-import Sessions from '../../controllers/sessions.js';
+import Sessions from '../../controllers/SessionsController.js';
 import get from "async-get-file";
 import path from 'path'
 import fs from 'fs';

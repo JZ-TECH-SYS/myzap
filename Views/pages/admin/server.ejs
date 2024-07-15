@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+
+<%- include('../head.ejs', { pageTitle: pageTitle }) %>
+
+<body>
+  <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    <!-- Sidebar Start -->
+    <aside class="left-sidebar">
+      <!-- Sidebar scroll-->
+      <div>
+
+        <div class="brand-logo d-flex align-items-center justify-content-between">
+          <a href="/dashboard" class="text-nowrap logo-img">
+            <img src="<%= logo ? logo : 'https://upload.wikimedia.org/wikipedia/commons/f/f7/WhatsApp_logo.svg' %>" alt="logo" class="img-fluid" />
+          </a>
+          <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+            <i class="ti ti-x fs-8"></i>
+          </div>
+        </div>
+
+        <!-- Sidebar navigation-->
+        <%- include('../sidebar.ejs', { token: token , company: companyData }) %>
+        <!-- End Sidebar navigation -->
+      </div>
+      <!-- End Sidebar scroll-->
+    </aside>
+    <!--  Sidebar End -->
+    <!--  Main wrapper -->
+    <div class="body-wrapper">
+      <!--  Header Start -->
+      
+      <%- include('../header.ejs') %>
+
+      <!--  Header End -->
+      <div class="container-fluid">
+        
+        <div class="alert alert-success alert-dismissible fade show" role="alert" id="alert">
+          <strong>Atualizando as informações em <span id="time">30</span> segundos...</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+
+            <h5 class="card-title fw-semibold"><i class="ti ti-network"></i> Informações do servidor</h5>
+            <small class="mb-4 text-muted">Aqui você pode visualizar as informações do servidor.</small>
+            
+            <div class="row mt-4">
+
+              <div class="col-3 mb-3">
+                <label for="host_ssl" class="form-label">Host SSL</label>
+                <input type="text" class="form-control" id="host_ssl" name="host_ssl" value="<%= host_ssl %>" disabled>
+                <div id="host_ssl" class="form-text">Host SSL do servidor</div>
+              </div>
+
+              <div class="col-3 mb-3">
+                <label for="port" class="form-label">Porta</label>
+                <input type="text" class="form-control" id="port" name="port" value="<%= port %>" disabled>
+                <div id="port" class="form-text">Porta interna do server</div>
+              </div>
+
+              <div class="col-3 mb-3">
+                <label for="node_version" class="form-label">Versão do Node</label>
+                <input type="text" class="form-control" id="node_version" name="node_version" value="<%= node_version %>" disabled>
+                <div id="node_version" class="form-text">Versão do Node do servidor</div>
+              </div>
+
+              <div class="col-3 mb-3">
+                <label for="api_version" class="form-label">Versão da API</label>
+                <input type="text" class="form-control" id="api_version" name="api_version" value="<%= api_version %>" disabled>
+                <div id="api_version" class="form-text">Versão da API do servidor</div>
+              </div>
+
+              <% if (host) { %>
+                <div class="col-3 mb-3">
+                  <label for="host" class="form-label">Host</label>
+                  <input type="text" class="form-control" id="host" name="host" value="<%= host %>" disabled>
+                  <div id="host" class="form-text">Host do servidor</div>
+                </div>
+              <% } %>
+
+            </div>
+
+            <div class="row">
+              <h5 class="card-title fw-semibold"><i class="ti ti-server"></i> Informações do servidor</h5>
+              <hr class="border-primary-subtle mb-4">
+            </div>
+
+            <div class="row">
+
+              <div class="col-6 mb-3">
+                <label for="cpu_name" class="form-label">Nome da CPU</label>
+                <input type="text" class="form-control" id="cpu_name" name="cpu_name" value="<%= cpu_name %>" disabled>
+              </div>
+
+              <div class="col-3 mb-3">
+                <label for="cpu_disponivel" class="form-label">CPU total</label>
+                <input type="text" class="form-control" id="cpu_disponivel" name="cpu_disponivel" value="<%= cpu_disponivel %>" disabled>
+              </div>
+
+              <div class="col-3 mb-3">
+                <label for="memory_disponivel_gb" class="form-label">Memória total (GB)</label>
+                <input type="text" class="form-control" id="memory_disponivel_gb" name="memory_disponivel_gb" value="<%= memory %>" disabled>
+              </div>
+
+              <div class="row">
+                <h5 class="card-title fw-semibold"><i class="ti ti-dashboard"></i> Consumo de hardware</h5>
+                <hr class="border-primary-subtle mb-4">
+              </div>
+
+              <div class="col-3 mb-3">
+                <label for="memory_usage" class="form-label">Uso médio RAM (instância)</label>	
+                <input type="text" class="form-control" id="memory_usage" name="memory_usage" value="<%= memory_usage %>" disabled>
+                <div id="memory_usage" class="form-text">Uso de memória do servidor</div>
+              </div>
+
+              <div class="col-3 mb-3">
+                <label for="cores_usage" class="form-label">Uso médio CPU (instância)</label>
+                <input type="text" class="form-control" id="cores_usage" name="cores_usage" value="<%= cores_usage %>" disabled>
+                <div id="cores_usage" class="form-text">Uso de cores do servidor</div>
+              </div>
+
+              <div class="col-3 mb-3">
+                <label for="cpu_usage" class="form-label">Uso médio CPU (%)</label>
+                <input type="text" class="form-control" id="cpu_usage" name="cpu_usage" value="<%= cpu_usage %>" disabled>
+                <div id="cpu_usage" class="form-text">Uso de CPU do servidor</div>
+              </div>
+
+              <div class="col-3 mb-3">
+                <label for="memoria_ram_disponivel" class="form-label">RAM disponível (GB)</label>
+                <input type="text" class="form-control" id="memoria_ram_disponivel" name="memoria_ram_disponivel" value="<%= memoria_ram_disponivel %> GB" disabled>
+                <div id="memoria_ram_disponivel" class="form-text">RAM disponível do servidor</div>
+              </div>
+
+
+          </div>
+        </div>
+      </div>
+
+      <%- include('../footer.ejs') %>
+        
+    </div>
+  </div>
+
+  <%- include('../scripts.ejs') %>
+
+  <script>
+        
+      setTimeout(function() {
+
+        let timeElement = document.getElementById('time');
+        let time = parseInt(timeElement.innerHTML);
+
+        time--;
+        timeElement.innerHTML = time;
+
+        if (time === 0) {
+          window.location.reload();
+        } else {
+          setTimeout(arguments.callee, 1000); // "arguments.callee" refere-se à própria função anônima
+        }
+        
+      }, 1000); // 1 segundo
+    
+  </script>
+
+</body>
+
+</html>
