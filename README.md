@@ -53,8 +53,11 @@ npm i
 bash ./scripts/database.sh
 ```
 
-#### Rodar API com PM2
+### Default user
+email: ```admin@admin.com```
+password: ```your_token_api```
 
+#### Rodar API com PM2
 ```bash
 bash ./scripts/start.sh
 ```
