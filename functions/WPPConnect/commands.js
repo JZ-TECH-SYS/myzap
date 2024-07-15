@@ -1,421 +1,754 @@
-
-/*
- * @Author: Eduardo Policarpo
- * @contact: +55 43996611437
- * @Date: 2021-05-10 18:09:49
- * @LastEditTime: 2021-06-07 03:18:01
- */
-import Sessions from '../../controllers/sessions.js';
-import moment from 'moment';
-moment().format('DD-MM-YYYY hh:mm:ss');
+const Sessions = require('../../controllers/SessionsController');
+const Cache = require('../../util/cache')
+const moment = require('moment')
+moment().format('DD-MM-YYYY HH:mm:ss');
 moment.locale('pt-br')
-export default class Commands {
 
-  static async getBatteryLevel(req, res) {
-    try {
-      let data = Sessions.getSession(req.body.session)
-      let response = await data.client.getBatteryLevel()
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS",
-        "batterylevel": response
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+const logger = require('../../util/logger')
 
-  static async getConnectionState(req, res) {
-    try {
-      let data = Sessions.getSession(req.body.session)
-      let response = await data.client.getConnectionState()
-      return res.status(200).json({
-        "result": 200,
-        "status": response
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+module.exports = class Commands {
 
-  static async getHostDevice(req, res) {
-    try {
-      let data = Sessions.getSession(req.body.session)
-      let response = await data.client.getHostDevice()
-      console.log(response)
-      return res.status(200).json({
-        "result": 200,
-        "number": response.wid.user,
-        "connected": response.connected,
-        "phone": response.phone,
-        "plataform": response.plataform,
-        "locales": response.locales,
-        "batery": response.batery,
-        "pushname": response.pushname
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+	static async getClientTokenBrowser(req, res) {
 
-  static async getAllContacts(req, res) {
-    try {
-      let data = Sessions.getSession(req.body.session)
-      let response = await data.client.getAllContacts()
-      let contacts = response.map(function (data) {
-        return {
-          'name': data.name ? data.name : '',
-          'realName': data.pushname ? data.pushname : '',
-          'formattedName': data.formattedName ? data.formattedName : '',
-          'phone': data.id.user,
-          'business': data.isBusiness,
-          'verifiedName': data.verifiedName ? data.verifiedName : '',
-          'isMyContact': data.isMyContact
-        }
-      })
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS",
-        "contacts": contacts
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+		try {
 
-  static async getAllChats(req, res) {
-    try {
-      let data = Sessions.getSession(req.body.session)
-      let response = await data.client.getAllChats()
+			let data = await Sessions.getClient(req.body.session)
+			let response = await data.client.getClientTokenBrowser()
 
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS",
-        "contacts": response
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+			res.status(200).json({
+				"result": 200,
+				"token": response
+			})
 
-  static async getAllChatsWithMessages(req, res) {
-    try {
-      let data = Sessions.getSession(req.body.session)
-      let response = await data.client.getAllChatsWithMessages()
+		} catch (error) {
 
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS",
-        "contacts": response
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+			logger.error(`Error on getClientTokenBrowser: ${error?.message}`)
 
-  static async getAllNewMessages(req, res) {
-    try {
-      let data = Sessions.getSession(req.body.session)
-      let response = await data.client.getAllNewMessages()
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
 
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS",
-        "contacts": response
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+	}
 
-  static async getAllUnreadMessages(req, res) {
-    try {
-      let data = Sessions.getSession(req.body.session)
-      let response = await data.client.getAllUnreadMessages()
+	//getLastSeen
+	static async getLastSeen(req, res) {
 
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS",
-        "contacts": response
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+		try {
 
-  static async getBlockList(req, res) {
-    try {
-      let data = Sessions.getSession(req.body.session)
-      let response = await data.client.getBlockList()
-      let blkcontacts = response.map(function (data) {
-        return {
-          'phone': data ? data.split('@')[0] : '',
-        }
-      })
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS",
-        "contacts": blkcontacts
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+			let data = await Sessions.getClient(req.body.session)
+			let response = await data.client.getLastSeen(req.body.number + '@c.us')
 
-  static async getMessagesChat(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    let number = req.body.number + '@c.us';
-    try {
-      let response = await data.client.getMessages(number, {fromMe: false})
-      let messages = response.map(function (data) {
-        console.log(data)
-        return {
-          "type": data.type,
-          "author": data.verifiedName,
-          "from": data.from,
-          "to": data.to,
-          "mensagem": data.body,
-          "enviada em": moment.unix(data.t).format('DD-MM-YYYY hh:mm:ss')
-        }
-      })
-      return res.status(200).json({
-        "result": 200,
-        "data": messages
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+			res.status(200).json({
+				"result": 200,
+				"data": response
+			})
 
-  static async getProfilePic(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    let number = req.body.number + '@c.us';
-    try {
-      let response = await data.client.getProfilePicFromServer(number)
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS",
-        "pic_profile": response
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+		} catch (error) {
 
-  static async verifyNumber(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    try {
-      let number = req.body.number + '@c.us';
-      let profile = await data.client.getNumberProfile(number)
-      if (profile.numberExists) {
-        return res.status(200).json({
-          "result": 200,
-          "messages": "SUCCESS",
-          "profile": profile
-        })
-      }
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "profile": error
-      })
-    }
-  }
+			logger.error(`Error on getLastSeen: ${error?.message}`)
 
-  static async deleteChat(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    let number = req.body.number + '@c.us';
-    try {
-      await data.client.deleteChat(number);
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS"
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
 
-  static async clearChat(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    let number = req.body.number + '@c.us';
-    try {
-      await data.client.clearChatMessages(number);
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS"
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+		}
 
-  static async archiveChat(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    let number = req.body.number + '@c.us';
-    try {
-      await data.client.archiveChat(number, true);
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS"
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+	}
 
-  static async deleteMessage(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    let number = req.body.number + '@c.us';
-    if (!req.body.messageid) {
-      return res.status(400).json({
-        status: 400,
-        error: "MessageID não foi informada, é obrigatorio"
-      })
-    }
-    else {
-      try {
-        await data.client.deleteMessage(number, [req.body.messageid], true);
-        return res.status(200).json({
-          "result": 200,
-          "messages": "SUCCESS"
-        })
-      } catch (error) {
-        return res.status(400).json({
-          "result": 400,
-          "status": "FAIL",
-          "error": error
-        })
-      }
-    }
-  }
+	static async getTheme(req, res) {
 
-  static async markUnseenMessage(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    let number = req.body.number + '@c.us';
-    try {
-      await data.client.markUnseenMessage(number);
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS"
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL"
-      })
-    }
-  }
+		try {
 
-  static async blockContact(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    let number = req.body.number + '@c.us';
-    try {
-      await data.client.blockContact(number);
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS"
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL"
-      })
-    }
-  }
+			let data = await Sessions.getClient(req.body.session)
+			let response = await data.client.getTheme()
 
-  static async unblockContact(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    let number = req.body.number + '@c.us';
-    try {
-      await data.client.unblockContact(number);
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS"
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+			res.status(200).json({
+				"result": 200,
+				"data": response
+			})
 
-  static async getNumberProfile(req, res) {
-    let data = Sessions.getSession(req.body.session)
-    let number = req.body.number + '@c.us';
-    try {
-      const response = await data.client.getNumberProfile(number);
-      return res.status(200).json({
-        "result": 200,
-        "messages": "SUCCESS",
-        "phone": response.id.user,
-        "isBusiness": response.isBusiness
-      })
-    } catch (error) {
-      return res.status(400).json({
-        "result": 400,
-        "status": "FAIL",
-        "error": error
-      })
-    }
-  }
+		} catch (error) {
+
+			logger.error(`Error on getTheme: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+
+	}
+
+	static async getWAJSVersion(req, res) {
+
+		try {
+
+			let data = await Sessions.getClient(req.body.session)
+			let response = await data.client.getWAJSVersion()
+
+			res.status(200).json({
+				"result": 200,
+				"data": response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getWAJSVersion: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+
+	}
+
+	static async getWAVersion(req, res) {
+
+		try {
+
+			let data = await Sessions.getClient(req.body.session)
+			let response = await data.client.getWAVersion()
+
+			res.status(200).json({
+				"result": 200,
+				"data": response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getWAVersion: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+
+	}
+
+	static async getHostDevice(req, res) {
+
+		try {
+			
+			let data = await Sessions.getClient(req.body.session)
+			let response = await data.client.getHostDevice()
+			
+			res.status(200).json({
+				"result": 200,
+				"data": response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getHostDevice: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+	}
+
+	static async getWid(req, res) {
+		
+		try {
+
+			let data = await Sessions.getClient(req.body.session)
+			const response = await data.client.getWid()
+
+			res.status(200).json({
+				"result": 200,
+				"number": response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getWid: ${error?.message}`)
+
+			res.status(400).json({
+				result: 400,
+				number: "",
+				response: false,
+				data: error?.message
+			});
+		}
+	}
+
+	static async getContact(req, res) {
+		try {
+		
+			const { number } = req.body;
+
+			let data = await Sessions.getClient(req.body.session)
+			const response = await data.client.getContact(number + '@c.us')
+
+			res.status(200).json({
+				"result": 200,
+				"number": response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getContact: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+	}
+
+	static async getAllContacts(req, res) {
+
+		try {
+
+			let device = await Sessions.getClient(req.body.session)
+			let client = device.client
+			
+			let response = await client.getAllContacts()
+
+			let contacts = response.map(function (data) {
+				return {
+					'name': data.name ? data.name : '',
+					'realName': data.pushname ? data.pushname : '',
+					'formattedName': data.formattedName ? data.formattedName : '',
+					'phone': data.id.user,
+					'business': data.isBusiness,
+					'verifiedName': data.verifiedName ? data.verifiedName : '',
+					'isMyContact': data.isMyContact,
+					'data' : data
+				}
+			})
+
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS",
+				"contacts": contacts
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getAllContacts: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+	}
+
+	static async getAllChats(req, res) {
+
+		try {
+
+			const { session, options } = req.body;
+
+			const device = await Sessions.getClient(session)
+			const client = device.client
+
+			const response = await client.listChats(options || false)
+
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS",
+				"contacts": response
+			})
+			
+		} catch (error) {
+
+			logger.error(`Error on getAllChats: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+	}
+
+	static async getAllChatsWithMessages(req, res) {
+
+		try {
+
+			let data = await Sessions.getClient(req.body.session)
+			let response = await data.client.getAllChatsWithMessages()
+
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS",
+				"contacts": response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getAllChatsWithMessages: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+	}
+
+	static async getAllNewMessages(req, res) {
+
+		try {
+
+			let data = await Sessions.getClient(req.body.session)
+			let response = await data.client.getAllNewMessages()
+
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS",
+				"contacts": response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getAllNewMessages: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+
+	}
+
+	static async getAllUnreadMessages(req, res) {
+
+		try {
+
+			let data = await Sessions.getClient(req.body.session)
+			let response = await data.client.getAllUnreadMessages()
+
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS",
+				"contacts": response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getAllUnreadMessages: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+		
+	}
+
+	static async getBlockList(req, res) {
+		
+		try {
+			let data = await Sessions.getClient(req.body.session)
+			let response = await data.client.getBlockList()
+
+			let blkcontacts = response.map(function (data) {
+				return { 'phone': data ? data.split('@')[0] : '', }
+			})
+
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS",
+				"contacts": blkcontacts
+			})
+
+		} catch (error) {
+			
+			logger.error(`Error on getBlockList: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+	}
+
+	static async getMessagesChat(req, res) {
+
+		let { session, number, count, direction } = req.body
+
+		let device = await Sessions.getClient(session)
+		let client = device.client
+
+		try {
+
+			let phone = await Cache?.get(number)
+			let response = await client.getMessages(phone, { count: count || -1, direction: direction || 'before' })
+
+			res.status(200).json({
+				"result": 200,
+				"data": response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getBlockList: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+
+	}
+
+	static async getProfilePic(req, res) {
+
+		let data = await Sessions.getClient(req.body.session)
+		let number = req?.body?.number.replace(/[^0-9]/g, '');
+
+		try {
+
+			let phone = await Cache?.get(number)
+			let response = await data.client.getProfilePicFromServer(phone)
+		
+			return res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS",
+				"pic_profile": response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getProfilePic: ${error?.message}`)
+
+			return res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+
+	}
+
+	static async getChat(req, res) {
+
+		let data = await Sessions.getClient(req.body.session)
+
+		try {
+
+			let phone = await Cache?.get(req?.body?.number)
+			let chat = await data.client.getChatById(phone)
+
+			if (chat) {
+				
+				return res.status(200).json({
+					"result": 200,
+					"messages": "SUCCESS",
+					"data": chat.contact,
+					"chat": chat
+				})
+				
+			}
+
+			return res.status(400).json({
+				"result": 400,
+				"messages": "chat not found"
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on getChat: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+
+		}
+	}
+
+
+	static async verifyNumber(req, res) {
+
+		let data = await Sessions.getClient(req.body.session)
+
+		try {
+
+			let phone = await Cache?.get(req?.body?.number)
+			let profile = await data.client.checkNumberStatus(phone)
+
+			if (profile.numberExists) {
+				res.status(200).json({
+					"result": 200,
+					"messages": "SUCCESS",
+					"profile": profile
+				})
+			}
+
+			return res.status(200).json({
+				"result": 200,
+				"messages": "UNKNOWN",
+				"profile": profile
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on verifyNumber: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+
+	}
+
+	static async deleteChat(req, res) {
+
+		let data = await Sessions.getClient(req.body.session)
+		let number = `${req?.body?.number}@c.us`;
+
+		try {
+
+			await data.client.deleteChat(number);
+
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS"
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on deleteChat: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+
+		}
+	}
+
+	static async clearChat(req, res) {
+
+		let data = await Sessions.getClient(req.body.session)
+		let number = `${ req?.body?.number }@c.us`;
+
+		try {
+
+			await data.client.clearChatMessages(number);
+			
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS"
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on deleteChat: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+
+		}
+
+	}
+
+	static async archiveChat(req, res) {
+
+		let data = await Sessions.getClient(req.body.session)
+		let number = `${ req?.body?.number }@c.us`;
+
+		try {
+
+			await data.client.archiveChat(number, true);
+
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS"
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on archiveChat: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+	}
+
+	static async deleteMessage(req, res) {
+		
+		const { session, messageId, deleteMediaInDevice = true, onlyLocal = true } = req.body;
+	  
+		try {
+
+			let chatId =  req?.body?.number
+			let data = await Sessions.getClient(session)
+
+			if(!messageId && messageId.length == 0){
+				return res.status(400).json({
+					status: 'error',
+					response: { message: 'Unknown messageId' },
+				});
+			}
+
+			const result = await data?.client?.deleteMessage(chatId, messageId, onlyLocal, deleteMediaInDevice );
+		 
+			if (result) {
+				return res.status(200).json({
+					status: 'success', 
+					response: { message: 'Message deleted' }
+				});
+			}
+		  
+			return res.status(400).json({
+				status: 'error',
+				response: { message: 'Error unknown on delete message' },
+			});
+
+		} catch (error) {
+			
+			logger.error(`Error on deleteMessage: ${error?.message}`)
+
+			return res.status(401).json({
+				status: 'error',
+				data: error?.message
+			});
+		}
+	  }
+
+	static async markUnseenMessage(req, res) {
+		
+		let data = await Sessions.getClient(req.body.session)
+		let number = req?.body?.number.replace(/[^0-9]/g, '');
+			
+		try {
+
+			let phone = await Cache?.get(number)
+			await data.client.markUnseenMessage(phone);
+
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS"
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on markUnseenMessage: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+
+	}
+
+	static async blockContact(req, res) {
+		
+		let data = await Sessions.getClient(req.body.session)
+
+		let number = req?.body?.number.replace(/[^0-9]/g, '');
+
+		try {
+
+			let phone = await Cache?.get(number)
+			await data.client.blockContact(phone);
+			
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS"
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on blockContact: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+
+		}
+	}
+
+	static async unblockContact(req, res) {
+
+		let data = await Sessions.getClient(req.body.session)
+		let number = req.body.number;
+
+		try {
+
+			let phone = await Cache?.get(number)
+			await data.client.unblockContact(phone);
+			
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS"
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on unblockContact: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+	}
+
+	static async pinChat(req, res) {
+
+		let { session, number, option } = req.body;
+		let data = Sessions.getClient(session)
+
+		try {
+			let phone = await Cache?.get(number)
+			await data.client.pinChat(phone, option);
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS"
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on pinChat: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+	}
+
+	static async checkNumberStatus(req, res) {
+
+		let data = await Sessions.getClient(req.body.session)
+		let number = req?.body?.number.replace(/[^0-9]/g, '');
+
+		try {
+
+			let phone = await Cache?.get(number)
+			const response = await data.client.checkNumberStatus(phone);
+
+			res.status(200).json({
+				"result": 200,
+				"messages": "SUCCESS",
+				"phone": response.id.user,
+				"isBusiness": response.isBusiness
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on checkNumberStatus: ${error?.message}`)
+
+			res.status(400).json({
+				response: false,
+				data: error?.message
+			});
+		}
+	}
 }

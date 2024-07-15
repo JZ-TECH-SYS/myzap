@@ -1,96 +1,255 @@
-/*
- * @Author: Eduardo Policarpo
- * @contact: +55 43996611437
- * @Date: 2021-05-10 18:09:49
- * @LastEditTime: 2021-06-07 03:18:01
- */
-import Sessions from '../../controllers/sessions.js';
-import get from "async-get-file";
-import path from 'path';
-import fs from 'fs';
-import util from 'util';
-import urlExistsImport from 'url-exists';
-const urlExists = util.promisify(urlExistsImport);
 
-export default class Status {
+const Sessions = require('../../controllers/SessionsController')
 
-    static async sendTextToStorie(req, res) {
-        let data = Sessions.getSession(req.body.session)
-        if (!req.body.text) {
-            return res.status(400).json({
-                status: 400,
-                error: "Text não foi informado"
-            })
-        }
-        else {
-            await data.client.sendText('status@broadcast', req.body.text)
-            return res.status(200).json({
-                result: 200,
-                status: 'SUCCESS',
-            })
-        }
-    }
+const logger = require('../../util/logger')
+module.exports = class Status {
 
-    static async sendImageToStorie(req, res) {
-        try {
-            const { caption, path } = req.body;
-            let data = Sessions.getSession(req.body.session)
-            if (!path) {
-                return res.status(400).send({
-                    status: 400,
-                    error: "Path não informado",
-                    message: "Informe o caminho da imagem. Exemplo: C:\\folder\\image.jpg caso a imagem esteja local ou uma URL caso a imagem a ser enviada esteja na internet"
-                });
-            }
-            await data.client.sendImage('status@broadcast', path, 'imagem', caption)
-            return res.status(200).json({
-                result: 200,
-                status: 'SUCCESS',
-            })
-        } catch (error) {
-            return res.status(500).json({
-                result: 500,
-                error: error
-            })
-        }
-    }
+	static async sendTextToStorie(req, res) {
+		
+		try {
 
-    static async sendVideoToStorie(req, res) {
-        if (!req.body.path) {
-            return res.status(400).send({
-                status: 400,
-                error: "Path não informado",
-                message: "Informe o path. Exemplo: C:\\folder\\video.mp4 para arquivo local ou URL caso o arquivo a ser enviado esteja na internet"
+			let { session, text, backgroundColor, fontSize } = req?.body;
+
+			if (!text) {
+	
+				res?.status(400)?.json({
+					status: 400,
+					error: "Text não foi informado, você pode enviar um text, backgroundColor e fontSize"
+				})
+	
+			}else {
+	
+				let data = await Sessions?.getClient(session)
+				let response = await data?.client?.sendTextStatus(text, { backgroundColor: backgroundColor || "#ffffff", fontSize: fontSize || 2 })
+	
+				res?.status(200)?.json({
+					result: 200, 
+					type: 'status',
+					session: session,
+					text: text,
+					data: response
+				})
+	
+			}
+		
+		}catch (error) {
+		
+			logger.error(`Error on sendTextToStorie: ${error?.message}`)
+
+            res.status(500).json({
+                response: false,
+                data: error?.message?.message
             });
-        }
-        let data = Sessions.getSession(req.body.session)
-        let isURL = await urlExists(req.body.path);
-        let name = req.body.path.split(/[\/\\]/).pop();
-        try {
-            if (isURL) {
-                let dir = 'files-received/'
-                await get(req.body.path, {
-                    directory: 'files-received'
-                });
-                await data.client.sendFile('status@broadcast', dir + name, 'Video', req.body.caption)
-                fs.unlink(path.basename("/files-received") + "/" + name, erro => console.log(""))
-                return res.status(200).json({
-                    result: 200,
-                    status: 'SUCCESS',
-                })
-            }
-            if (!isURL) {
-                await data.client.sendFile('status@broadcast', req.body.path, 'Video', req.body.caption)
-                return res.status(200).json({
-                    result: 200,
-                    status: 'SUCCESS',
-                })
-            }
-        } catch (error) {
-            return res.status(500).json({
-                result: 500,
-                error: error
-            })
-        }
-    }
+		
+		}
+		
+	}
+
+	static async sendImageToStorie(req, res) {
+
+		try {
+
+			let { session, path, caption } = req?.body;
+			
+			if (!path) {
+				return res?.status(400)?.send({
+					status: 400,
+					error: "Path não informado",
+					message: "Informe uma URL válida"
+				});
+			}
+
+			let data = await Sessions?.getClient(session)
+
+			let response = await data?.client?.sendImageStatus(path, { caption: caption || '' })
+
+			res?.status(200)?.json({
+				result: 200, 
+				type: 'status',
+				session: session,
+				data: response
+			})
+
+		} catch (error) {
+
+			logger.error(`Error on sendImageToStorie: ${error?.message}`)
+
+            res.status(500).json({
+                response: false,
+                data: error?.message?.message
+            });
+
+		}
+
+	}
+
+	static async sendVideoToStorie(req, res) {
+
+		let { session, path, caption } = req?.body;
+
+		if (!path) {
+			res?.status(400)?.send({
+				status: 400,
+				error: "Path não informado",
+				message: "Informe uma URL válida"
+			});
+		}
+
+		try {
+				
+			let data = await Sessions?.getClient(session)
+			let isURL = Sessions?.isURL(path);
+			let name = path?.split(/[\/\\]/)?.pop();
+			let base64 = isURL == true ? await Sessions?.UrlToBase64(path) : await Sessions?.fileToBase64(path);
+			let response = await data?.client?.sendVideoStatus(base64, name, caption)
+			
+			res?.status(200)?.json({
+				result: 200,
+				type: 'status',
+				session: session,
+				file: name,
+				data: response
+			})
+		}
+		catch (error) {
+			
+			logger.error(`Error on sendVideoToStorie: ${error?.message}`)
+
+            res.status(500).json({
+                response: false,
+                data: error?.message?.message
+            });
+
+		}
+	}
+
+	static async setProfilePic(req, res) {
+
+		let { session, number, path } = req?.body;
+
+		if (!path) {
+			res?.status(400)?.send({
+			status: 400,
+			error: "Path não informado",
+			message: "Informe o path. URL caso o arquivo esteja na internet ou base64"
+			});
+		}
+
+		if (number?.length > 0) {
+
+			if (number?.includes('-')) {
+
+				number = `${number}@g.us`
+
+			} else if (!number?.includes('-') && (number.length == 18)) {
+				number = `${number}@g.us`
+
+			} else {
+				res?.status(400).json({
+					status: 400,
+					message: "O numero informado é invalido, informe o id do grupo ao qual deseja alterar a foto, ou deixe o campo numero vazio para alterar o seu proprio perfil."
+				})
+
+			}
+			
+		}
+
+		try {
+			
+			let data = await Sessions?.getClient(session)
+			let isURL = Sessions?.isURL(path);
+			let base64 = isURL == true ? await Sessions?.UrlToBase64(path) : path;
+			let response = await data?.client?.setProfilePic(base64, number)
+
+			res?.status(200)?.json({
+				result: 200,
+				type: 'profile',
+				session: session,
+				data: response
+			})
+			
+		}catch (error) {
+			
+			logger.error(`Error on setProfilePic: ${error?.message}`)
+
+            res.status(500).json({
+                response: false,
+                data: error?.message?.message
+            });
+			
+		}
+
+	}
+
+	static async setProfileName(req, res) {
+
+		let { session, name } = req?.body;
+
+		if (!name) {
+			res?.status(400)?.send({
+			status: 400,
+			error: "Nome não informado"
+			});
+		}
+		
+		try {
+
+			let data = await Sessions?.getClient(session)
+			let response = await data?.client?.setProfileName(name)
+
+			res?.status(200)?.json({
+				result: 200,
+				type: 'profile',
+				session: session,
+				data: response
+			})
+
+		}catch (error) {
+			
+			logger.error(`Error on setProfileName: ${error?.message}`)
+
+            res.status(500).json({
+                response: false,
+                data: error?.message?.message
+            });
+		}
+
+	}
+
+	static async setProfileStatus(req, res) {
+
+		try {
+				
+			let { session, status } = req?.body;
+
+			if (!status) {
+				res?.status(400)?.send({
+					status: 400,
+					error: "Status não informado"
+				});
+			}
+
+			let data = await Sessions?.getClient(session)
+			let response = await data?.client?.setProfileStatus(status)
+
+			res?.status(200)?.json({
+				result: 200,
+				type: 'profile',
+				session: session,
+				data: response
+			})
+
+		} catch (error) {
+		
+			logger.error(`Error on setProfileStatus: ${error?.message}`)
+
+            res.status(500).json({
+                response: false,
+                data: error?.message?.message
+            });
+			
+		}
+
+	}
+	
 }
