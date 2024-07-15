@@ -3,3 +3,5 @@ tokens/
 .vscode/
 .env
 teste.js
+instances/
+database/
