@@ -106,7 +106,9 @@ https://myzap.apibrasil.com.br
 
 ## Atividades Recentes
 [![Time period](https://images.repography.com/28032565/billbarsch/myzap/recent-activity/e9752906386eaaf073221d572080d318_badge.svg)](https://repography.com)
+
 [![Pull request status graph](https://images.repography.com/28032565/billbarsch/myzap/recent-activity/e9752906386eaaf073221d572080d318_prs.svg)](https://github.com/billbarsch/myzap/pulls)
+
 [![Timeline graph](https://images.repography.com/28032565/billbarsch/myzap/recent-activity/e9752906386eaaf073221d572080d318_timeline.svg)](https://github.com/billbarsch/myzap/commits)
 
 ## Top contributors
