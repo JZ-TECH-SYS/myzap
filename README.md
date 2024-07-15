@@ -95,7 +95,7 @@ bash ./scripts/start.sh
 👉 Deseja obter a versão profissional com suporte, auto instalador, update automático, e todas as funções e um pão de queijo? Acesse: https://whitelabel.apibrasil.com.br
 
 ## Prints da interface
-<img src="./demo.gif" width="100%" alt="Demo"/>
+[![Clique para visualizar](./demo.gif)](https://www.youtube.com/watch?v=iRMk-qOZY2Q)
 
 ## Cliente PHP
 
