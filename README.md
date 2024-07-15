@@ -45,7 +45,7 @@ google-chrome --version
 
 #### Instale a API no diretorio
 ```bash
-npm i
+npm i && npm audit fix --force
 ```
 
 #### Rodar database
