@@ -5,7 +5,7 @@
  * @LastEditTime: 2021-06-07 03:18:01
  */
 import venom from 'venom-bot';
-import Sessions from '../controllers/sessions.js';
+import Sessions from '../controllers/SessionsController.js';
 import events from '../controllers/events.js';
 import webhooks from '../controllers/webhooks.js';
 import { doc, db, getDoc } from '../firebase/db.js';

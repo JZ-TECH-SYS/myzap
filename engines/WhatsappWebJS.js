@@ -10,9 +10,9 @@ import qrcode from'qrcode-terminal';
 import qrcodeBase64 from'qrcode';
 import { Launcher } from'chrome-launcher';
 let chromeLauncher = Launcher.getInstallations()[0];
-import Sessions from'../controllers/sessions.js';
-import events from'../controllers/events.js';
-import webhooks from'../controllers/webhooks.js';
+import Sessions from'../controllers/SessionsController.js';
+import events from'../controllers/EventsController.js';
+import webhooks from'../controllers/WebhooksController.js';
 import config from'../config.js';
 
 export default class WhatsappWebJS {
