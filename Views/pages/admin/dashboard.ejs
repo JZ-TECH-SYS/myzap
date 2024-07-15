@@ -259,15 +259,11 @@
                     "targets": 6,
                     "render": function (data, type, row) {
 
-                      let btnLogout = `<button type="button" class="btn btn-sm btn-warning" title="Encerrar conexão" onclick="logoutInstance('${row.session}','${row.sessionkey}')"><i class="fa-solid fa-right-from-bracket"></i></button>`;
-                      let btnClose = `<button type="button" class="btn btn-sm btn-secondary" title="Fechar conexão" onclick="closeInstance('${row.session}','${row.sessionkey}')"><i class="ti ti-x"></i></button>`;
                       let btnDrop = `<button type="button" class="btn btn-sm btn-danger" title="Deletar conexão" onclick="dropInstance('${row.session}','${row.sessionkey}')"><i class="ti ti-trash"></i></button>`;
 
                       if(row.status == 'inChat'){
 
                         return `
-                            ${btnLogout}
-                            ${btnClose}
                             ${btnDrop}
                         `;
 
