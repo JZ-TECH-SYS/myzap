@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+
+<%- include('../head.ejs', { pageTitle: pageTitle }) %>
+
+<body>
+  <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    <!-- Sidebar Start -->
+    <aside class="left-sidebar">
+      <!-- Sidebar scroll-->
+      <div>
+
+        <div class="brand-logo d-flex align-items-center justify-content-between">
+          <a href="/dashboard" class="text-nowrap logo-img">
+            <img src="<%= logo ? logo : 'https://upload.wikimedia.org/wikipedia/commons/f/f7/WhatsApp_logo.svg' %>" alt="logo" class="img-fluid" />
+          </a>
+          <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+            <i class="ti ti-x fs-8"></i>
+          </div>
+        </div>
+
+        <!-- Sidebar navigation-->
+        <%- include('../sidebar.ejs', { token: token , company: companyData }) %>
+        <!-- End Sidebar navigation -->
+      </div>
+      <!-- End Sidebar scroll-->
+    </aside>
+    <!--  Sidebar End -->
+    <!--  Main wrapper -->
+    <div class="body-wrapper">
+      <!--  Header Start -->
+      
+      <%- include('../header.ejs') %>
+
+      <!--  Header End -->
+      <div class="container-fluid">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Conectar com WhatsApp</h5>
+            <small class="mb-4 text-muted">Aqui você pode iniciar uma nova conexão com o WhatsApp.</small>
+            
+              <div class="row mt-4">
+
+              <div class="col-md-8">
+
+                  <div class="row">
+
+                      <div class="col-12 mb-3 d-none">
+                          <label for="apitoken" class="form-label">API Token: <strong class="text-danger">*</strong></label>
+                          <input type="text" class="form-control" id="apitoken" name="apitoken" value="<%= apitoken %>" placeholder="API Token" />
+                      </div>
+
+                      <div class="col-6 mb-3">
+                          <label for="session" class="form-label">Session Name: <strong class="text-danger">*</strong></label>
+                          <input type="text" class="form-control" id="session" name="session" placeholder="Name of the session" />
+                      </div>
+
+                      <div class="col-6 mb-3">
+                          <label for="sessionkey" class="form-label">Session KEY: <strong class="text-danger">*</strong></label>
+                          <input type="sessionkey" class="form-control" id="sessionkey" name="sessionkey" placeholder="Key of the session" />
+                      </div>
+                    
+                      <div class="col-6 mb-3">
+                          <label for="wh_status" class="form-label">Webhook Status: <strong class="text-success">*</strong></label>
+                          <input type="wh_status" class="form-control" id="wh_status" name="wh_status" placeholder="https://webhook.site">
+                      </div>
+
+                      <div class="col-6 mb-3">
+                          <label for="wh_message" class="form-label">Webhook Messages: <strong class="text-success">*</strong></label>
+                          <input type="wh_message" class="form-control" id="wh_message" name="wh_message" placeholder="https://webhook.site">
+                      </div>
+                  
+                      <div class="col-6 mb-3">
+                            <label for="wh_connect" class="form-label">Webhook Connection: <strong class="text-success">*</strong></label>
+                            <input type="wh_connect" class="form-control" id="wh_connect" name="wh_connect" placeholder="https://webhook.site">
+                      </div>
+
+                      <div class="col-6 mb-3">
+                            <label for="wh_qrcode" class="form-label">Webhook QRCode: <strong class="text-success">*</strong></label>
+                            <input type="wh_qrcode" class="form-control" id="wh_qrcode" name="wh_qrcode" placeholder="https://webhook.site">
+                      </div>
+
+                  </div>
+                  
+                  <div class="row">
+                      <div class="col-12 mt-4">
+                          <div class="col-sm-offset-2 col-sm-12">
+                              <div class="row">
+
+                                  <div class="col-sm-12">
+                                      <div class="alert alert-info" role="alert">
+                                          <span id="status">
+                                              Aguardando informações para gerar o QRCode ou iniciar a sessão.
+                                          </span>
+                                      </div>
+                                  </div>
+
+                                  <div class="col-sm-12 mb-4">
+                                      <button type="button" id="send-btn" onclick="alterSession(document.getElementById('session').value)" class="btn btn-success">
+                                          <i class="fab fa-whatsapp"></i> Iniciar instância
+                                      </button>
+                                  </div>
+
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="col-md-4 text-center border-1 border rounded qrcode-area">
+                  <h4 class="text-center text-muted pt-2"><i class="fas fa-clock"></i> Aguardando informações</h4>
+                  <small class="text-muted">Aguardando informações para gerar o QRCode.</small>
+                  <img id="image" src="/loading.gif" draggable="false" alt="qr-code" class="img-fluid">
+              </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <%- include('../footer.ejs') %>
+        
+    </div>
+  </div>
+
+  <%- include('../scripts.ejs') %>
+
+  <script>
+      let session;
+      document.getElementById('image').style.visibility = "hidden";
+      let url;
+      let host = '<%=host %>'
+      let host_ssl = '<%=host_ssl %>'
+      let port = '<%=port %>'
+      url = host != '' ? `${host}:${port}` : host_ssl
+  </script>
+
+  <script src="/js/start.js?v=1.0.0"></script>
+
+</body>
+
+</html>
