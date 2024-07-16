@@ -52,7 +52,7 @@ npm i && npm audit fix --force
 ```bash
 bash ./scripts/database.sh
 ```
-
+   
 ### Default user
 email: ```admin@admin.com```
 password: ```your_token_api```
@@ -97,7 +97,7 @@ bash ./scripts/start.sh
 ## Prints da interface
 <img src="./demo.gif" width="100%" />
 
-Click para visualizar
+Click para visualizar:
 https://www.youtube.com/watch?v=iRMk-qOZY2Q
 
 ## Cliente PHP
@@ -105,8 +105,9 @@ https://www.youtube.com/watch?v=iRMk-qOZY2Q
 https://myzap.apibrasil.com.br
 
 #### Download do Pacote
-```composer require jhowbhz/package-apigratis```
-👉 <a href="https://github.com/APIBrasil/package-apigratis" target="_blank"> Acessar repositorio</a>
+```bash
+composer require jhowbhz/package-apigratis
+```
 
 ## Atividades Recentes
 [![Time period](https://images.repography.com/28032565/billbarsch/myzap/recent-activity/e9752906386eaaf073221d572080d318_badge.svg)](https://repography.com)
