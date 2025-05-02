@@ -226,6 +226,7 @@ export default class Mensagens {
     }
 
     static async sendFile64(req, res) {
+        console.log('ue');
         if (!req.body.path) {
             return res.status(400).send({
                 status: 400,

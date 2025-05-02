@@ -66,7 +66,7 @@ Router.get('/dashboard', checkAuthMiddleware, async (req, res) => {
 Router.get("/connection", checkAuthMiddleware, async function (req, res) {
 
 	try {
-		
+
 		// Convertendo o conteúdo do arquivo JSON para um objeto JavaScript
 		let apitoken = config?.token;
 		const company = await Company.findOne();
@@ -82,7 +82,7 @@ Router.get("/connection", checkAuthMiddleware, async function (req, res) {
 			pageTitle: 'Conectar',
 			apitoken: apitoken
 		});
-		
+
 	} catch (error) {
 		console.error(error);
 	}
@@ -96,7 +96,7 @@ Router.get("/auth/login", async function (req, res) {
 	try {
 
 		const apiVersion = require('../package.json').version;
-		
+
 		res.render("pages/auth/login", {
 			version: apiVersion || "",
 			token: config?.token,
@@ -118,7 +118,7 @@ Router.get("/auth/login", async function (req, res) {
 			logo: company?.logo ? company?.logo : config.logo,
 			version: apiVersion || ""
 		});
-		
+
 	}
 });
 
@@ -127,7 +127,7 @@ Router.post("/auth/login", async (req, res) => {
 	const company = await Company.findOne();
 
 	try {
-		
+
 		let email = req.body.email;
 		let password = sha1(req.body.password);
 
@@ -148,9 +148,9 @@ Router.post("/auth/login", async (req, res) => {
 		}
 
 		req.session.usuario = {
-            id: user.id,
-            email: user.email
-        };
+			id: user.id,
+			email: user.email
+		};
 
 		res.redirect("/dashboard");
 
@@ -164,7 +164,7 @@ Router.post("/auth/login", async (req, res) => {
 			companyData: company,
 			version: ""
 		});
-		
+
 	}
 
 });
@@ -173,7 +173,7 @@ Router.get("/auth/logout", async (req, res) => {
 
 	const company = await Company.findOne();
 
-	try{
+	try {
 
 		req.session.destroy();
 		let apiVersion = require('../package.json').version;

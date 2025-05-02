@@ -10,7 +10,7 @@ HOST_SSL=
 PORT=3333
 
 # Create your token protect API
-TOKEN=123456
+TOKEN="@Juliana137@137"
 
 # Version of API
 VERSION="latest"
@@ -25,10 +25,10 @@ DIVULGAWHATS_TOKEN=""
 USE_CHROME=true
 
 # Hiden logs from database
-PRODUCTION=true
+PRODUCTION=false
 
 # Engine 1 - Venom / Engine 2 - WPPConnect
-ENGINE=1
+ENGINE=2
 
 # Default configs
 HTTPS=0
