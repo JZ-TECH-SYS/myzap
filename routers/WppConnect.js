@@ -132,5 +132,7 @@ Router.post('/deleteSession', Sessions.deleteSession);
 Router.post('/sendText', checkParams, checkNumber, Mensagens.sendText);
 Router.post('/sendImage', checkParams, checkNumber, Mensagens.sendImage);
 Router.post('/sendVideo', checkParams, checkNumber, Mensagens.sendVideo);
+Router.post('/sendFile64', checkParams, checkNumber, Mensagens.sendFile64);
+Router.post('/sendFile', checkParams, checkNumber, Mensagens.sendFile);
 
 module.exports = Router;

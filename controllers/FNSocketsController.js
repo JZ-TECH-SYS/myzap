@@ -56,6 +56,7 @@ module.exports = class Sockets {
     
     //recebendo mensagens
     message(session, data) {
+        //console.log(data); receberdor de msg
         this.io.emit('message', data);
         return true;
     }

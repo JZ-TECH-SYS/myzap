@@ -34,12 +34,12 @@ module.exports = class Mensagens {
 
 		} catch (error) {
 
-            logger.error(`Error on startRecording: ${error?.message}`)
+			logger.error(`Error on startRecording: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 
@@ -63,13 +63,13 @@ module.exports = class Mensagens {
 			});
 
 		} catch (error) {
-			
-            logger.error(`Error on stopRecording: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on stopRecording: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 
@@ -94,12 +94,12 @@ module.exports = class Mensagens {
 
 		} catch (error) {
 
-            logger.error(`Error on startTyping: ${error?.message}`)
+			logger.error(`Error on startTyping: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 
@@ -123,12 +123,12 @@ module.exports = class Mensagens {
 
 		} catch (error) {
 
-            logger.error(`Error on stopTyping: ${error?.message}`)
+			logger.error(`Error on stopTyping: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 	}
@@ -143,28 +143,28 @@ module.exports = class Mensagens {
 			let data = await Sessions?.getClient(session)
 			let client = data.client;
 
-			const response = await client?.createNewsletter( name,  options );
+			const response = await client?.createNewsletter(name, options);
 
 			res?.status(200)?.json({
 				result: 200,
 				data: response,
 			});
-			
-		} catch (error) {
-			
-            logger.error(`Error on createNewsletter: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+		} catch (error) {
+
+			logger.error(`Error on createNewsletter: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 
 	}
 
 	static async editMessage(req, res) {
-		  
+
 		try {
 
 			let { session, messageid, newText } = req.body;
@@ -178,22 +178,22 @@ module.exports = class Mensagens {
 				result: 200,
 				data: response,
 			});
-			
-		} catch (error) {
-			
-            logger.error(`Error on editMessage: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+		} catch (error) {
+
+			logger.error(`Error on editMessage: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 
 	}
 
 	static async sendListMessage(req, res) {
-		  
+
 		try {
 
 			let { session, number, description = '', sections, buttonText = 'SELECIONE UMA OPÇÃO' } = req.body;
@@ -213,15 +213,15 @@ module.exports = class Mensagens {
 				result: 200,
 				data: response,
 			});
-			
-		} catch (error) {
-		
-            logger.error(`Error on sendListMessage: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+		} catch (error) {
+
+			logger.error(`Error on sendListMessage: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 	}
@@ -240,21 +240,20 @@ module.exports = class Mensagens {
 			let phone = await Cache?.get(number)
 
 			const response = await client?.sendOrderMessage(phone, items, options);
-
 			res?.status(200)?.json({
 				result: 200,
 				data: response,
 			});
 
-			
-		} catch (error) {
-		
-            logger.error(`Error on sendOrderMessage: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+		} catch (error) {
+
+			logger.error(`Error on sendOrderMessage: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 	}
@@ -267,18 +266,18 @@ module.exports = class Mensagens {
 		let client = device.client;
 
 		let phone = await Cache?.get(number)
-		
+
 		let config = {
 			"createChat": true,
 			"delay": time_typing ? time_typing : 0
 		}
 
-		if(options) {
+		if (options) {
 			config = options
 		}
 
 		try {
-			
+
 			const response = await client.sendText(phone, text, config);
 
 			res?.status(200)?.json({
@@ -287,13 +286,13 @@ module.exports = class Mensagens {
 			});
 
 		} catch (error) {
-		
-            logger.error(`Error on sendText: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on sendText: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 
@@ -316,24 +315,24 @@ module.exports = class Mensagens {
 			});
 
 		} catch (error) {
-		
-            logger.error(`Error on getPlatformFromMessage: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on getPlatformFromMessage: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 
 	}
 
 	static async sendPollMessage(req, res) {
-		
+
 		try {
 
 			let { number, name, choices, options, selectableCount, session } = req?.body;
-			
+
 			let data = await Sessions?.getClient(session)
 			let client = data.client;
 
@@ -349,47 +348,47 @@ module.exports = class Mensagens {
 			});
 
 		} catch (error) {
-			
-            logger.error(`Error on sendPollMessage: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on sendPollMessage: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
-	
+
 	}
 
 	static async downloadMediaByMessage(req, res) {
-		
+
 		let { session, messageId } = req?.body;
-		
+
 		let device = await Sessions?.getClient(session)
 		let client = device.client;
 
 		let message;
-	  
+
 		try {
 
 			message = await client.getMessageById(messageId);
 
-			if (!message){
+			if (!message) {
 				res.status(400).json({
 					status: 'error',
 					message: 'Message not found',
 				});
 			}
-		
-			if (!(message['mimetype'] || message.isMedia || message.isMMS)){
+
+			if (!(message['mimetype'] || message.isMedia || message.isMMS)) {
 				res.status(400).json({
 					status: 'error',
 					message: 'Message does not contain media',
 				});
 			}
-			
-		  	const buffer = await client.decryptFile(message);
-	  
+
+			const buffer = await client.decryptFile(message);
+
 			res?.status(200)?.json({
 				result: 200,
 				base64: buffer?.toString('base64'),
@@ -398,28 +397,28 @@ module.exports = class Mensagens {
 				file: message?.filename,
 				data: message,
 			});
-			
-		} catch (error) {
-			
-            logger.error(`Error on downloadMediaByMessage: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+		} catch (error) {
+
+			logger.error(`Error on downloadMediaByMessage: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 	}
 
 	static async sendImage(req, res) {
-		
+
 		try {
-			
+
 			const { session, path, number, caption, isViewOnce } = req?.body;
-			
+
 			let device = await Sessions?.getClient(session)
 			let client = device.client;
-			
+
 			if (!path) {
 				res?.status(400)?.send({
 					status: 400,
@@ -446,13 +445,13 @@ module.exports = class Mensagens {
 			})
 
 		} catch (error) {
-			
-            logger.error(`Error on sendImage: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on sendImage: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 	}
@@ -470,12 +469,12 @@ module.exports = class Mensagens {
 					message: "Informe o link do arquivo, ele deve estar na internet"
 				});
 			}
-			
+
 			let device = await Sessions?.getClient(session)
 			let client = device.client;
 
 			let phone = await Cache?.get(number)
-			
+
 			let isURL = Sessions?.isURL(path);
 			let name = path?.split(/[\/\\]/)?.pop();
 			let base64 = isURL == true ? await Sessions?.UrlToBase64(path) : await Sessions?.fileToBase64(path);
@@ -490,20 +489,20 @@ module.exports = class Mensagens {
 			})
 
 		} catch (error) {
-			
-            logger.error(`Error on sendVideo: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on sendVideo: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 
 	}
 
 	static async sendSticker(req, res) {
-	
+
 		try {
 
 			let { session, number } = req?.body
@@ -528,7 +527,7 @@ module.exports = class Mensagens {
 			let name = path?.split(/[\/\\]/)?.pop();
 			let base64 = isURL == true ? await Sessions?.UrlToBase64(path) : await Sessions?.fileToBase64(path);
 
-			let response = await client?.page?.evaluate( async ({ phone, base64 }) => await WPP.chat.sendFileMessage(phone, base64, { type: 'sticker'} ), { phone, base64 });
+			let response = await client?.page?.evaluate(async ({ phone, base64 }) => await WPP.chat.sendFileMessage(phone, base64, { type: 'sticker' }), { phone, base64 });
 
 			res?.status(200)?.json({
 				result: 200,
@@ -540,13 +539,13 @@ module.exports = class Mensagens {
 			})
 
 		} catch (error) {
-			
-            logger.error(`Error on sendSticker: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on sendSticker: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 	}
@@ -554,7 +553,7 @@ module.exports = class Mensagens {
 	static async sendFile(req, res) {
 
 		try {
-			
+
 			let { session, path, number } = req?.body;
 
 			if (!path) {
@@ -569,14 +568,14 @@ module.exports = class Mensagens {
 			let client = device.client;
 
 			let phone = await Cache?.get(number)
-			
+
 			let options = req?.body?.options || {
 				"createChat": true,
 				"filename": "file",
 			};
 
 			let response = await client?.sendFile(phone, path, options)
-		
+
 			res?.status(200)?.json({
 				result: 200,
 				type: 'file',
@@ -585,23 +584,23 @@ module.exports = class Mensagens {
 			})
 
 		} catch (error) {
-			
-            logger.error(`Error on sendFile: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on sendFile: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 	}
 
 	static async sendFileLocal(req, res) {
-    
+
 		let { session, number, caption } = req?.body;
-	
-			try {
-	
+
+		try {
+
 			if (!req?.files) {
 				res?.status(400)?.send({
 					status: 400,
@@ -615,7 +614,7 @@ module.exports = class Mensagens {
 
 			let file = req?.files?.file;
 
-			let base64 = `data:${file?.mimetype};base64,${ Buffer?.from(file?.data)?.toString('base64') }`;
+			let base64 = `data:${file?.mimetype};base64,${Buffer?.from(file?.data)?.toString('base64')}`;
 			let response = await data?.client?.sendFileFromBase64(phone, base64, file?.name, caption)
 
 			res?.status(200)?.json({
@@ -627,21 +626,21 @@ module.exports = class Mensagens {
 			})
 
 		} catch (error) {
-		
-            logger.error(`Error on sendFileLocal: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on sendFileLocal: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 
 	}
 
 	static async sendFile64(req, res) {
-			
-	let { session, number, path, caption } = req?.body;
+
+		let { session, number, path, caption } = req?.body;
 
 		if (!path) {
 			res?.status(400)?.send({
@@ -656,7 +655,7 @@ module.exports = class Mensagens {
 		try {
 
 			let phone = await Cache?.get(number)
-			
+
 			let response = await data?.client?.sendFileFromBase64(phone, path, caption, caption)
 
 			res?.status(200)?.json({
@@ -667,13 +666,13 @@ module.exports = class Mensagens {
 			})
 
 		} catch (error) {
-			
-            logger.error(`Error on sendFile64: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on sendFile64: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 	}
@@ -723,8 +722,8 @@ module.exports = class Mensagens {
 					file: name,
 					data: response
 				})
-			
-			}else {
+
+			} else {
 
 				res?.status(400)?.json({
 					result: 400,
@@ -734,13 +733,13 @@ module.exports = class Mensagens {
 			}
 
 		} catch (error) {
-			
-            logger.error(`Error on sendAudio: ${error?.message}`)
 
-            res.status(500).json({
-                response: false,
-                data: error?.message?.message
-            });
+			logger.error(`Error on sendAudio: ${error?.message}`)
+
+			res.status(500).json({
+				response: false,
+				data: error?.message?.message
+			});
 
 		}
 	}
@@ -748,24 +747,24 @@ module.exports = class Mensagens {
 	static async sendVoiceBase64(req, res) {
 
 		let { session, number, path, time_recording } = req?.body;
-		
+
 		let device = await Sessions?.getClient(session)
 		let client = device.client;
 
 		if (!path) {
-			
+
 			res?.status(400)?.send({
 				status: 400,
 				error: "Path não informado",
 				message: "Informe o path em formato Base64"
 			});
 
-		}else {
-			
+		} else {
+
 			try {
-				
+
 				let phone = await Cache?.get(number)
-				
+
 				await client.startRecording(phone, time_recording || config.time_typing);
 				let response = await client?.sendPttFromBase64(phone, path);
 
@@ -778,14 +777,14 @@ module.exports = class Mensagens {
 				})
 
 			} catch (error) {
-				
+
 				logger.error(`Error on sendVoiceBase64: ${error?.message}`)
 
 				res.status(500).json({
 					response: false,
 					data: error?.message?.message
 				});
-	
+
 			}
 
 		}
@@ -794,7 +793,7 @@ module.exports = class Mensagens {
 	static async sendLink(req, res) {
 
 		let { session, number, url, text } = req?.body;
-		
+
 		let data = await Sessions?.getClient(session)
 		let isURL = Sessions?.isURL(url);
 
@@ -803,39 +802,39 @@ module.exports = class Mensagens {
 				status: 400,
 				error: "URL não foi informada, é obrigatorio"
 			})
-		}else
+		} else
 			if (!isURL) {
 				res?.status(400)?.json({
 					status: 400,
 					error: "Link informado é invalido"
 				})
-			}else {
-				
-			try {
+			} else {
 
-				let phone = await Cache?.get(number)
-				await Sessions?.sleep(config.time_typing);
-				let response = await data?.client?.sendLinkPreview(phone, url, text)
+				try {
 
-				res?.status(200)?.json({
-					result: 200,
-					type: 'link',
-					messageId: response?.id,
-					session: session,
-					data: response
-				})
+					let phone = await Cache?.get(number)
+					await Sessions?.sleep(config.time_typing);
+					let response = await data?.client?.sendLinkPreview(phone, url, text)
 
-			} catch (error) {
-				
-				logger.error(`Error on sendLink: ${error?.message}`)
+					res?.status(200)?.json({
+						result: 200,
+						type: 'link',
+						messageId: response?.id,
+						session: session,
+						data: response
+					})
 
-				res.status(500).json({
-					response: false,
-					data: error?.message?.message
-				});
-	
+				} catch (error) {
+
+					logger.error(`Error on sendLink: ${error?.message}`)
+
+					res.status(500).json({
+						response: false,
+						data: error?.message?.message
+					});
+
+				}
 			}
-		}
 	}
 
 	static async sendContact(req, res) {
@@ -860,9 +859,9 @@ module.exports = class Mensagens {
 		} else {
 
 			try {
-				
+
 				let phone = await Cache?.get(number)
-				
+
 				let response = await data?.client?.sendContactVcard(phone, contact + '@c.us', name)
 
 				res?.status(200)?.json({
@@ -873,27 +872,27 @@ module.exports = class Mensagens {
 					data: response
 				})
 			} catch (error) {
-				
+
 				logger.error(`Error on sendContact: ${error?.message}`)
 
 				res.status(500).json({
 					response: false,
 					data: error?.message?.message
 				});
-	
+
 			}
 		}
 	}
 
 	static async sendLocation(req, res) {
-		
+
 		let { session, number, lat, log, title, description, buttons } = req?.body
 
 		if (!lat) {
-		res?.status(400)?.json({
-			status: 400,
-			error: "Latitude não foi informada"
-		})
+			res?.status(400)?.json({
+				status: 400,
+				error: "Latitude não foi informada"
+			})
 		} else if (!log) {
 			res?.status(400)?.json({
 				status: 400,
@@ -912,59 +911,59 @@ module.exports = class Mensagens {
 			})
 		} else {
 
-		try {
+			try {
 
-			let data = await Sessions?.getClient(session)
-			let phone = await Cache?.get(number)
-			await Sessions?.sleep(config.time_typing);
-			let response = await data?.client?.page?.evaluate(
+				let data = await Sessions?.getClient(session)
+				let phone = await Cache?.get(number)
+				await Sessions?.sleep(config.time_typing);
+				let response = await data?.client?.page?.evaluate(
 
-			async ({ phone, lat, log, title, description, buttons }) =>
-				await WPP.chat.sendLocationMessage(phone, {
-					lat: lat,
-					lng: log,
-					name: title,
-					address: `${title}\n${description}`,
-					buttons: buttons,
-				}),
-			{ phone, lat, log, title, description, buttons }
-			);
-			
-			res?.status(200)?.json({
-				result: 200,
-				type: 'locate',
-				messageId: response?.id,
-				session: session,
-				data: response
-			})
+					async ({ phone, lat, log, title, description, buttons }) =>
+						await WPP.chat.sendLocationMessage(phone, {
+							lat: lat,
+							lng: log,
+							name: title,
+							address: `${title}\n${description}`,
+							buttons: buttons,
+						}),
+					{ phone, lat, log, title, description, buttons }
+				);
 
-		} catch (error) {
-			
-			logger.error(`Error on sendLocation: ${error?.message}`)
+				res?.status(200)?.json({
+					result: 200,
+					type: 'locate',
+					messageId: response?.id,
+					session: session,
+					data: response
+				})
 
-			res.status(500).json({
-				response: false,
-				data: error?.message?.message
-			});
+			} catch (error) {
 
+				logger.error(`Error on sendLocation: ${error?.message}`)
+
+				res.status(500).json({
+					response: false,
+					data: error?.message?.message
+				});
+
+			}
 		}
-    }
-  }
+	}
 
 	static async reply(req, res) {
-		
+
 		let { session, number, messageid, text } = req?.body;
 		let data = await Sessions?.getClient(session)
 
 		if (!text) {
-		
+
 			res?.status(400)?.json({
 				status: 400,
 				error: "Text não foi informado"
 			})
 
-		}else if (!messageid) {
-		
+		} else if (!messageid) {
+
 			res?.status(400)?.json({
 				status: 400,
 				error: "MessageID não foi informada, é obrigatorio"
@@ -988,7 +987,7 @@ module.exports = class Mensagens {
 				})
 
 			} catch (error) {
-				
+
 				logger.error(`Error on reply: ${error?.message}`)
 
 				res.status(500).json({
@@ -1015,7 +1014,7 @@ module.exports = class Mensagens {
 		} else {
 
 			try {
-			
+
 				let options = req?.body?.options || {};
 				let phone = await Cache?.get(number)
 
@@ -1048,9 +1047,9 @@ module.exports = class Mensagens {
 		try {
 
 			let data = await Sessions?.getClient(session)
-			
+
 			if ((messageId || emoji) == "") {
-			
+
 				res?.status(400)?.json({
 					error: 400,
 					result: 'MessageId e emoji sao obrigatorios'
@@ -1068,7 +1067,7 @@ module.exports = class Mensagens {
 			})
 
 		} catch (error) {
-			
+
 			logger.error(`Error on sendReactionToMessage: ${error?.message}`)
 
 			res.status(500).json({
