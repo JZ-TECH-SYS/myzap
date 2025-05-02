@@ -14,6 +14,7 @@ const CacheModel = require('./Models/cache');
 const { startAllSessions } = require("./startup");
 const logger = require("./util/logger");
 const expressPinoLogger = require("express-pino-logger");
+const authApi = require("./routers/Auth");
 
 // Verifica se o diretório de instâncias existe, senão cria
 if (!fs.existsSync('./instances')) {
@@ -23,7 +24,6 @@ if (!fs.existsSync('./instances')) {
 // Inicialização do servidor Express
 const app = express();
 const server = require("http").Server(app);
-
 // Configuração do middleware de sessão
 app.use(session({
   secret: config.token,
@@ -109,7 +109,7 @@ const manager = require("./routers/Manager");
 
 app.use(router, loggerMiddleware);
 app.use(manager);
-
+app.use(authApi);
 // Inicialização do servidor
 server.listen(config.port, async (error) => {
   if (error) {
