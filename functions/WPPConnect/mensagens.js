@@ -595,6 +595,63 @@ module.exports = class Mensagens {
 		}
 	}
 
+	static async sendMultipleFiles(req, res) {
+		try {
+			const { session, number, files } = req.body;
+
+			if (!files || !Array.isArray(files) || files.length === 0) {
+				return res.status(400).json({
+					status: 400,
+					error: "Lista de arquivos (files[]) é obrigatória"
+				});
+			}
+
+			const device = await Sessions?.getClient(session);
+			const client = device?.client;
+			const phone = await Cache?.get(number);
+
+			let resultados = [];
+
+			for (const file of files) {
+				const { path, filename = 'file' } = file;
+
+				if (!path) continue;
+
+				const response = await client?.sendFile(phone, path, {
+					createChat: true,
+					filename
+				});
+
+				resultados.push({
+					path,
+					filename,
+					messageId: response?.id || null,
+					success: !!response
+				});
+
+				// opcional: delay entre envios
+				await new Promise(r => setTimeout(r, 1000));
+			}
+
+			return res.status(200).json({
+				result: 200,
+				session,
+				number,
+				total: resultados.length,
+				files: resultados
+			});
+
+		} catch (error) {
+			logger.error(`Error on sendMultipleFiles: ${error?.message}`);
+
+			return res.status(500).json({
+				response: false,
+				error: error?.message
+			});
+		}
+	}
+
+
 	static async sendFileLocal(req, res) {
 
 		let { session, number, caption } = req?.body;
@@ -676,6 +733,60 @@ module.exports = class Mensagens {
 
 		}
 	}
+
+	static async sendMultipleFile64(req, res) {
+		try {
+			const { session, number, files } = req?.body;
+
+			if (!files || !Array.isArray(files) || files.length === 0) {
+				return res.status(400).json({
+					status: 400,
+					error: "Lista de arquivos (files[]) em Base64 é obrigatória"
+				});
+			}
+
+			const device = await Sessions?.getClient(session);
+			const client = device?.client;
+			const phone = await Cache?.get(number);
+
+			let resultados = [];
+
+			for (const file of files) {
+				const { base64, filename = 'arquivo', caption = '' } = file;
+
+				if (!base64) continue;
+
+				const response = await client?.sendFileFromBase64(phone, base64, filename, caption);
+
+				resultados.push({
+					filename,
+					caption,
+					success: !!response,
+					messageId: response?.id || null
+				});
+
+				// Delay entre envios (opcional)
+				await new Promise(r => setTimeout(r, 1000));
+			}
+
+			return res.status(200).json({
+				result: 200,
+				session,
+				number,
+				total: resultados.length,
+				files: resultados
+			});
+
+		} catch (error) {
+			logger.error(`Error on sendMultipleFile64: ${error?.message}`);
+
+			return res.status(500).json({
+				response: false,
+				error: error?.message
+			});
+		}
+	}
+
 
 	static async sendAudio(req, res) {
 

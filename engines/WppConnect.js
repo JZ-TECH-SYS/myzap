@@ -50,7 +50,6 @@ module.exports = class Wppconnect {
 		let user = req?.session?.usuario;
 
 		let deviceExist = await Device.findOne({ where: { session : session } });
-
 		if (deviceExist) {
 			
 			await deviceExist.update({
@@ -83,7 +82,7 @@ module.exports = class Wppconnect {
 		}else{
 			
 			try {
-				let user = await User.findOne({ where: { email: 'jz.tech.digital@gmail.com' } });
+				let user = await User.findOne({ where: { email: 'admin@admin.com' } });
 				await Device.create({
 					user_id: user?.id,
 
