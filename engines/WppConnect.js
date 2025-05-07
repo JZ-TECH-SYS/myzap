@@ -82,7 +82,7 @@ module.exports = class Wppconnect {
 		}else{
 			
 			try {
-				let user = await User.findOne({ where: { email: 'admin@admin.com' } });
+				let user = await User.findOne({ where: { email: process.env.EMAIL } });
 				await Device.create({
 					user_id: user?.id,
 
