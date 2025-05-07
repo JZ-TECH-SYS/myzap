@@ -17,6 +17,7 @@ const DeviceModel = require('../Models/device.js');
 
 const Device = DeviceModel(config.sequelize);
 
+
 Router.post('/start', checkParams, async (req, res) => {
 	
   	let session = req.body.session
