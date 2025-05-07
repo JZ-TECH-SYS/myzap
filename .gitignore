@@ -5,4 +5,4 @@ tokens/
 teste.js
 instances/
 database/
-logs/
+./logs
