@@ -17,6 +17,7 @@ const Device = DeviceModel(config.sequelize);
 const UserModel = require('../Models/user.js');
 const logger = require('../util/logger.js');
 const User = UserModel(config.sequelize);
+require('dotenv').config();
 
 //get ENV 
 const HOST = process?.env?.HOST;
