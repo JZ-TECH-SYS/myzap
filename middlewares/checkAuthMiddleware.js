@@ -9,15 +9,15 @@ async function checkAuthMiddleware(req, res, next) {
                 logo: process.env.LOGO,
                 version: process.env.VERSION,
             });
-        
+
         }
 
         let user = req.session.usuario;
 
         if (user.id && user.email) {
             return next();
-        } 
-        
+        }
+
         return res.render("pages/auth/login", {
             message: "Se for o seu primeiro login admin@admin.com senha APIToken",
             pageTitle: 'Logout',
