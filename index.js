@@ -2,34 +2,33 @@
 
 const fs = require("fs");
 const express = require("express");
-const session = require('express-session');
+const session = require("express-session");
 const fileUpload = require("express-fileupload");
 const cors = require("cors");
-const swaggerUi = require("swagger-ui-express");
 const path = require("path");
-const { exec } = require("child_process");
 const { yo } = require("yoo-hoo");
 const config = require("./config");
-const CacheModel = require('./Models/cache');
 const { startAllSessions } = require("./startup");
 const logger = require("./util/logger");
 const expressPinoLogger = require("express-pino-logger");
 const authApi = require("./routers/Auth");
 
 // Verifica se o diretório de instâncias existe, senão cria
-if (!fs.existsSync('./instances')) {
-    fs.mkdirSync('./instances');
+if (!fs.existsSync("./instances")) {
+  fs.mkdirSync("./instances");
 }
 
 // Inicialização do servidor Express
 const app = express();
 const server = require("http").Server(app);
 // Configuração do middleware de sessão
-app.use(session({
-  secret: config.token,
-  resave: false,
-  saveUninitialized: false
-}));
+app.use(
+  session({
+    secret: config.token,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 // Configuração do logger
 const loggerMiddleware = expressPinoLogger({
@@ -59,7 +58,13 @@ app.use((req, res, next) => {
 
 // Configuração para aceitar JSON e formulários codificados
 app.use(express.json({ limit: "100mb", parameterLimit: 99999999999999 }));
-app.use(express.urlencoded({ extended: true, limit: "100mb", parameterLimit: 99999999999999 }));
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: "100mb",
+    parameterLimit: 99999999999999,
+  })
+);
 
 // Configuração da pasta de arquivos estáticos
 app.use(express.static("public"));
@@ -69,14 +74,12 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "Views"));
 
-// Configuração da documentação Swagger
-const swaggerFile = require("./swagger_output.json");
-
-app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
-
 // Inicialização do socket.io
 const io = require("socket.io")(server, {
-  cors: { origin: config.cors_origin == "*" ? "*" : allowlist, methods: ["GET", "POST"] },
+  cors: {
+    origin: config.cors_origin == "*" ? "*" : allowlist,
+    methods: ["GET", "POST"],
+  },
 });
 
 io.setMaxListeners(0); // Aumenta o número máximo de listeners
@@ -117,8 +120,12 @@ server.listen(config.port, async (error) => {
   } else {
     yo("Myzap3", { color: "rainbow", spacing: 1, waitMode: "line" });
 
-    const serverURL = config.host_ssl ? config.host_ssl : `${config.host}:${config.port}`;
-    console.log(`\nServer running on ${serverURL}\nAccess ${serverURL}/doc to view API documentation\n`);
+    const serverURL = config.host_ssl
+      ? config.host_ssl
+      : `${config.host}:${config.port}`;
+    console.log(
+      `\nServer running on ${serverURL}\nAccess ${serverURL}/doc to view API documentation\n`
+    );
 
     // Inicia todas as sessões se a configuração estiver ativada
     if (config.start_all_sessions === "true") {

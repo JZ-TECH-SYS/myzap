@@ -525,3 +525,353 @@
 {"level":30,"time":1746574060782,"pid":23920,"hostname":"joao","msg":"Cache.get(44997633866) = 554497633866@c.us"}
 {"level":30,"time":1746574060785,"pid":23920,"hostname":"joao","msg":"Cache.get(44997633866) = 554497633866@c.us"}
 {"level":30,"time":1746574365273,"pid":23920,"hostname":"joao","msg":"Received SIGINT. Starting graceful shutdown..."}
+{"level":30,"time":1746833299638,"pid":1272,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1746833299817,"pid":1272,"hostname":"joao","msg":"Device updated successfully"}
+{"level":30,"time":1746833311769,"pid":1272,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1746833319291,"pid":1272,"hostname":"joao","msg":"[SESSION] joaosn - Lendo o QRCode."}
+{"level":30,"time":1746833366211,"pid":1272,"hostname":"joao","req":{"id":1,"method":"GET","url":"/","query":{},"params":{},"headers":{"host":"localhost:3333","connection":"keep-alive","sec-ch-ua":"\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","sec-purpose":"prefetch;prerender","purpose":"prefetch","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","sec-fetch-site":"none","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","accept-encoding":"gzip, deflate, br, zstd","accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en-AU;q=0.7,en;q=0.6,es;q=0.5"},"remoteAddress":"::1","remotePort":58323},"res":{"statusCode":302,"headers":{"x-powered-by":"Express","access-control-allow-origin":"*","location":"/auth/login","vary":"Accept","content-type":"text/html; charset=utf-8","content-length":"40"}},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1746833366261,"pid":1272,"hostname":"joao","req":{"id":2,"method":"GET","url":"/auth/login","query":{},"params":{},"headers":{"host":"localhost:3333","connection":"keep-alive","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","sec-purpose":"prefetch;prerender","purpose":"prefetch","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","sec-fetch-site":"none","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","sec-ch-ua":"\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","accept-encoding":"gzip, deflate, br, zstd","accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en-AU;q=0.7,en;q=0.6,es;q=0.5"},"remoteAddress":"::1","remotePort":58323},"res":{"statusCode":200,"headers":{"x-powered-by":"Express","access-control-allow-origin":"*","content-type":"text/html; charset=utf-8","content-length":"4335","etag":"W/\"10ef-8F36MkLTuIHBucZTVA1WGsqc2/k\""}},"responseTime":45,"msg":"request completed"}
+{"level":30,"time":1746833367816,"pid":1272,"hostname":"joao","req":{"id":3,"method":"GET","url":"/favicon.ico","query":{},"params":{},"headers":{"host":"localhost:3333","connection":"keep-alive","sec-ch-ua-platform":"\"Windows\"","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","sec-ch-ua":"\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"","sec-ch-ua-mobile":"?0","accept":"image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8","sec-fetch-site":"same-origin","sec-fetch-mode":"no-cors","sec-fetch-dest":"image","referer":"http://localhost:3333/auth/login","accept-encoding":"gzip, deflate, br, zstd","accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en-AU;q=0.7,en;q=0.6,es;q=0.5"},"remoteAddress":"::1","remotePort":58323},"res":{"statusCode":404,"headers":{"x-powered-by":"Express","access-control-allow-origin":"*","content-security-policy":"default-src 'none'","x-content-type-options":"nosniff","content-type":"text/html; charset=utf-8","content-length":150}},"responseTime":2,"msg":"request completed"}
+{"level":30,"time":1746833382243,"pid":13792,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746835750009,"pid":13792,"hostname":"joao","msg":"Received SIGINT. Starting graceful shutdown..."}
+{"level":30,"time":1746837239602,"pid":21176,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746837247319,"pid":19808,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746837255791,"pid":19808,"hostname":"joao","req":{"id":1,"method":"POST","url":"/auth/login","query":{},"params":{},"headers":{"host":"localhost:3333","connection":"keep-alive","content-length":"39","cache-control":"max-age=0","sec-ch-ua":"\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","origin":"http://localhost:3333","content-type":"application/x-www-form-urlencoded","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","sec-fetch-site":"same-origin","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","referer":"http://localhost:3333/auth/login","accept-encoding":"gzip, deflate, br, zstd","accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en-AU;q=0.7,en;q=0.6,es;q=0.5"},"remoteAddress":"::1","remotePort":61212},"res":{"statusCode":200,"headers":{"x-powered-by":"Express","access-control-allow-origin":"*","content-type":"text/html; charset=utf-8","content-length":"8924","etag":"W/\"22dc-kOyQDQ2au7d3zieEYP9okhgX1aw\""}},"responseTime":14,"msg":"request completed"}
+{"level":30,"time":1746837268679,"pid":19808,"hostname":"joao","msg":"Received SIGINT. Starting graceful shutdown..."}
+{"level":30,"time":1746837345853,"pid":21620,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746837347254,"pid":21620,"hostname":"joao","req":{"id":1,"method":"POST","url":"/api/auth/login","query":{},"params":{},"headers":{"host":"localhost:3333","connection":"keep-alive","content-length":"47","sec-ch-ua-platform":"\"Windows\"","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","sec-ch-ua":"\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"","content-type":"application/json","sec-ch-ua-mobile":"?0","accept":"*/*","origin":"http://localhost:3333","sec-fetch-site":"same-origin","sec-fetch-mode":"cors","sec-fetch-dest":"empty","referer":"http://localhost:3333/auth/login","accept-encoding":"gzip, deflate, br, zstd","accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en-AU;q=0.7,en;q=0.6,es;q=0.5"},"remoteAddress":"::1","remotePort":61238},"res":{"statusCode":200,"headers":{"x-powered-by":"Express","access-control-allow-origin":"*","content-type":"application/json; charset=utf-8","content-length":"3174","etag":"W/\"c66-lWMXAu4GhaBwUWgeTXr5DLjmMBk\"","set-cookie":["connect.sid=s%3Aba_anjwCjnQlbDlmCR1nmliCiA-vOXMj.hzm8U23sHBAI4PCzDLBIsXRoF2v%2BSVdS7yEKMjsg%2BWc; Path=/; HttpOnly"]}},"responseTime":36,"msg":"request completed"}
+{"level":30,"time":1746837366633,"pid":21620,"hostname":"joao","req":{"id":2,"method":"POST","url":"/api/auth/2fa/setup","query":{},"params":{},"headers":{"host":"localhost:3333","connection":"keep-alive","content-length":"18","sec-ch-ua-platform":"\"Windows\"","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","sec-ch-ua":"\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"","content-type":"application/json","sec-ch-ua-mobile":"?0","accept":"*/*","origin":"http://localhost:3333","sec-fetch-site":"same-origin","sec-fetch-mode":"cors","sec-fetch-dest":"empty","referer":"http://localhost:3333/auth/login","accept-encoding":"gzip, deflate, br, zstd","accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en-AU;q=0.7,en;q=0.6,es;q=0.5","cookie":"connect.sid=s%3Aba_anjwCjnQlbDlmCR1nmliCiA-vOXMj.hzm8U23sHBAI4PCzDLBIsXRoF2v%2BSVdS7yEKMjsg%2BWc"},"remoteAddress":"::1","remotePort":61241},"res":{"statusCode":200,"headers":{"x-powered-by":"Express","access-control-allow-origin":"*","content-type":"application/json; charset=utf-8","content-length":"47","etag":"W/\"2f-NAIZEToaqr6P6ij1tClLkg7AAvA\""}},"responseTime":4,"msg":"request completed"}
+{"level":30,"time":1746837563114,"pid":21216,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746837563151,"pid":21216,"hostname":"joao","req":{"id":1,"method":"POST","url":"/api/auth/login","query":{},"params":{},"headers":{"host":"localhost:3333","connection":"keep-alive","content-length":"47","sec-ch-ua-platform":"\"Windows\"","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","sec-ch-ua":"\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"","content-type":"application/json","sec-ch-ua-mobile":"?0","accept":"*/*","origin":"http://localhost:3333","sec-fetch-site":"same-origin","sec-fetch-mode":"cors","sec-fetch-dest":"empty","referer":"http://localhost:3333/auth/login","accept-encoding":"gzip, deflate, br, zstd","accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en-AU;q=0.7,en;q=0.6,es;q=0.5","cookie":"connect.sid=s%3Aba_anjwCjnQlbDlmCR1nmliCiA-vOXMj.hzm8U23sHBAI4PCzDLBIsXRoF2v%2BSVdS7yEKMjsg%2BWc"},"remoteAddress":"::1","remotePort":61265},"res":{"statusCode":200,"headers":{"x-powered-by":"Express","access-control-allow-origin":"*","content-type":"application/json; charset=utf-8","content-length":"3222","etag":"W/\"c96-VXf3vZhFJCX/AG3TFlKvofypg+o\"","set-cookie":["connect.sid=s%3ATTf71G1VZbj7THq9Ly-USkgcXDepp3ij.01oKhmBzKfYwErqGCSEZXqkQTXvnxAhGC6WDTtMsJFw; Path=/; HttpOnly"]}},"responseTime":48,"msg":"request completed"}
+{"level":30,"time":1746837564218,"pid":21216,"hostname":"joao","req":{"id":2,"method":"POST","url":"/api/auth/2fa/setup","query":{},"params":{},"headers":{"host":"localhost:3333","connection":"keep-alive","content-length":"18","sec-ch-ua-platform":"\"Windows\"","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","sec-ch-ua":"\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"","content-type":"application/json","sec-ch-ua-mobile":"?0","accept":"*/*","origin":"http://localhost:3333","sec-fetch-site":"same-origin","sec-fetch-mode":"cors","sec-fetch-dest":"empty","referer":"http://localhost:3333/auth/login","accept-encoding":"gzip, deflate, br, zstd","accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en-AU;q=0.7,en;q=0.6,es;q=0.5","cookie":"connect.sid=s%3ATTf71G1VZbj7THq9Ly-USkgcXDepp3ij.01oKhmBzKfYwErqGCSEZXqkQTXvnxAhGC6WDTtMsJFw"},"remoteAddress":"::1","remotePort":61265},"res":{"statusCode":200,"headers":{"x-powered-by":"Express","access-control-allow-origin":"*","content-type":"application/json; charset=utf-8","content-length":"16","etag":"W/\"10-oV4hJxRVSENxc/wX8+mA4/Pe4tA\""}},"responseTime":11,"msg":"request completed"}
+{"level":30,"time":1746837564241,"pid":21216,"hostname":"joao","req":{"id":3,"method":"GET","url":"/dashboard","query":{},"params":{},"headers":{"host":"localhost:3333","connection":"keep-alive","sec-ch-ua":"\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Windows\"","upgrade-insecure-requests":"1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7","sec-fetch-site":"same-origin","sec-fetch-mode":"navigate","sec-fetch-user":"?1","sec-fetch-dest":"document","referer":"http://localhost:3333/auth/login","accept-encoding":"gzip, deflate, br, zstd","accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en-AU;q=0.7,en;q=0.6,es;q=0.5","cookie":"connect.sid=s%3ATTf71G1VZbj7THq9Ly-USkgcXDepp3ij.01oKhmBzKfYwErqGCSEZXqkQTXvnxAhGC6WDTtMsJFw"},"remoteAddress":"::1","remotePort":61265},"res":{"statusCode":200,"headers":{"x-powered-by":"Express","access-control-allow-origin":"*","content-type":"text/html; charset=utf-8","content-length":"16153","etag":"W/\"3f19-Fcqs0YboTwM273hFw6ViQKYp4IY\""}},"responseTime":11,"msg":"request completed"}
+{"level":30,"time":1746837564841,"pid":21216,"hostname":"joao","msg":"ID: SDZxgtMxPA-6sy0CAAAB socket connected"}
+{"level":30,"time":1746837746280,"pid":9212,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746837746365,"pid":9212,"hostname":"joao","msg":"ID: MspBqX8SNDsahd9rAAAB socket connected"}
+{"level":30,"time":1746837796167,"pid":18796,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746837796375,"pid":18796,"hostname":"joao","msg":"ID: jTCb46jolZFHiu_QAAAB socket connected"}
+{"level":30,"time":1746837827277,"pid":3508,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746837828371,"pid":3508,"hostname":"joao","msg":"ID: fpJarf8tllgPbZLzAAAB socket connected"}
+{"level":30,"time":1746837841440,"pid":18656,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746837842364,"pid":18656,"hostname":"joao","msg":"ID: oVyjM_nuNbOWRhGpAAAB socket connected"}
+{"level":30,"time":1746837865952,"pid":20676,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746837867366,"pid":20676,"hostname":"joao","msg":"ID: qURQVaYFu7n2UPAFAAAB socket connected"}
+{"level":30,"time":1746837909950,"pid":9864,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746837911369,"pid":9864,"hostname":"joao","msg":"ID: DuqOQV1kVTok53VfAAAB socket connected"}
+{"level":30,"time":1746838238671,"pid":3444,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746838239366,"pid":3444,"hostname":"joao","msg":"ID: Du0XV9DbCo6BbVmKAAAB socket connected"}
+{"level":30,"time":1746838308393,"pid":22384,"hostname":"joao","msg":"ID: Rt5vfTbV_hxDiWo-AAAB socket connected"}
+{"level":30,"time":1746838308397,"pid":22384,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746838359822,"pid":9740,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746838361371,"pid":9740,"hostname":"joao","msg":"ID: xeMXMePYWMiKbCW_AAAB socket connected"}
+{"level":30,"time":1746838539586,"pid":21312,"hostname":"joao","msg":"ID: fQuH1kGLTV5-L7LgAAAB socket connected"}
+{"level":30,"time":1746838539600,"pid":21312,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746838684761,"pid":22092,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746838684765,"pid":22092,"hostname":"joao","msg":"ID: A0qW4YknZCvuz0SCAAAB socket connected"}
+{"level":30,"time":1746838989061,"pid":14212,"hostname":"joao","msg":"ID: -hzELw76O2VTGG5BAAAB socket connected"}
+{"level":30,"time":1746838989071,"pid":14212,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746839739137,"pid":7448,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746839739369,"pid":7448,"hostname":"joao","msg":"ID: -HV6JwrU1wp-UlItAAAB socket connected"}
+{"level":30,"time":1746839899013,"pid":21784,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746839899371,"pid":21784,"hostname":"joao","msg":"ID: BXptJSYY68QCZRPTAAAB socket connected"}
+{"level":30,"time":1746839957302,"pid":2716,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746839957373,"pid":2716,"hostname":"joao","msg":"ID: KfS_UI0N2tkIxEcyAAAB socket connected"}
+{"level":30,"time":1746840039210,"pid":8312,"hostname":"joao","msg":"ID: Q_IEjw9Plf0lLO2YAAAB socket connected"}
+{"level":30,"time":1746840039213,"pid":8312,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840049711,"pid":18144,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840051375,"pid":18144,"hostname":"joao","msg":"ID: FczIdYrj0teRxTWnAAAB socket connected"}
+{"level":30,"time":1746840244715,"pid":20028,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840245371,"pid":20028,"hostname":"joao","msg":"ID: d3GVZHNU9VSTKWz6AAAB socket connected"}
+{"level":30,"time":1746840251956,"pid":4584,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840253375,"pid":4584,"hostname":"joao","msg":"ID: jKPgUT1WqbIiTfACAAAB socket connected"}
+{"level":30,"time":1746840275841,"pid":196,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840277370,"pid":196,"hostname":"joao","msg":"ID: yILmoP83XyqdVR1JAAAB socket connected"}
+{"level":30,"time":1746840284756,"pid":17244,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840286376,"pid":17244,"hostname":"joao","msg":"ID: Ac-4YR5JU7KQ9lY1AAAB socket connected"}
+{"level":30,"time":1746840323041,"pid":19576,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840323374,"pid":19576,"hostname":"joao","msg":"ID: NFsXyc7yJI8sxgHrAAAB socket connected"}
+{"level":30,"time":1746840333634,"pid":16528,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840335378,"pid":16528,"hostname":"joao","msg":"ID: mm9v3_5FUXsRRbwwAAAB socket connected"}
+{"level":30,"time":1746840340033,"pid":19824,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840342370,"pid":19824,"hostname":"joao","msg":"ID: htF0WoKlGbsEjpemAAAB socket connected"}
+{"level":30,"time":1746840403970,"pid":21480,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840404369,"pid":21480,"hostname":"joao","msg":"ID: 6D7vVfrbll0GAIzwAAAB socket connected"}
+{"level":30,"time":1746840413381,"pid":13396,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840415374,"pid":13396,"hostname":"joao","msg":"ID: 7wkhv7eRGsWNNCrOAAAB socket connected"}
+{"level":30,"time":1746840420193,"pid":21992,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840421370,"pid":21992,"hostname":"joao","msg":"ID: KCbTnyboVCHuz6tfAAAB socket connected"}
+{"level":30,"time":1746840428301,"pid":15748,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840430365,"pid":15748,"hostname":"joao","msg":"ID: CeCdIOK6XPqC-JkZAAAB socket connected"}
+{"level":30,"time":1746840440956,"pid":8180,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840441053,"pid":8180,"hostname":"joao","msg":"ID: IkxkO450TgWDzzgwAAAB socket connected"}
+{"level":30,"time":1746840456203,"pid":21424,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840456375,"pid":21424,"hostname":"joao","msg":"ID: b6b_-M0QIn_i0FySAAAB socket connected"}
+{"level":30,"time":1746840458722,"pid":17696,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840460374,"pid":17696,"hostname":"joao","msg":"ID: DTsb61KqjHf0GC23AAAB socket connected"}
+{"level":30,"time":1746840467023,"pid":21384,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840468364,"pid":21384,"hostname":"joao","msg":"ID: DWlsfNgaDHcx2NLfAAAB socket connected"}
+{"level":30,"time":1746840478710,"pid":18544,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840480368,"pid":18544,"hostname":"joao","msg":"ID: 8IF0PXr51k_WidszAAAB socket connected"}
+{"level":30,"time":1746840488932,"pid":12556,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840491371,"pid":12556,"hostname":"joao","msg":"ID: MPwjrBtUyvkAX3g8AAAB socket connected"}
+{"level":30,"time":1746840828779,"pid":21580,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840829367,"pid":21580,"hostname":"joao","msg":"ID: 8utiYsM8BAylTl19AAAB socket connected"}
+{"level":30,"time":1746840905974,"pid":19584,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746840906020,"pid":19584,"hostname":"joao","msg":"ID: dE2gk4ocpxdWaXOyAAAB socket connected"}
+{"level":30,"time":1746841040878,"pid":16812,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841041374,"pid":16812,"hostname":"joao","msg":"ID: 4Hms0L5XyVIVkczZAAAB socket connected"}
+{"level":30,"time":1746841046191,"pid":19396,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841048365,"pid":19396,"hostname":"joao","msg":"ID: nxHIca7TVKgdax_RAAAB socket connected"}
+{"level":30,"time":1746841057359,"pid":22496,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841058370,"pid":22496,"hostname":"joao","msg":"ID: ioHsyRsWJ8pL5RUdAAAB socket connected"}
+{"level":30,"time":1746841172773,"pid":21840,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841173376,"pid":21840,"hostname":"joao","msg":"ID: O_Q6am2Q6_FLDo5zAAAB socket connected"}
+{"level":30,"time":1746841197277,"pid":7176,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841198366,"pid":7176,"hostname":"joao","msg":"ID: CUiayOuI6UGcoxINAAAB socket connected"}
+{"level":30,"time":1746841231837,"pid":19252,"hostname":"joao","msg":"ID: aBXrP_oCHVUS77TAAAAB socket connected"}
+{"level":30,"time":1746841231841,"pid":19252,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841272989,"pid":15920,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841274373,"pid":15920,"hostname":"joao","msg":"ID: xjZqSa-dmLtmvZpxAAAB socket connected"}
+{"level":30,"time":1746841284163,"pid":8200,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841285365,"pid":8200,"hostname":"joao","msg":"ID: tnPHSXwa0A_MGF6eAAAB socket connected"}
+{"level":30,"time":1746841299281,"pid":13988,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841301371,"pid":13988,"hostname":"joao","msg":"ID: NCUJbmMFL49Zok1PAAAB socket connected"}
+{"level":30,"time":1746841324590,"pid":14796,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841326370,"pid":14796,"hostname":"joao","msg":"ID: LacA1wnyHm0QMcy0AAAB socket connected"}
+{"level":30,"time":1746841334354,"pid":19272,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841336368,"pid":19272,"hostname":"joao","msg":"ID: 0dhe6RlN1Wwfp0vEAAAB socket connected"}
+{"level":30,"time":1746841392249,"pid":20200,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841392365,"pid":20200,"hostname":"joao","msg":"ID: Uu0_3rOnU5RTx2VkAAAB socket connected"}
+{"level":30,"time":1746841490397,"pid":8312,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841492373,"pid":8312,"hostname":"joao","msg":"ID: LWRontvOpZSRvKTBAAAB socket connected"}
+{"level":30,"time":1746841511237,"pid":21120,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841513379,"pid":21120,"hostname":"joao","msg":"ID: OaCge4cZDylLsmn2AAAB socket connected"}
+{"level":30,"time":1746841625139,"pid":20948,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841625367,"pid":20948,"hostname":"joao","msg":"ID: IjBOuhvtu_4MyEp0AAAB socket connected"}
+{"level":30,"time":1746841641785,"pid":18448,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841643372,"pid":18448,"hostname":"joao","msg":"ID: 8AHV0LOD1Rbxn5olAAAB socket connected"}
+{"level":30,"time":1746841664816,"pid":18544,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841665369,"pid":18544,"hostname":"joao","msg":"ID: LCrfRt0yPpD8HmOYAAAB socket connected"}
+{"level":30,"time":1746841720685,"pid":22152,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841720690,"pid":22152,"hostname":"joao","msg":"ID: 4Zaa9mZpNvCzvassAAAB socket connected"}
+{"level":30,"time":1746841775947,"pid":19744,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841776375,"pid":19744,"hostname":"joao","msg":"ID: W0R3dUVHFhLUzBlIAAAB socket connected"}
+{"level":30,"time":1746841781170,"pid":18552,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841782365,"pid":18552,"hostname":"joao","msg":"ID: UtZKA0Sw0L2VIm6sAAAB socket connected"}
+{"level":30,"time":1746841793243,"pid":7480,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841795417,"pid":13396,"hostname":"joao","msg":"ID: X_CSjfB-F3n7kSy1AAAB socket connected"}
+{"level":30,"time":1746841795421,"pid":13396,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841896440,"pid":20864,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841896556,"pid":20864,"hostname":"joao","msg":"ID: 8CfSHY_xqjBQAQC5AAAB socket connected"}
+{"level":30,"time":1746841901656,"pid":14340,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841903362,"pid":14340,"hostname":"joao","msg":"ID: Fm5BrH0W42YkC-dHAAAB socket connected"}
+{"level":30,"time":1746841910962,"pid":12268,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746841911368,"pid":12268,"hostname":"joao","msg":"ID: oo1ZBiHE_SNs-GpRAAAB socket connected"}
+{"level":30,"time":1746842182322,"pid":7268,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842182376,"pid":7268,"hostname":"joao","msg":"ID: sdB1QELYq5R39jVgAAAB socket connected"}
+{"level":30,"time":1746842188287,"pid":19572,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842190376,"pid":19572,"hostname":"joao","msg":"ID: 4pyQyOdt4fgmA7a_AAAB socket connected"}
+{"level":30,"time":1746842221760,"pid":12036,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842221864,"pid":12036,"hostname":"joao","msg":"ID: MBdl-3NXmbbY1iuOAAAB socket connected"}
+{"level":30,"time":1746842236963,"pid":10148,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842238367,"pid":10148,"hostname":"joao","msg":"ID: 056lFyR2bQ1rj7nkAAAB socket connected"}
+{"level":30,"time":1746842242978,"pid":4868,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842245366,"pid":4868,"hostname":"joao","msg":"ID: xx-Cn3DaMfaYVau_AAAB socket connected"}
+{"level":30,"time":1746842250336,"pid":19532,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842252370,"pid":19532,"hostname":"joao","msg":"ID: 8sccdANJvO8rE_xkAAAB socket connected"}
+{"level":30,"time":1746842256693,"pid":19940,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842258365,"pid":19940,"hostname":"joao","msg":"ID: LGbwB9znoaNp3OhCAAAB socket connected"}
+{"level":30,"time":1746842304459,"pid":17912,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842304638,"pid":17912,"hostname":"joao","msg":"ID: g4zAEX4kW5pI5-ImAAAB socket connected"}
+{"level":30,"time":1746842314387,"pid":19196,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842315369,"pid":19196,"hostname":"joao","msg":"ID: wJkELImaa6xtooHaAAAB socket connected"}
+{"level":30,"time":1746842371019,"pid":3844,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842371372,"pid":3844,"hostname":"joao","msg":"ID: Ube7s1dPUsSMIfYtAAAB socket connected"}
+{"level":30,"time":1746842584819,"pid":19316,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842584837,"pid":19316,"hostname":"joao","msg":"ID: Q86GryZeoR5ke4geAAAB socket connected"}
+{"level":30,"time":1746842747881,"pid":14856,"hostname":"joao","msg":"ID: Rn7NYI-gk28sHwKbAAAB socket connected"}
+{"level":30,"time":1746842747886,"pid":14856,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842751520,"pid":18752,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842752371,"pid":18752,"hostname":"joao","msg":"ID: DrVNDR399zrM1UHbAAAB socket connected"}
+{"level":30,"time":1746842755703,"pid":18992,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842757376,"pid":18992,"hostname":"joao","msg":"ID: VYLCiES25XgMKio2AAAB socket connected"}
+{"level":30,"time":1746842940093,"pid":18088,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842941377,"pid":18088,"hostname":"joao","msg":"ID: 2sls4LpcMDB2v-WvAAAB socket connected"}
+{"level":30,"time":1746842943767,"pid":20944,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746842945364,"pid":20944,"hostname":"joao","msg":"ID: R-Bpv5Fjxub_9jQFAAAB socket connected"}
+{"level":30,"time":1746843068591,"pid":11520,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746843069366,"pid":11520,"hostname":"joao","msg":"ID: iCDTiHH7Qz0eHJXRAAAB socket connected"}
+{"level":30,"time":1746843207591,"pid":13792,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746843210379,"pid":13792,"hostname":"joao","msg":"ID: 4ScaYdWSHZ-7eKZfAAAB socket connected"}
+{"level":30,"time":1746843221175,"pid":9296,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746843223368,"pid":9296,"hostname":"joao","msg":"ID: 4sUkH_t5Noe8w62QAAAB socket connected"}
+{"level":30,"time":1746843338004,"pid":11956,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746843338137,"pid":11956,"hostname":"joao","msg":"ID: VS0IxVeigGqqTCEGAAAB socket connected"}
+{"level":30,"time":1746843417709,"pid":19640,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746843418373,"pid":19640,"hostname":"joao","msg":"ID: H9_O8FCii5ebTuUlAAAB socket connected"}
+{"level":30,"time":1746843865464,"pid":20532,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746843865581,"pid":20532,"hostname":"joao","msg":"ID: JPCS6lZhUbquygNNAAAB socket connected"}
+{"level":30,"time":1746843983851,"pid":9608,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746843984367,"pid":9608,"hostname":"joao","msg":"ID: bvtGhJR45_SKWgkHAAAB socket connected"}
+{"level":30,"time":1746843987799,"pid":3508,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746843989376,"pid":3508,"hostname":"joao","msg":"ID: bvf-b7P3CHUG0lKEAAAB socket connected"}
+{"level":30,"time":1746844252346,"pid":3832,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844252383,"pid":3832,"hostname":"joao","msg":"ID: XNfS5DCDT9bvJDiTAAAB socket connected"}
+{"level":30,"time":1746844277947,"pid":14368,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844279363,"pid":14368,"hostname":"joao","msg":"ID: 1O8QimLBRXEdc1jbAAAB socket connected"}
+{"level":30,"time":1746844304399,"pid":16832,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844305369,"pid":16832,"hostname":"joao","msg":"ID: ss9Bjrgl75K11PS6AAAB socket connected"}
+{"level":30,"time":1746844310298,"pid":3832,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844311369,"pid":3832,"hostname":"joao","msg":"ID: M5HbRbpiJfJl1gntAAAB socket connected"}
+{"level":30,"time":1746844327044,"pid":19488,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844328366,"pid":19488,"hostname":"joao","msg":"ID: 5Fi7H0dmltaN1SmkAAAB socket connected"}
+{"level":30,"time":1746844460501,"pid":5040,"hostname":"joao","msg":"ID: w3zO8OayMtzjzN6CAAAB socket connected"}
+{"level":30,"time":1746844460505,"pid":5040,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844469571,"pid":22288,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844471374,"pid":22288,"hostname":"joao","msg":"ID: SucXn_x2qqpbvOB1AAAB socket connected"}
+{"level":30,"time":1746844481834,"pid":15892,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844483372,"pid":15892,"hostname":"joao","msg":"ID: XxTLZufXKtyO2nhPAAAB socket connected"}
+{"level":30,"time":1746844496802,"pid":20092,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844498368,"pid":20092,"hostname":"joao","msg":"ID: ESbcipRMOGNeItsMAAAB socket connected"}
+{"level":30,"time":1746844560219,"pid":7800,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844561366,"pid":7800,"hostname":"joao","msg":"ID: ye_NWzKLPv69KZTbAAAB socket connected"}
+{"level":30,"time":1746844563739,"pid":21688,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844564375,"pid":21688,"hostname":"joao","msg":"ID: edD0QtLBi6ghO606AAAB socket connected"}
+{"level":30,"time":1746844592741,"pid":12612,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844593370,"pid":12612,"hostname":"joao","msg":"ID: jmpiddG13u22vuLrAAAB socket connected"}
+{"level":30,"time":1746844598750,"pid":22108,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844600372,"pid":22108,"hostname":"joao","msg":"ID: ExrIJOI7S1seZc6CAAAB socket connected"}
+{"level":30,"time":1746844603128,"pid":20628,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844604371,"pid":20628,"hostname":"joao","msg":"ID: sL1jWSCQ7ehIeNcSAAAB socket connected"}
+{"level":30,"time":1746844609964,"pid":14616,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844612266,"pid":21976,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844612392,"pid":21976,"hostname":"joao","msg":"ID: i0I3ekGavg3NJ6YAAAAB socket connected"}
+{"level":30,"time":1746844678792,"pid":21368,"hostname":"joao","msg":"ID: R4NMbkukK3QoirHVAAAB socket connected"}
+{"level":30,"time":1746844678797,"pid":21368,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844682093,"pid":16620,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844684372,"pid":16620,"hostname":"joao","msg":"ID: j6L79pfdvezvgWeXAAAB socket connected"}
+{"level":30,"time":1746844691968,"pid":5588,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844695741,"pid":20740,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844695915,"pid":20740,"hostname":"joao","msg":"ID: tffVLTxgQkxKNovUAAAB socket connected"}
+{"level":30,"time":1746844784640,"pid":18764,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746844784697,"pid":18764,"hostname":"joao","msg":"ID: jUqEBDXnoSdvwJAFAAAB socket connected"}
+{"level":30,"time":1746845567504,"pid":6904,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845567631,"pid":6904,"hostname":"joao","msg":"ID: Nz2aXYgwMvAewCEwAAAB socket connected"}
+{"level":30,"time":1746845579499,"pid":11864,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845581377,"pid":11864,"hostname":"joao","msg":"ID: opqCvnCx2yVCjIP4AAAB socket connected"}
+{"level":30,"time":1746845583148,"pid":9408,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845585981,"pid":1732,"hostname":"joao","msg":"ID: R2qkKcp1ggd09zGAAAAB socket connected"}
+{"level":30,"time":1746845585992,"pid":1732,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845619440,"pid":22364,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845621373,"pid":22364,"hostname":"joao","msg":"ID: 8bxH-lgoD-0k8YUIAAAB socket connected"}
+{"level":30,"time":1746845649344,"pid":5708,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845650364,"pid":5708,"hostname":"joao","msg":"ID: uXW1hKjwr7ImdEydAAAB socket connected"}
+{"level":30,"time":1746845713255,"pid":18144,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845713376,"pid":18144,"hostname":"joao","msg":"ID: isfxnaxN7pqzD0FgAAAB socket connected"}
+{"level":30,"time":1746845720762,"pid":2604,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845722368,"pid":2604,"hostname":"joao","msg":"ID: d5l9m2tKElLiZpbQAAAB socket connected"}
+{"level":30,"time":1746845748420,"pid":21872,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845750374,"pid":21872,"hostname":"joao","msg":"ID: CBK1TV3E1Rja06X6AAAB socket connected"}
+{"level":30,"time":1746845767955,"pid":17328,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845769371,"pid":17328,"hostname":"joao","msg":"ID: VW6GkbAWAw6DDtYRAAAB socket connected"}
+{"level":30,"time":1746845792409,"pid":20412,"hostname":"joao","msg":"ID: bHeth6ycPBEm-SJ-AAAB socket connected"}
+{"level":30,"time":1746845792413,"pid":20412,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845796719,"pid":17468,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845798752,"pid":11360,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845799375,"pid":11360,"hostname":"joao","msg":"ID: dBhXMmhzrXs4Lj3zAAAB socket connected"}
+{"level":30,"time":1746845835852,"pid":17704,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845836368,"pid":17704,"hostname":"joao","msg":"ID: t50fmsYT7yzCXNNzAAAB socket connected"}
+{"level":30,"time":1746845838561,"pid":20908,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746845840369,"pid":20908,"hostname":"joao","msg":"ID: dRwDzIUfpvHvd4k9AAAB socket connected"}
+{"level":30,"time":1746846038245,"pid":21384,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846038376,"pid":21384,"hostname":"joao","msg":"ID: wMGkYPVG_mgqIQ7eAAAB socket connected"}
+{"level":30,"time":1746846259810,"pid":2408,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846260370,"pid":2408,"hostname":"joao","msg":"ID: 8FGjNIMYx3NnIgzmAAAB socket connected"}
+{"level":30,"time":1746846266610,"pid":14176,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846268371,"pid":14176,"hostname":"joao","msg":"ID: YQaJNVD_28Q6Mb1GAAAB socket connected"}
+{"level":30,"time":1746846302696,"pid":20936,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846303367,"pid":20936,"hostname":"joao","msg":"ID: 2ODkkVU1d9dqZfbqAAAB socket connected"}
+{"level":30,"time":1746846305157,"pid":14584,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846307369,"pid":14584,"hostname":"joao","msg":"ID: u0sA1UtlTpBuNlO6AAAB socket connected"}
+{"level":30,"time":1746846319760,"pid":21388,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846320377,"pid":21388,"hostname":"joao","msg":"ID: zbpOsgEQUXnRFIZgAAAB socket connected"}
+{"level":30,"time":1746846356735,"pid":12620,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846358376,"pid":12620,"hostname":"joao","msg":"ID: sb0N9cjoxWFDb9cwAAAB socket connected"}
+{"level":30,"time":1746846470805,"pid":1876,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846471369,"pid":1876,"hostname":"joao","msg":"ID: yXps_I5XgPP5w4s8AAAB socket connected"}
+{"level":30,"time":1746846540110,"pid":19240,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846540210,"pid":19240,"hostname":"joao","msg":"ID: ra4M1g0s4C4ieHuHAAAB socket connected"}
+{"level":30,"time":1746846560744,"pid":21708,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846562367,"pid":21708,"hostname":"joao","msg":"ID: xSFAyR6QQNG_ONQuAAAB socket connected"}
+{"level":30,"time":1746846567203,"pid":6652,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846569368,"pid":6652,"hostname":"joao","msg":"ID: ivBKBWRgawoLRd0QAAAB socket connected"}
+{"level":30,"time":1746846572839,"pid":20088,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746846574365,"pid":20088,"hostname":"joao","msg":"ID: OP4Npa3lIkTtHZkBAAAB socket connected"}
+{"level":30,"time":1746847692958,"pid":17912,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746847697385,"pid":17912,"hostname":"joao","msg":"ID: eCjHq1U6v0HbHlJZAAAB socket connected"}
+{"level":30,"time":1746847699432,"pid":17440,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746847701375,"pid":17440,"hostname":"joao","msg":"ID: Bc50MJ7HiLFBN3NbAAAB socket connected"}
+{"level":30,"time":1746847714458,"pid":14232,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746847716368,"pid":14232,"hostname":"joao","msg":"ID: XQeLp3nUu1hQY7yFAAAB socket connected"}
+{"level":30,"time":1746847721991,"pid":14028,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746847723736,"pid":16572,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746847723885,"pid":16572,"hostname":"joao","msg":"ID: HSC12FctwEZYhhl4AAAB socket connected"}
+{"level":30,"time":1746848263404,"pid":5672,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848263575,"pid":5672,"hostname":"joao","msg":"ID: WHOa2rn4pTRFa0FOAAAB socket connected"}
+{"level":30,"time":1746848288294,"pid":21168,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848288396,"pid":21168,"hostname":"joao","msg":"ID: NcOar1wWKU9SAzzuAAAB socket connected"}
+{"level":30,"time":1746848439106,"pid":19240,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848439377,"pid":19240,"hostname":"joao","msg":"ID: fDX_gYloVk_WArxKAAAB socket connected"}
+{"level":30,"time":1746848449253,"pid":20936,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848449381,"pid":20936,"hostname":"joao","msg":"ID: tCW3zYgBDa7JJUDYAAAB socket connected"}
+{"level":30,"time":1746848546591,"pid":18712,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848547376,"pid":18712,"hostname":"joao","msg":"ID: 5qkcITmQUN7OFT5LAAAB socket connected"}
+{"level":30,"time":1746848554116,"pid":2528,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848555382,"pid":2528,"hostname":"joao","msg":"ID: qkDJLY1Z6uhwVzTyAAAB socket connected"}
+{"level":30,"time":1746848780524,"pid":12516,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848780557,"pid":12516,"hostname":"joao","msg":"ID: DkycABrwRzP6jKedAAAB socket connected"}
+{"level":30,"time":1746848782165,"pid":5596,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848783376,"pid":5596,"hostname":"joao","msg":"ID: 46ffxziu8SJhIZc9AAAB socket connected"}
+{"level":30,"time":1746848787406,"pid":7280,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848789368,"pid":7280,"hostname":"joao","msg":"ID: jWXRrndptqIWUTZ5AAAB socket connected"}
+{"level":30,"time":1746848794180,"pid":11360,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848795369,"pid":11360,"hostname":"joao","msg":"ID: eUnruSs6oSJ7wyDMAAAB socket connected"}
+{"level":30,"time":1746848799771,"pid":21732,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848801362,"pid":21732,"hostname":"joao","msg":"ID: fgd6NbSi96dnHQLwAAAB socket connected"}
+{"level":30,"time":1746848866439,"pid":3784,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848866531,"pid":3784,"hostname":"joao","msg":"ID: jnvi0zjyl6QSSKNLAAAB socket connected"}
+{"level":30,"time":1746848872792,"pid":3140,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848874271,"pid":14220,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746848874374,"pid":14220,"hostname":"joao","msg":"ID: l1RECSHkbhYIbpyUAAAB socket connected"}
+{"level":30,"time":1746849005316,"pid":21456,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849005370,"pid":21456,"hostname":"joao","msg":"ID: EsWcS_qpa0ljgFI3AAAB socket connected"}
+{"level":30,"time":1746849022063,"pid":12208,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849023378,"pid":12208,"hostname":"joao","msg":"ID: WrNH1_YAUWD2tBYpAAAB socket connected"}
+{"level":30,"time":1746849060213,"pid":7072,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849060367,"pid":7072,"hostname":"joao","msg":"ID: 59Z5ad_Z5TSSkIGSAAAB socket connected"}
+{"level":30,"time":1746849095286,"pid":4896,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849097016,"pid":5720,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849097367,"pid":5720,"hostname":"joao","msg":"ID: 1M-p14ej8rt8y96mAAAB socket connected"}
+{"level":30,"time":1746849122467,"pid":22452,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849124370,"pid":22452,"hostname":"joao","msg":"ID: awXFADRj0d2vFkaqAAAB socket connected"}
+{"level":30,"time":1746849131438,"pid":12868,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849133374,"pid":12868,"hostname":"joao","msg":"ID: fHqCFhs-1jMe-fcIAAAB socket connected"}
+{"level":30,"time":1746849135927,"pid":22252,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849137377,"pid":22252,"hostname":"joao","msg":"ID: uZNtzU81CtmNV9-NAAAB socket connected"}
+{"level":30,"time":1746849141201,"pid":12612,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849142377,"pid":12612,"hostname":"joao","msg":"ID: 7-qnAhFZENEaovEXAAAB socket connected"}
+{"level":30,"time":1746849149711,"pid":19196,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849151906,"pid":17692,"hostname":"joao","msg":"ID: aZJyXMY-4m-38YNmAAAB socket connected"}
+{"level":30,"time":1746849151916,"pid":17692,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849153370,"pid":4924,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849154373,"pid":4924,"hostname":"joao","msg":"ID: kg6HlOd7By17d4JfAAAB socket connected"}
+{"level":30,"time":1746849170829,"pid":20368,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849172369,"pid":20368,"hostname":"joao","msg":"ID: 08NONmDsycUfoX3sAAAB socket connected"}
+{"level":30,"time":1746849176678,"pid":19752,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849178367,"pid":19752,"hostname":"joao","msg":"ID: fzkeijujdJc9TNaIAAAB socket connected"}
+{"level":30,"time":1746849196945,"pid":10640,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849198376,"pid":10640,"hostname":"joao","msg":"ID: z98vtEOZHLCJDwbxAAAB socket connected"}
+{"level":30,"time":1746849212697,"pid":20776,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849214368,"pid":20776,"hostname":"joao","msg":"ID: mLWT6KEhTOEq0e2CAAAB socket connected"}
+{"level":30,"time":1746849220487,"pid":19444,"hostname":"joao","msg":"Iniciando 0 sessões..."}
+{"level":30,"time":1746849221375,"pid":19444,"hostname":"joao","msg":"ID: oli-ypvethGmo1saAAAB socket connected"}

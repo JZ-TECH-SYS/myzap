@@ -2,7 +2,7 @@
 require('dotenv').config();
 
 const checkAPITokenMiddleware = async (req, res, next) => {
-  
+
 	let apitoken = req?.headers['apitoken']
 
 	if (!apitoken) {
