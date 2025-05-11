@@ -12,23 +12,40 @@ const events = require('../controllers/helper/events.js');
 module.exports = class Events {
   static async receiveMessage(session, client, req) {
     await client?.onAnyMessage(async message => {
+      const { funcoesSocket } = req;
+      const sessionkey = req.headers?.sessionkey;
+  
+      
       if (!events.isPermitido(message)) {
         console.log('Tipo de mensagem não permitido:', message?.type);
-        return req.funcoesSocket.events(session, message);
+        return funcoesSocket.events(session, message);
       }
-
+  
       const response = await events.montarPayload(message, session, client);
-
-      if (message?.fromMe) {
-        req.funcoesSocket.messagesent(session, response);
-      } else {
-        req.funcoesSocket.message(session, response);
+      if (message?.fromMe) {  //mensagens que você (ou o bot) acabou de mandar
+        funcoesSocket.messagesent(session, response);
+      } else { // emit das mensagens que o usuário enviou
+        funcoesSocket.message(session, response); 
+  
+        // ⬇️ Processa com IA (somente lógica, sem socket aqui)
+        const EmpresaIA = require('./helper/empresaIA.js');
+        const respostaIA = await EmpresaIA.processarMensagem({
+          session,
+          sessionkey,
+          message
+        });
+  
+        if (respostaIA) {
+          // ⬇️ Envia pro cliente via socket
+          await client.sendText(message.from, respostaIA);
+        }
       }
-
+  
       await webhooks?.wh_messages(session, response);
-      req.funcoesSocket.events(session, message);
+      funcoesSocket.events(session, message);
     });
   }
+  
 
   static statusMessage(session, client, req) {
     client?.onAck(async ack => {

@@ -2,6 +2,7 @@ const Sessions = require('../../../../controllers/SessionsController');
 const logger = require('../../../../util/logger');
 const engine = require('../../../../engines/WppConnect');
 const helpSS = require('../../../../controllers/helper/sessions');
+const http = require('../../../../controllers/helper/http');
 
 module.exports = {
   async getPlatformFromMessage(req, res) {
@@ -154,6 +155,7 @@ module.exports = {
     const session = req.body.session;
     const data = await Sessions.getClient(session);
 
+    console.log('[DEBUG] startSession', session);
     try {
       if (data) {
         await helpSS.atualizarTentativasStart(session, data.attempts_start, new Date(data.last_start));

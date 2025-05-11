@@ -88,36 +88,6 @@ module.exports = {
     }
   },
 
-  async setup2FA(req, res) {
-    const { token } = req.body;
-    const tempSecret = req.session.temp2FASecret;
-    const userData = req.session.tempUser;
-
-    if (!userData || !tempSecret) {
-      return res.json({ success: false, message: "Sessão expirada" });
-    }
-
-    // const isValid = speakeasy.totp.verify({
-    //   secret: tempSecret,
-    //   encoding: "base32",
-    //   token,
-    //   window: 1,
-    // });
-
-    // if (!isValid) {
-    //   return res.json({ success: false, message: "Código inválido" });
-    // }
-
-    const user = await User.findByPk(userData.id);
-    await user.update({ two_fa_secret: tempSecret });
-
-    req.session.usuario = userData;
-    delete req.session.tempUser;
-    delete req.session.temp2FASecret;
-
-    return res.json({ success: true });
-  },
-
   async verify2FA(req, res) {
     const { token } = req.body;
     const userData = req.session.tempUser;
@@ -126,18 +96,18 @@ module.exports = {
       return res.json({ success: false, message: "Sessão expirada" });
     }
 
-    const user = await User.findByPk(userData.id);
+    // const user = await User.findByPk(userData.id);
 
-    const isValid = speakeasy.totp.verify({
-      secret: user.two_fa_secret,
-      encoding: "base32",
-      token,
-      window: 1,
-    });
+    // const isValid = speakeasy.totp.verify({
+    //   secret: user.two_fa_secret,
+    //   encoding: "base32",
+    //   token,
+    //   window: 1,
+    // });
 
-    if (!isValid) {
-      return res.json({ success: false, message: "Código inválido" });
-    }
+    // if (!isValid) {
+    //   return res.json({ success: false, message: "Código inválido" });
+    // }
 
     req.session.usuario = userData;
     delete req.session.tempUser;

@@ -1,155 +1,109 @@
+const router_url = new URL(window.location.href);
+const params = new URLSearchParams(router_url.search);
 
-let router_url = new URL(window.location.href);
-let params = new URLSearchParams(router_url.search);
-
-//document.getElementById("apitoken").value = params.get("apitoken");
-document.getElementById("session").value = params.get("session");
-document.getElementById("sessionkey").value = params.get("sessionkey");
+// Preenche automaticamente os campos se vierem por URL
+document.getElementById("session").value = params.get("session") ?? '';
+document.getElementById("sessionkey").value = params.get("sessionkey") ?? '';
 
 const socket = io(url, {
-    transportOptions: {
-        polling: {
-            extraHeaders: {
-                'Authorization': 'Bearer abc',
-            },
-        },
+  transportOptions: {
+    polling: {
+      extraHeaders: {
+        'Authorization': 'Bearer abc',
+      },
     },
+  },
 });
 
 async function getClient(session) {
+  const payload = {
+    session: document.getElementById("session").value,
+    wh_status: document.getElementById("wh_status").value,
+    wh_message: document.getElementById("wh_message").value,
+    wh_qrcode: document.getElementById("wh_qrcode").value,
+    wh_connect: document.getElementById("wh_connect").value,
+    
+    // Campos adicionais para seu controle
+    empresa_nome: document.getElementById("empresa_nome")?.value,
+    api_url: document.getElementById("api_url")?.value,
+  };
 
-    axios.post(url + "/start", {
-        session: document.getElementById("session").value,
+  const headers = {
+    apitoken: document.getElementById("apitoken").value,
+    sessionkey: document.getElementById("sessionkey").value
+  };
 
-        wh_status: document.getElementById("wh_status").value,
-        wh_message: document.getElementById("wh_message").value,
-        wh_qrcode: document.getElementById("wh_qrcode").value,
-        wh_connect: document.getElementById("wh_connect").value,
-        
-    }, {
-        headers: {
-            apitoken: document.getElementById("apitoken").value,
-            sessionkey: document.getElementById("sessionkey").value
-        }
-    })
-    .then((value) => { 
+  try {
+    const value = await axios.post(`${url}/start`, payload, { headers });
 
-        // document.getElementById('image').src = ""
-        // document.getElementById('image').style.visibility = "hidden";
-
-        if (value.data?.state == 'CONNECTED') {
-
-            Swal.fire(
-                'Sucesso!!',
-                'Whatsapp já está conectado',
-                'warning'
-            )
-
-            document.getElementById('image').src = "/ok.png"
-        }
-
-    })
-    .catch((err) => { 
-        
-        Swal.fire(
-            'Error!!',
-            `${err ?? ''}`,
-            'error'
-        )
-
-    })
+    if (value.data?.state === 'CONNECTED') {
+      Swal.fire('Sucesso!!', 'Whatsapp já está conectado', 'success');
+      document.getElementById('image').src = "/ok.png";
+    }
+  } catch (err) {
+    Swal.fire('Erro!!', `${err?.response?.data?.message || err}`, 'error');
+    document.getElementById('image').src = "/error.png";
+  }
 }
 
-    async function alterSession(session) {
+async function alterSession(session) {
+  session = document.getElementById('session').value;
 
-        session = document.getElementById('session').value
+  const sessionKey = document.getElementById('sessionkey').value;
+  const apiToken = document.getElementById('apitoken').value;
 
-        if (!session) {
-            
-            Swal.fire(
-                'Error!!',
-                'Digite o nome da sessão antes de continuar...',
-                'error'
-            )
+  if (!session) {
+    return showError('Digite o nome da sessão antes de continuar...');
+  }
 
-            document.getElementById('image').src = "/error.png"
-            document.getElementById('image').style.visibility = "visible";
+  if (!apiToken) {
+    return showError('Digite o TOKEN da API antes de continuar...');
+  }
 
-        } else if (!document.getElementById('apitoken').value) {
-            Swal.fire(
-                'Error!!',
-                'Digite o TOKEN da API antes de continuar...',
-                'error'
-            )
+  if (!sessionKey) {
+    return showError('Digite a SESSION KEY da sessão antes de continuar...');
+  }
 
-            document.getElementById('image').src = "/error.png"
-            document.getElementById('image').style.visibility = "visible";
+  document.getElementById('image').style.visibility = "visible";
+  document.getElementById('send-btn').disabled = true;
 
-        } else if (!document.getElementById('sessionkey').value) {
-            
-            Swal.fire(
-                'Error!!',
-                'Digite a SESSION KEY da sessão antes de continuar...',
-                'error'
-            )
+  setTimeout(() => {
+    document.getElementById('send-btn').disabled = false;
+  }, 10000);
 
-            document.getElementById('image').src = "/error.png"
-            document.getElementById('image').style.visibility = "visible";
+  await getClient(session);
 
-        }else {
-            
-            document.getElementById('image').style.visibility = "visible";
-            document.getElementById('send-btn').disabled = true
-
-            setTimeout(() => {
-                document.getElementById('send-btn').disabled = false
-            }, 10000);
-
-            await getClient(session)
-        }
-
-        socket.on('qrcode', (qrcode) => {
-
-            if (session == qrcode.session) {
-
-                console.log('qrcode ===>', qrcode)
-                
-                if(typeof qrcode.qrCode === 'string'){
-                    document.getElementById('image').src = qrcode.qrCode
-                }else{
-                    document.getElementById('image').src = "/error.png"
-                }
-
-            }
-
-        })
-
-        socket.on('events', (event) => {
-
-            if (session == event.session) {
-
-                console.log('event ===>', event)
-
-                document.getElementById('status').innerHTML = `Resposta: ${event?.message ?? ''} / Estado: ${event?.state ?? ''}`
-                
-                if (event?.state == 'CONNECTED') {
-                    Swal.fire(
-                        'Sucesso!!',
-                        'Whatsapp Aberto com sucesso',
-                        'success'
-                    )
-                    document.getElementById('image').src = "/ok.png"
-                }
-
-                if (event?.state == 'DISCONNECTED' && event?.state != 'CONNECTED') {
-                    Swal.fire(
-                        'Error!!',
-                        'Erro durante a inicialização da sessão',
-                        'error'
-                    )
-                    document.getElementById('image').src = "/error.png"
-                }
-            }
-
-        })
+  // QR Code listener
+  socket.on('qrcode', (qrcode) => {
+    if (session === qrcode.session) {
+      console.log('qrcode ===>', qrcode);
+      document.getElementById('image').src = qrcode.qrCode || "/error.png";
     }
+  });
+
+  // Eventos gerais
+  socket.on('events', (event) => {
+    if (session === event.session) {
+      console.log('event ===>', event);
+
+      document.getElementById('status').innerHTML =
+        `Resposta: ${event?.message ?? ''} / Estado: ${event?.state ?? ''}`;
+
+      if (event?.state === 'CONNECTED') {
+        Swal.fire('Sucesso!!', 'Whatsapp Aberto com sucesso', 'success');
+        document.getElementById('image').src = "/ok.png";
+      }
+
+      if (event?.state === 'DISCONNECTED') {
+        Swal.fire('Erro!!', 'Erro durante a inicialização da sessão', 'error');
+        document.getElementById('image').src = "/error.png";
+      }
+    }
+  });
+}
+
+function showError(msg) {
+  Swal.fire('Erro!!', msg, 'error');
+  document.getElementById('image').src = "/error.png";
+  document.getElementById('image').style.visibility = "visible";
+}
