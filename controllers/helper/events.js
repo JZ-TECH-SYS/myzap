@@ -48,46 +48,101 @@ module.exports = {
   },
 
   async montarPayload(message, session, client) {
-    const type = this.normalizarTipo(message);
-    const base64 = await this.baixarMidia(type, client, message?.id);
-    const timestamp = this.formatarData(message?.timestamp);
-    const nome = message?.sender?.pushname || message?.sender?.verifiedName || message?.sender?.shortName || message?.sender?.name || "";
+    const type = this.normalizarTipo(message);   // text, image, …
+    const base64 = await this.baixarMidia(type, client, message.id);
+    const timestamp = this.formatarData(message.timestamp);
+    const nome = message?.sender?.pushname
+      || message?.sender?.verifiedName
+      || message?.sender?.shortName
+      || message?.sender?.name
+      || '';
 
     const base = {
-      wook: message?.fromMe ? 'SEND_MESSAGE' : 'RECEIVE_MESSAGE',
-      status: message?.fromMe ? 'SENT' : 'RECEIVED',
+      wook: message.fromMe ? 'SEND_MESSAGE' : 'RECEIVE_MESSAGE',
+      status: message.fromMe ? 'SENT' : 'RECEIVED',
       type,
-      fromMe: message?.fromMe,
-      id: message?.id,
+      fromMe: message.fromMe,
+      id: message.id,
       session,
-      isGroupMsg: message?.isGroupMsg,
-      author: message?.author || null,
+      isGroupMsg: message.isGroupMsg,
+      author: message.author || null,
       name: nome,
-      to: message?.to?.split('@')[0],
-      from: message?.from?.split('@')[0],
-      quotedMsg: message?.quotedMsg || '',
-      quotedMsgId: message?.quotedMsgId || '',
+      to: message.to?.split('@')[0],
+      from: message.from?.split('@')[0],
+      quotedMsg: message.quotedMsg || '',
+      quotedMsgId: message.quotedMsgId || '',
       datetime: timestamp,
       data: message
     };
 
-    const extras = {
-      text: { content: message?.body },
-      image: { caption: message?.caption || '', mimetype: message?.mimetype, base64 },
-      video: { caption: message?.caption || '', content: message?.body, base64 },
-      sticker: { caption: message?.caption || '', mimetype: message?.mimetype, content: message?.body, base64 },
-      audio: { mimetype: message?.mimetype, base64 },
-      ptt: { mimetype: message?.mimetype, base64 },
-      document: { mimetype: message?.mimetype, caption: message?.caption || '', base64 },
-      location: { content: message?.body, loc: message?.loc, lat: message?.lat, lng: message?.lng },
-      link: { thumbnail: message?.thumbnail, title: message?.title, description: message?.description, url: message?.body },
-      vcard: { contactName: message?.vcardFormattedName, contactVcard: message?.body },
-      multi_vcard: { contactName: message?.vcardFormattedName, vcardList: message?.vcardList },
-      list: { content: message?.list },
-      list_response: { listResponse: message?.listResponse, content: message?.content },
-      order: { content: '', order: await client.getOrderbyMsg(message?.id) }
-    };
+    /* ---------------- extras específicos ---------------- */
+    let extras = {};
 
-    return { ...base, ...(extras[type] || {}) };
+    switch (type) {
+      case 'text':
+        extras = { content: message.body };
+        break;
+
+      case 'image':
+        extras = { caption: message.caption || '', mimetype: message.mimetype, base64 };
+        break;
+
+      case 'video':
+        extras = { caption: message.caption || '', content: message.body, base64 };
+        break;
+
+      case 'sticker':
+        extras = { caption: message.caption || '', mimetype: message.mimetype, content: message.body, base64 };
+        break;
+
+      case 'audio':
+      case 'ptt':
+        extras = { mimetype: message.mimetype, base64 };
+        break;
+
+      case 'document':
+        extras = { mimetype: message.mimetype, caption: message.caption || '', base64 };
+        break;
+
+      case 'location':
+        extras = { content: message.body, loc: message.loc, lat: message.lat, lng: message.lng };
+        break;
+
+      case 'link':
+        extras = { thumbnail: message.thumbnail, title: message.title, description: message.description, url: message.body };
+        break;
+
+      case 'vcard':
+        extras = { contactName: message.vcardFormattedName, contactVcard: message.body };
+        break;
+
+      case 'multi_vcard':
+        extras = { contactName: message.vcardFormattedName, vcardList: message.vcardList };
+        break;
+
+      case 'list':
+        extras = { content: message.list };
+        break;
+
+      case 'list_response':
+        extras = { listResponse: message.listResponse, content: message.content };
+        break;
+
+      case 'order':
+        try {
+          const orderInfo = await client.getOrderbyMsg(message.id);
+          extras = { content: '', order: orderInfo };
+        } catch (err) {
+          console.error('[PAYLOAD] erro getOrderbyMsg:', err);
+        }
+        break;
+
+      default:
+        // outros tipos sem extras
+        break;
+    }
+
+    console.log('[DEBUG] montarPayload OK – type:', type);
+    return { ...base, ...extras };
   }
 };
