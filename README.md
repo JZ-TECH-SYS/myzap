@@ -18,12 +18,3 @@ Além disso, utilizamos como base as seguintes bibliotecas de automação:
 - [Venom-bot](https://github.com/orkestral/venom)
 
 Nosso respeito e agradecimento a todos os desenvolvedores que tornam esse ecossistema possível 💚
-
----
-```
-
-Se quiser posso também gerar um badge tipo:
-
-```md
-[![based-on](https://img.shields.io/badge/base-v3.0.0-blue)](https://github.com/billbarsch/myzap/tree/v3.0.0)
-```
