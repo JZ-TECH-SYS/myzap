@@ -12,6 +12,7 @@ const { startAllSessions } = require("./startup");
 const logger = require("./util/logger");
 const expressPinoLogger = require("express-pino-logger");
 const authApi = require("./routers/Auth");
+const chatRouter = require("./routers/Chat");
 
 // Verifica se o diretório de instâncias existe, senão cria
 if (!fs.existsSync("./instances")) {
@@ -113,6 +114,7 @@ const manager = require("./routers/Manager");
 app.use(router, loggerMiddleware);
 app.use(manager);
 app.use(authApi);
+app.use(chatRouter);
 // Inicialização do servidor
 server.listen(config.port, async (error) => {
   if (error) {

@@ -1,51 +1,83 @@
-const webhooks = require('./WebhooksController.js');
-const logger = require('../util/logger.js');
-const config = require('../config.js');
-const moment = require('moment');
+'use strict';
+
+const moment          = require('moment');
+const webhooks        = require('./WebhooksController.js');
+const logger          = require('../util/logger.js');
+const config          = require('../config.js');
+
+const DeviceModel          = require('../Models/device.js');
+const Device               = DeviceModel(config.sequelize);
+const DeviceCompanyModel   = require('../Models/deviceCompany.js');
+const DeviceCompany        = DeviceCompanyModel(config.sequelize);
+
+/* -------- helpers internos -------- */
+const eventsHelper   = require('./helper/events.js');
+const TriggersHelper = require('./helper/triggers.js');
+const EmpresaIA      = require('./helper/empresaIA.js');
+
 moment.locale('pt-br');
 
-const DeviceModel = require('../Models/device.js');
-const Device = DeviceModel(config.sequelize);
-
-const events = require('../controllers/helper/events.js');
-
 module.exports = class Events {
+  /**
+   * Orquestra o recebimento de qualquer mensagem
+   * – socket / webhook
+   * – IA (somente privado + empresa habilitada)
+   */
   static async receiveMessage(session, client, req) {
     await client?.onAnyMessage(async message => {
       const { funcoesSocket } = req;
-      const sessionkey = req.headers?.sessionkey;
-  
-      
-      if (!events.isPermitido(message)) {
-        console.log('Tipo de mensagem não permitido:', message?.type);
+      const sessionkey       = req.headers?.sessionkey;
+
+      /* 1. ignora tipos não permitidos */
+      if (!eventsHelper.isPermitido(message)) {
         return funcoesSocket.events(session, message);
       }
-  
-      const response = await events.montarPayload(message, session, client);
-      if (message?.fromMe) {  //mensagens que você (ou o bot) acabou de mandar
-        funcoesSocket.messagesent(session, response);
-      } else { // emit das mensagens que o usuário enviou
-        funcoesSocket.message(session, response); 
-  
-        // ⬇️ Processa com IA (somente lógica, sem socket aqui)
-        const EmpresaIA = require('./helper/empresaIA.js');
-        const respostaIA = await EmpresaIA.processarMensagem({
-          session,
-          sessionkey,
-          message
-        });
-  
-        if (respostaIA) {
-          // ⬇️ Envia pro cliente via socket
-          await client.sendText(message.from, respostaIA);
+
+      /* 2. monta payload padrão */
+      const payload = await eventsHelper.montarPayload(message, session, client);
+
+      /* 3. emite sockets */
+      if (message.fromMe) {
+        funcoesSocket.messagesent(session, payload);
+      } else {
+        funcoesSocket.message(session, payload);
+
+        /* 4. processa IA (se habilitado e não for grupo) */
+        const empresa = await this.verificarIAHabilitada(session, sessionkey);
+        console.log('[EVENTS] empresa:', empresa);
+        if (empresa && !message.isGroupMsg) {
+          const texto = (message.body || '').trim();
+
+          /* colocar validacao se ja conversou com esse contato n duplica msg e caso ja falou com IA continue conversa */
+          if (TriggersHelper.necessitaIA(texto) ) {
+            /* chama a OpenAI */
+            const resposta = await EmpresaIA.processarMensagem({
+              session,
+              sessionkey,
+              message
+            });
+
+            if (resposta) await client.sendText(message.from, resposta);
+          } else if (empresa.mensagem_padrao) {
+            console.log(`[IA] Nenhum trigger – enviando mensagem padrão para ${message.from}`);
+            /* boas-vindas simples */
+            await client.sendText(message.from, empresa.mensagem_padrao);
+          }
         }
       }
-  
-      await webhooks?.wh_messages(session, response);
+
+      /* 5. webhook + evento genérico */
+      await webhooks?.wh_messages(session, payload);
       funcoesSocket.events(session, message);
     });
   }
-  
+
+  /**
+   * Verifica se o device atual pertence a empresa habilitada para IA.
+   */
+  static async verificarIAHabilitada(session, sessionkey) {
+    return await DeviceCompany.findOne({ where: { session, sessionkey } });
+  }
 
   static statusMessage(session, client, req) {
     client?.onAck(async ack => {
