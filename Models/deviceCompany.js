@@ -10,7 +10,8 @@ module.exports = (sequelize) => {
     session: DataTypes.STRING,
     sessionkey: DataTypes.STRING,
     empresa_nome: DataTypes.STRING,
-    api_url: DataTypes.STRING
+    api_url: DataTypes.STRING,
+    mensagem_padrao: DataTypes.TEXT
   }, {
     sequelize,
     modelName: 'DeviceCompany',

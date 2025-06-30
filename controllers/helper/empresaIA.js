@@ -1,64 +1,97 @@
+'use strict';
+
+/**
+ *  ┌───────────────────────────────────────────┐
+ *  │  EMPRESA-IA HELPER                        │
+ *  └───────────────────────────────────────────┘
+ *  • Usa:
+ *      – triggers.js       → decide se deve chamar IA
+ *      – chatHistory.js    → ler / gravar histórico
+ *      – TokenUsage model  → contabilizar tokens por mês
+ */
+
 require('dotenv').config();
-const moment = require('moment');
-const OpenAI = require('openai');      // SDK oficial (CommonJS ok)
+const moment  = require('moment');
+const OpenAI  = require('openai');                     // SDK oficial
+const config  = require('../../config.js');
 
-const config = require('../../config.js');
-const DeviceCompanyModel = require('../../Models/deviceCompany.js');
+const Triggers          = require('./triggers');
+const ChatHistoryHelper = require('./chatHistory');
+
 const TokenUsageModel = require('../../Models/tokenUsage.js');
+const TokenUsage      = TokenUsageModel(config.sequelize);
 
-const DeviceCompany = DeviceCompanyModel(config.sequelize);
-const TokenUsage = TokenUsageModel(config.sequelize);
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY      // vem do .env
-});
-
-// ------------------------------------------------------------------
 module.exports = {
-    /**
-     * Envia a mensagem do usuário para o modelo da OpenAI e grava
-     * a quantidade real de tokens consumidos no mês corrente.
-     */
-    async processarMensagem({ session, sessionkey, message }) {
-        try {
-            // 1. verifica se o device pertence a uma empresa habilitada
-            const empresa = await DeviceCompany.findOne({ where: { session, sessionkey } });
-            if (!empresa) return null;
+  /**
+   * Processa a mensagem recebida:
+   * 1. verifica triggers  · 2. monta histórico  · 3. chama OpenAI
+   * 4. grava histórico e tokens  · 5. devolve texto de resposta
+   */
+  async processarMensagem({ session, sessionkey, message }) {
+    try {
+      const promptUsuario  = (message?.body || '').trim();
+      const numeroCliente  = message?.from;      // JID completo
 
-            const promptUsuario = message.body;
+      if (!promptUsuario) return null;
 
-            if(!promptUsuario) {
-                console.log('[IA] mensagem vazia');
-                return null;
-            }
+      /* ---------- 1. Confere gatilhos para economizar tokens ---------- */
+      if (!Triggers.necessitaIA(promptUsuario)) {
+        console.log('[IA] Nenhum trigger – não chamou OpenAI');
+        return null;
+      }
 
-            console.log('[IA] processando mensagem:', promptUsuario);
+      /* ---------- 2. Busca histórico das últimas 1h ---------- */
+      const historico = await ChatHistoryHelper.getRecent({
+        session,
+        sessionkey,
+        numero: numeroCliente,
+        minutos: 60
+      });
 
-            // 2. chama o modelo (chat completions)
-            const completion = await openai.chat.completions.create({
-                model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
-                messages: [
-                    { role: 'system', content: 'Você é um atendente da empresa.' },
-                    { role: 'user', content: promptUsuario }
-                ]
-            });
+      /* ---------- 3. Monta prompt ---------- */
+      const messages = [
+        {
+          role: 'system',
+          content: 'Você é atendente da empresa. Seja claro, educado e objetivo.'
+        },
+        ...historico.map(h => ({ role: h.role, content: h.msg })),
+        { role: 'user', content: promptUsuario }
+      ];
 
-            // 3. resposta e tokens usados
-            const textoResposta = completion.choices?.[0]?.message?.content?.trim() || null;
-            const tokensGastos = completion.usage?.total_tokens || 0;   // número real
+      /* ---------- 4. Chama OpenAI ---------- */
+      const completion = await openai.chat.completions.create({
+        model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
+        messages
+      });
 
-            // 4. grava / incrementa tokens do mês (YYYYMM)
-            const mesano = moment().format('YYYYMM');
-            const [registro] = await TokenUsage.findOrCreate({
-                where: { session, sessionkey, mesano },
-                defaults: { tokens_consumed: 0 }
-            });
-            await registro.increment('tokens_consumed', { by: tokensGastos });
+      const textoResposta = completion.choices?.[0]?.message?.content?.trim() || null;
+      if (!textoResposta) return null;
 
-            return textoResposta;
-        } catch (err) {
-            console.error('[IA] erro:', err);
-            return null;
-        }
+      /* ---------- 5. Grava tokens do mês ---------- */
+      const tokensGastos = completion.usage?.total_tokens || 0;
+      const mesano       = moment().format('YYYYMM');
+
+      const [registro] = await TokenUsage.findOrCreate({
+        where: { session, sessionkey, mesano },
+        defaults: { tokens_consumed: 0 }
+      });
+      await registro.increment('tokens_consumed', { by: tokensGastos });
+
+      /* ---------- 6. Salva par user/assistant no histórico ---------- */
+      await ChatHistoryHelper.savePair({
+        session,
+        sessionkey,
+        numero: numeroCliente,
+        userText: promptUsuario,
+        assistantText: textoResposta
+      });
+
+      return textoResposta;
+    } catch (err) {
+      console.error('[IA] Erro:', err.message);
+      return null;
     }
+  }
 };
