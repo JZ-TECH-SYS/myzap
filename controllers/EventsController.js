@@ -1,19 +1,21 @@
 'use strict';
 
-const moment          = require('moment');
-const webhooks        = require('./WebhooksController.js');
-const logger          = require('../util/logger.js');
-const config          = require('../config.js');
+const moment = require('moment');
+const webhooks = require('./WebhooksController.js');
+const logger = require('../util/logger.js');
+const config = require('../config.js');
 
-const DeviceModel          = require('../Models/device.js');
-const Device               = DeviceModel(config.sequelize);
-const DeviceCompanyModel   = require('../Models/deviceCompany.js');
-const DeviceCompany        = DeviceCompanyModel(config.sequelize);
+const DeviceModel = require('../Models/device.js');
+const Device = DeviceModel(config.sequelize);
+const DeviceCompanyModel = require('../Models/deviceCompany.js');
+const DeviceCompany = DeviceCompanyModel(config.sequelize);
+const ChatHistoryHelper = require('./helper/chatHistory.js');
 
 /* -------- helpers internos -------- */
-const eventsHelper   = require('./helper/events.js');
+const eventsHelper = require('./helper/events.js');
 const TriggersHelper = require('./helper/triggers.js');
-const EmpresaIA      = require('./helper/empresaIA.js');
+const EmpresaIA = require('./helper/empresaIA.js');
+const transcribe = require('./helper/audioTranscriber.js');
 
 moment.locale('pt-br');
 
@@ -24,9 +26,17 @@ module.exports = class Events {
    * – IA (somente privado + empresa habilitada)
    */
   static async receiveMessage(session, client, req) {
-    await client?.onAnyMessage(async message => {
+    client?.onAnyMessage(async message => {
+
+      async function responseDefault(payload) {
+        await webhooks?.wh_messages(session, payload);
+        funcoesSocket.events(session, message);
+      }
+
       const { funcoesSocket } = req;
-      const sessionkey       = req.headers?.sessionkey;
+      const sessionkey = req.headers?.sessionkey;
+      const texto = (message.body || '').trim();
+      const numero = message.from;
 
       /* 1. ignora tipos não permitidos */
       if (!eventsHelper.isPermitido(message)) {
@@ -36,39 +46,103 @@ module.exports = class Events {
       /* 2. monta payload padrão */
       const payload = await eventsHelper.montarPayload(message, session, client);
 
-      /* 3. emite sockets */
+      /* 3. mensagens enviadas pelo próprio bot ou vc*/
       if (message.fromMe) {
         funcoesSocket.messagesent(session, payload);
-      } else {
-        funcoesSocket.message(session, payload);
+        await webhooks?.wh_messages(session, payload);   // ⬅️ um único disparo
+        return;
+      }
 
-        /* 4. processa IA (se habilitado e não for grupo) */
-        const empresa = await this.verificarIAHabilitada(session, sessionkey);
-        console.log('[EVENTS] empresa:', empresa);
-        if (empresa && !message.isGroupMsg) {
-          const texto = (message.body || '').trim();
 
-          /* colocar validacao se ja conversou com esse contato n duplica msg e caso ja falou com IA continue conversa */
-          if (TriggersHelper.necessitaIA(texto) ) {
-            /* chama a OpenAI */
-            const resposta = await EmpresaIA.processarMensagem({
-              session,
-              sessionkey,
-              message
-            });
+      funcoesSocket.message(session, payload);
+      /* 4. processa IA (se habilitado e não for grupo) */
+      /* ----- IA somente se privado e empresa habilitada ----- */
+      const empresa = await this.verificarIAHabilitada(session, sessionkey);
+      if (!empresa || message.isGroupMsg) {
+        await responseDefault(payload);
+        return;
+      }
 
-            if (resposta) await client.sendText(message.from, resposta);
-          } else if (empresa.mensagem_padrao) {
-            console.log(`[IA] Nenhum trigger – enviando mensagem padrão para ${message.from}`);
-            /* boas-vindas simples */
-            await client.sendText(message.from, empresa.mensagem_padrao);
-          }
+
+      /* ----- Áudio / ptt ----- */
+      if (message.type === 'audio' || message.type === 'ptt') {
+        await client.sendText(
+          numero,
+          'Recebi seu áudio. Só um instante enquanto o escuto, já te respondo! 😊🚀'
+        );
+        if (message.duration && message.duration > 90) {
+          await client.sendText(
+            numero,
+            'Recebemos seu áudio, mas ele passa de 1 min 30 s. Pode enviar um resumo rapidinho? 😊'
+          );
+          await responseDefault(payload);
+          return;
+        }
+
+        const mediaBuffer = await client.decryptFile(message);
+        const MAX_SIZE = 25 * 1024 * 1024;
+        if (mediaBuffer.byteLength > MAX_SIZE) {
+          await client.sendText(numero, 'O áudio ficou grande demais. Poderia enviar algo mais curto? 😉');
+          await responseDefault(payload);
+          return;
+        }
+
+        try {
+          const textoTranscrito = await transcribe({ buffer: mediaBuffer, session, sessionkey });
+          if (!textoTranscrito) throw new Error('transcrição vazia');
+
+          // grava no histórico ANTES de mudar o type
+          await ChatHistoryHelper.savePair({
+            session,
+            sessionkey,
+            numero,
+            userText: textoTranscrito,
+            assistantText: null
+          });
+
+          message.body = textoTranscrito;
+          message.type = 'chat';
+          payload.body = textoTranscrito;
+          payload.type = 'chat';
+        } catch (err) {
+          console.error(`[IA] Erro ao transcrever áudio: ${err.message}`);
+          await client.sendText(numero, 'Desculpe, não consegui entender o áudio. Pode digitar? 🤔');
+          await responseDefault(payload);
+          return;
         }
       }
 
+      const ativa = await ChatHistoryHelper.hasRecent({
+        session, sessionkey, numero, minutos: 30
+      });
+
+
+      if (ativa) {
+        /* já tem diálogo recente → chama IA direto (sem triggers) */
+        const resposta = await EmpresaIA.processarMensagem(
+          { session, sessionkey, message },
+          { skipTriggers: true }
+        );
+        if (resposta) await client.sendText(numero, resposta);
+
+      } else if (TriggersHelper.necessitaIA(texto)) {
+        const resposta = await EmpresaIA.processarMensagem({ session, sessionkey, message });
+        if (resposta) await client.sendText(numero, resposta);
+
+      } else if (empresa.mensagem_padrao) {
+        await client.sendText(numero, empresa.mensagem_padrao);
+        await ChatHistoryHelper.savePair({
+          session,
+          sessionkey,
+          numero,
+          userText: null,
+          assistantText: empresa.mensagem_padrao   // grava saudação
+        });
+      }
+
+
       /* 5. webhook + evento genérico */
-      await webhooks?.wh_messages(session, payload);
-      funcoesSocket.events(session, message);
+      await responseDefault();
     });
   }
 
@@ -81,8 +155,8 @@ module.exports = class Events {
 
   static statusMessage(session, client, req) {
     client?.onAck(async ack => {
-      const type = events.normalizarTipo(ack);
-      const status = events.tipoAckToStatus(ack?.ack);
+      const type = eventsHelper.normalizarTipo(ack);
+      const status = eventsHelper.tipoAckToStatus(ack?.ack);
 
       const response = {
         wook: 'MESSAGE_STATUS',

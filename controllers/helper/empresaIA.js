@@ -29,7 +29,7 @@ module.exports = {
    * 1. verifica triggers  · 2. monta histórico  · 3. chama OpenAI
    * 4. grava histórico e tokens  · 5. devolve texto de resposta
    */
-  async processarMensagem({ session, sessionkey, message }) {
+  async processarMensagem({ session, sessionkey, message }, { skipTriggers = false } = {}) {
     try {
       const promptUsuario  = (message?.body || '').trim();
       const numeroCliente  = message?.from;      // JID completo
@@ -37,7 +37,7 @@ module.exports = {
       if (!promptUsuario) return null;
 
       /* ---------- 1. Confere gatilhos para economizar tokens ---------- */
-      if (!Triggers.necessitaIA(promptUsuario)) {
+      if (!skipTriggers  && !Triggers.necessitaIA(promptUsuario)) {
         console.log('[IA] Nenhum trigger – não chamou OpenAI');
         return null;
       }
