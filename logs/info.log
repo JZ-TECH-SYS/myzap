@@ -660,3 +660,62 @@
 {"level":30,"time":1751243084225,"pid":2396,"hostname":"joao","msg":"ID: yhbKfqU1EJ05kXsjAAAB socket connected"}
 {"level":30,"time":1751243089451,"pid":2396,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
 {"level":30,"time":1751243089586,"pid":2396,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751243143858,"pid":372,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751243143894,"pid":372,"hostname":"joao","msg":"ID: w5pkt9xiPgTFpgywAAAB socket connected"}
+{"level":30,"time":1751243143898,"pid":372,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751243149218,"pid":372,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751243149809,"pid":372,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751243192183,"pid":372,"hostname":"joao","msg":"Received SIGINT. Starting graceful shutdown..."}
+{"level":30,"time":1751320966045,"pid":5556,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751320966213,"pid":5556,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751320974266,"pid":5556,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751320974315,"pid":5556,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751321011126,"pid":5556,"hostname":"joao","msg":"Received SIGINT. Starting graceful shutdown..."}
+{"level":30,"time":1751327011404,"pid":14520,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751327011444,"pid":14520,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751327017156,"pid":14520,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751327017180,"pid":14520,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751327962328,"pid":14520,"hostname":"joao","msg":"Received SIGINT. Starting graceful shutdown..."}
+{"level":30,"time":1751327992997,"pid":20224,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751327993031,"pid":20224,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751327999368,"pid":20224,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751327999455,"pid":20224,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751328195968,"pid":26144,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751328195999,"pid":26144,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751328202302,"pid":26144,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751328202548,"pid":26144,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751328237016,"pid":24900,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751328237049,"pid":24900,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751328243390,"pid":24900,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751328243449,"pid":24900,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751328353177,"pid":18612,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751328353207,"pid":18612,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751328359397,"pid":18612,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751328359616,"pid":18612,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751328746353,"pid":22232,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751328746385,"pid":22232,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751328752877,"pid":22232,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751328752937,"pid":22232,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751328790999,"pid":25304,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751328791032,"pid":25304,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751328798114,"pid":25304,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751328798207,"pid":25304,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751328872899,"pid":6784,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751328872929,"pid":6784,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751328881130,"pid":5984,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751328881166,"pid":5984,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751328887537,"pid":5984,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751328887963,"pid":5984,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751328996773,"pid":18060,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751328996808,"pid":18060,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751329003996,"pid":18060,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751329004390,"pid":18060,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751329123769,"pid":18468,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751329123802,"pid":18468,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751329130466,"pid":18468,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751329130543,"pid":18468,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751329944490,"pid":14076,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1751329944525,"pid":14076,"hostname":"joao","msg":"Starting WhatsApp…"}
+{"level":30,"time":1751329950775,"pid":14076,"hostname":"joao","msg":"[💀 CLIENT INJECTED] joaosn / joaosn"}
+{"level":30,"time":1751329951238,"pid":14076,"hostname":"joao","msg":"[joaosn] READY - CONNECTED"}
+{"level":30,"time":1751330289566,"pid":14076,"hostname":"joao","msg":"Received SIGINT. Starting graceful shutdown..."}
