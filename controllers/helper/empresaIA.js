@@ -10,39 +10,33 @@
  *      – TokenUsage model  → contabilizar tokens por mês
  */
 
+// src/helpers/empresaIaHelper.js
+'use strict';
 require('dotenv').config();
-const moment  = require('moment');
-const OpenAI  = require('openai');                     // SDK oficial
-const config  = require('../../config.js');
 
-const Triggers          = require('./triggers');
+const moment = require('moment');
+const OpenAI = require('openai');
+const config = require('../../config.js');
+const Triggers = require('./triggers');
 const ChatHistoryHelper = require('./chatHistory');
 
 const TokenUsageModel = require('../../Models/tokenUsage.js');
-const TokenUsage      = TokenUsageModel(config.sequelize);
+const TokenUsage = TokenUsageModel(config.sequelize);
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 module.exports = {
   /**
-   * Processa a mensagem recebida:
-   * 1. verifica triggers  · 2. monta histórico  · 3. chama OpenAI
-   * 4. grava histórico e tokens  · 5. devolve texto de resposta
+   * Processa a mensagem recebida e responde via Prompt API.
    */
-  async processarMensagem({ session, sessionkey, message }, { skipTriggers = false } = {}) {
+  async processarMensagem({ session, sessionkey, message, idprompt, vetor }) {
     try {
-      const promptUsuario  = (message?.body || '').trim();
-      const numeroCliente  = message?.from;      // JID completo
+      const promptUsuario = (message?.body || '').trim();
+      const numeroCliente = message?.from;
 
       if (!promptUsuario) return null;
 
-      /* ---------- 1. Confere gatilhos para economizar tokens ---------- */
-      if (!skipTriggers  && !Triggers.necessitaIA(promptUsuario)) {
-        console.log('[IA] Nenhum trigger – não chamou OpenAI');
-        return null;
-      }
-
-      /* ---------- 2. Busca histórico das últimas 1h ---------- */
+      /* 1. Histórico das últimas 60 min */
       const historico = await ChatHistoryHelper.getRecent({
         session,
         sessionkey,
@@ -50,28 +44,52 @@ module.exports = {
         minutos: 60
       });
 
-      /* ---------- 3. Monta prompt ---------- */
-      const messages = [
-        {
-          role: 'system',
-          content: 'Você é atendente da empresa. Seja claro, educado e objetivo.'
-        },
-        ...historico.map(h => ({ role: h.role, content: h.msg })),
-        { role: 'user', content: promptUsuario }
+      /* 2. Montagem do array de input (type = 'message') */
+      const inputMsgs = [
+        ...historico.map(h => ({
+          type: 'message',
+          role: h.role,          // 'user' ou 'assistant'
+          content: h.msg
+        })),
+        { type: 'message', role: 'user', content: promptUsuario }
       ];
 
-      /* ---------- 4. Chama OpenAI ---------- */
-      const completion = await openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
-        messages
+      /* 3. Chamada ao novo endpoint */
+      const completion = await openai.responses.create({
+        prompt: {
+          id: idprompt,
+          version: '1'
+        },
+        input: inputMsgs,
+        tools: [
+          {
+            type: 'file_search',
+            vector_store_ids: [vetor]
+          }
+        ],
+        temperature: 0.9
       });
+      const first = completion.output?.[0];
+      // ⬇️ se o modelo pediu para criar o pedido…
+      if (first?.type === 'tool' && first.name === 'criarPedido') {
+        const pedido = first.arguments;
 
-      const textoResposta = completion.choices?.[0]?.message?.content?.trim() || null;
+        console.log('[IA] Pedido criado:', pedido);
+
+        await client.sendText(
+          numeroCliente,
+          'Pedido confirmado! Muito obrigado 😊. Se precisar de algo mais, é só chamar.'
+        );
+        await ChatHistoryHelper.clearHistory({ session, sessionkey, numero: numeroCliente });
+        return null;         
+      }
+
+      const textoResposta = completion.output_text?.trim() || completion.output?.[0]?.content?.[0]?.text?.trim() || null;
       if (!textoResposta) return null;
 
-      /* ---------- 5. Grava tokens do mês ---------- */
+      /* 4. Grava uso de tokens */
       const tokensGastos = completion.usage?.total_tokens || 0;
-      const mesano       = moment().format('YYYYMM');
+      const mesano = moment().format('YYYYMM');
 
       const [registro] = await TokenUsage.findOrCreate({
         where: { session, sessionkey, mesano },
@@ -79,7 +97,7 @@ module.exports = {
       });
       await registro.increment('tokens_consumed', { by: tokensGastos });
 
-      /* ---------- 6. Salva par user/assistant no histórico ---------- */
+      /* 5. Salva conversa */
       await ChatHistoryHelper.savePair({
         session,
         sessionkey,
@@ -90,7 +108,7 @@ module.exports = {
 
       return textoResposta;
     } catch (err) {
-      console.error('[IA] Erro:', err.message);
+      console.error('[IA] Erro:', err);
       return null;
     }
   }

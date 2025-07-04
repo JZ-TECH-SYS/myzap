@@ -35,7 +35,6 @@ module.exports = class Events {
 
       const { funcoesSocket } = req;
       const sessionkey = req.headers?.sessionkey;
-      const texto = (message.body || '').trim();
       const numero = message.from;
 
       /* 1. ignora tipos não permitidos */
@@ -46,14 +45,14 @@ module.exports = class Events {
       /* 2. monta payload padrão */
       const payload = await eventsHelper.montarPayload(message, session, client);
 
+     
       /* 3. mensagens enviadas pelo próprio bot ou vc*/
       if (message.fromMe) {
         funcoesSocket.messagesent(session, payload);
         await webhooks?.wh_messages(session, payload);   // ⬅️ um único disparo
         return;
       }
-
-
+     
       funcoesSocket.message(session, payload);
       /* 4. processa IA (se habilitado e não for grupo) */
       /* ----- IA somente se privado e empresa habilitada ----- */
@@ -116,17 +115,12 @@ module.exports = class Events {
         session, sessionkey, numero, minutos: 30
       });
 
-
       if (ativa) {
-        /* já tem diálogo recente → chama IA direto (sem triggers) */
+        let idprompt = empresa.idprompt || null;
+        let vetor = empresa.vector_name || null;
         const resposta = await EmpresaIA.processarMensagem(
-          { session, sessionkey, message },
-          { skipTriggers: true }
+          { session, sessionkey, message, idprompt,vetor}
         );
-        if (resposta) await client.sendText(numero, resposta);
-
-      } else if (TriggersHelper.necessitaIA(texto)) {
-        const resposta = await EmpresaIA.processarMensagem({ session, sessionkey, message });
         if (resposta) await client.sendText(numero, resposta);
 
       } else if (empresa.mensagem_padrao) {
@@ -139,7 +133,6 @@ module.exports = class Events {
           assistantText: empresa.mensagem_padrao   // grava saudação
         });
       }
-
 
       /* 5. webhook + evento genérico */
       await responseDefault();
@@ -166,7 +159,7 @@ module.exports = class Events {
         from: ack?.from?.split('@')[0],
         to: ack?.to?.split('@')[0],
         session,
-        dateTime: events.formatarData(ack?.t),
+        dateTime: eventsHelper.formatarData(ack?.t),
         data: ack
       };
 

@@ -93,5 +93,15 @@ module.exports = {
   async purgeOld(days = 1) {
     const limite = moment().subtract(days, 'days').toDate();
     await ChatHistory.destroy({ where: { created_at: { [Op.lt]: limite } } });
-  }
+  },
+
+  /**
+   * Remove todos os registros de uma sessão. e numero.
+   */
+  async clearHistory({ session, sessionkey, numero }) {
+    await ChatHistory.destroy({
+      where: { session, sessionkey, numero_cliente: numero }
+    });
+  },
+
 };
