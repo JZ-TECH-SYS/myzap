@@ -41,7 +41,8 @@
   },
   "homepage": "https://github.com/billbarsch/myzap#readme",
   "dependencies": {
-    "@wppconnect-team/wppconnect": "^*",
+    "@wppconnect-team/wppconnect": "^1.37.4",
+    "@wppconnect/wa-js": "^3.18.3",
     "assert": "^*",
     "async-get-file": "^*",
     "await-sleep": "^*",
