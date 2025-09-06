@@ -15,7 +15,7 @@ const Device = DeviceModel(config.sequelize);
 
 class Sessions {
 
-    static clients = {};
+	static clients = {};
 
 	static async instances(req, res) {
 
@@ -35,12 +35,12 @@ class Sessions {
 	}
 
 	static async createClient(session, req, wppconnect = {}) {
-		
+
 		try {
 
 			let sessionkey = req?.headers['sessionkey'];
 			const device = await Device.findOne({ where: { session: session, sessionkey: sessionkey } });
-	
+
 			// Check if the session is already injected
 			if (device && wppconnect?.session != session) {
 				console.log(chalk.red(`[❌ CLIENT INJECTED, SESSION INVALID] ${chalk.bold.red(session)} / ${sessionkey} - ${chalk.bold.red(`Erro ao injetar cliente!`)}`));
@@ -49,13 +49,13 @@ class Sessions {
 
 			// Inject client
 			if (device && wppconnect && wppconnect?.session == session) {
-                
+
 				this.clients[session] = wppconnect;
 				logger.info(`[💀 CLIENT INJECTED] ${session} / ${sessionkey}`)
 				return true;
 
 			}
-			
+
 			// If the session is not found in the database
 			logger.error(`[❌ CLIENT INJECTED] ${session} / ${sessionkey} - Erro ao injetar cliente!`);
 			return false;
@@ -75,12 +75,12 @@ class Sessions {
 
 			let instance = await Device.findOne({ where: { session: session } });
 
-			if(instance) {
+			if (instance) {
 
 				let response = {
 					...instance.dataValues,
 					client: this.clients[session],
-				} 
+				}
 
 				return response;
 			}
@@ -99,10 +99,10 @@ class Sessions {
 		try {
 			// Buscar todas as sessões no banco de dados
 			const sessions = await Device.findAll();
-			
+
 			// Verificar se foram encontradas sessões
 			if (sessions.length === 0) {
-				
+
 				return res.status(404).send({
 					result: 404,
 					status: 'NOT FOUND',
@@ -129,27 +129,25 @@ class Sessions {
 
 		try {
 
-			if(device && device?.status == 'inChat'){
-
-				res?.status(200)?.json({
+			if (device) {
+				return res?.status(200)?.json({
 					"result": 200,
 					"status": device?.status,
 					"data": device
-				})
-
+				});
 			}
 
-			res.status(400).json({
+			return res.status(400).json({
 				"result": 400,
 				"status": device?.status,
 				"data": device
 			});
 
 		} catch (error) {
-			
+
 			logger.error(`[ERROR GET CONNECTION STATUS] ${req.body.session} - Erro ao buscar status da conexão!`);
 
-			res.status(500).json({
+			return res.status(500).json({
 				"result": 500,
 				"status": "FAIL",
 				"data": error
@@ -163,11 +161,11 @@ class Sessions {
 
 		try {
 
-            let session = req?.body?.session;
+			let session = req?.body?.session;
 			let logout = false;
 			let close = false;
 
-            let data = await Sessions?.getClient(session)
+			let data = await Sessions?.getClient(session)
 
 			//if !session
 			if (!data) {
@@ -181,22 +179,22 @@ class Sessions {
 
 				await data?.client?.logout();
 				logout = true;
-				
+
 			} catch (error) {
 				console?.log(chalk.red(`[SESSION] ${chalk.bold.red(session)} - ${chalk.bold.red(`Erro ao fechar sessão!`)}`))
 			}
-			
+
 			try {
 
 				await data?.client?.page.close();
 				close = true;
-				
+
 			} catch (error) {
-				console?.log(chalk.red(`[SESSION] ${chalk.bold.red(session)} - ${chalk.bold.red(`Erro ao fechar página!`)}`))				
+				console?.log(chalk.red(`[SESSION] ${chalk.bold.red(session)} - ${chalk.bold.red(`Erro ao fechar página!`)}`))
 			}
 
 			await Device.destroy({ where: { session: session } });
-			
+
 			res?.status(200)?.json({
 				logout: logout,
 				close: close,
@@ -210,13 +208,13 @@ class Sessions {
 				logout: false,
 				close: false,
 				status: false,
-				error: true, 
+				error: true,
 				message: "Erro ao deletar sessão!",
 				data: error
 			});
-			
+
 		}
-	
+
 	}
 }
 
