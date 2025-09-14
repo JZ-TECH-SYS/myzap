@@ -42,7 +42,18 @@ module.exports = {
   async baixarMidia(type, client, id) {
     const tipos = ['image', 'video', 'audio', 'ptt', 'document', 'sticker'];
     if (tipos.includes(type)) {
-      return await client?.downloadMedia(id);
+      // ✅ VERIFICAR SE downloadMedia EXISTE NO CLIENT
+      if (client && typeof client.downloadMedia === 'function') {
+        try {
+          return await client.downloadMedia(id);
+        } catch (error) {
+          console.log(`⚠️ Erro ao baixar mídia: ${error.message}`);
+          return null;
+        }
+      } else {
+        console.log(`⚠️ client.downloadMedia não disponível para engine`);
+        return null;
+      }
     }
     return null;
   },

@@ -70,6 +70,23 @@ const SessionsHelper = {
       attempts_start: currentAttempts + 1,
       last_start: lastStart || new Date()
     }, { where: { session } });
+  },
+
+  async atualizarTentativasStartSeguro(session, data) {
+    try {
+      const currentAttempts = data?.attempts_start || 0;
+      const lastStart = data?.last_start ? new Date(data.last_start) : new Date();
+      
+      await Device.update({
+        attempts_start: currentAttempts + 1,
+        last_start: lastStart
+      }, { where: { session } });
+      
+      return true;
+    } catch (error) {
+      console.error(`[ATTEMPTS UPDATE ERROR] ${session} - ${error.message}`);
+      return false;
+    }
   }
 };
 

@@ -9,6 +9,7 @@ const config = require('../config.js');
 const DeviceModel = require('../Models/device.js');
 const UserModel = require('../Models/user.js');
 const logger = require('../util/logger.js');
+const customLogger = require('../util/customLogger.js'); // ✅ ADICIONADO
 const WppHelper = require('./helper/wpp');
 const DeviceCompanyModel = require('../Models/deviceCompany.js');
 const DeviceCompany = DeviceCompanyModel(config.sequelize);
@@ -35,7 +36,7 @@ module.exports = class Wppconnect {
     const wh_message = req?.body?.wh_message || '';
     const wh_qrcode = req?.body?.wh_qrcode || '';
 
-    logger.info('Starting WhatsApp…', { session, sessionkey, number });
+    customLogger.whatsapp(`🚀 Starting WppConnect - Session: ${session}`);
 
     try {
       // cria / atualiza device
@@ -56,7 +57,7 @@ module.exports = class Wppconnect {
         }, { conflictFields: ['session'] });
       }
     } catch (err) {
-      console.log('Erro ao criar/atualizar device', err);
+      customLogger.error('❌ Erro ao criar/atualizar device', err);
       logger.error('Erro ao criar/atualizar device', err);
       return res?.status(500)?.json({ result: 500, status: 'ERROR', response: err });
     }

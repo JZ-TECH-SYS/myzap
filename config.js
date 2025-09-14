@@ -10,23 +10,27 @@ dotenv.config();
 
 const is_production = process.env.PRODUCTION === 'true';
 
+// ✅ ADICIONADO - Usar logger customizado
+const customLogger = require('./util/customLogger.js');
+
 if (is_production) {
     database_config.development.logging = false;
+} else {
+    // ✅ MODIFICADO - Usar logger customizado do Sequelize
+    database_config.development.logging = (query, options) => {
+        customLogger.sequelizeLogger(query, options);
+    };
 }
 
 let sequelize = new Sequelize(database_config.development);
 
 (async () => {
-
     try {
-
         await sequelize.authenticate();
-        console.log('Connection has been established successfully.');
-    
+        customLogger.success('🗄️ Database connection established successfully');
     } catch (error) {
-        console.error('Unable to connect to the database:', error);
+        customLogger.error('❌ Unable to connect to the database:', error);
     }
-
 })();
 
 const {
@@ -41,12 +45,20 @@ const {
     START_ALL_SESSIONS,
     FORCE_CONNECTION_USE_HERE,
     CORS_ORIGIN,
-    TIME_TYPING
+    TIME_TYPING,
+    ENGINE
 } = process.env;
 
 assert(PORT, 'PORT is required, please set the PORT variable value in the .env file');
 assert(TOKEN, 'TOKEN is required, please set the ENGINE variable value in the .env file');
 assert(CORS_ORIGIN, 'CORS_ORIGIN is required, please set the CORS_ORIGIN variable value in the .env file');
+
+// Validação da ENGINE
+const validEngines = ['1', '2', '3'];
+if (!ENGINE || !validEngines.includes(ENGINE)) {
+    console.error('ENGINE inválida. Use 1 (WhatsappWebJS), 2 (WppConnect) ou 3 (Venom).');
+    process.exit(1);
+}
 
 module.exports = {
     port: PORT,
@@ -64,5 +76,6 @@ module.exports = {
     device_name: "",
     cors_origin: CORS_ORIGIN,
     time_typing: TIME_TYPING,
+    engine: ENGINE,
     sequelize
 }

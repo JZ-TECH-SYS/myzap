@@ -20,6 +20,7 @@ Router.get('/getQrCode', Auth.getQrCode);
 
 Router.post('/getAllSessions', Sessions.getAllSessions);
 Router.post('/getConnectionStatus', checkParams, Sessions.getConnectionStatus);
+Router.post('/reconnect', checkParams, Sessions.forceReconnect);
 Router.post('/deleteSession', Sessions.deleteSession);
 
 // Mensagens

@@ -171,7 +171,9 @@ module.exports = {
 
         if (['CONNECTED', 'inChat', 'isLogged', 'isConnected'].includes(status)) {
           resposta.state = 'CONNECTED';
+          resposta.status = status;
         } else if (state === 'QRCODE') {
+          resposta.state = 'QRCODE';
           resposta.qrcode = data.qrCode;
           resposta.urlcode = data.urlCode;
         } else if (status === 'INITIALIZING') {

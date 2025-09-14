@@ -1,6 +1,6 @@
 const { Buffer } = require('buffer');
-const { doc, db, getDoc } = require('../../firebase/db.js');
-const webhooks = require('../../controllers/webhooks.js');
+// ✅ REMOVIDO Firebase - agora usa pasta local instances/
+const webhooks = require('../../controllers/WebhooksController.js');
 const Sessions = require('../../controllers/SessionsController.js');
 
 module.exports = {
@@ -58,25 +58,31 @@ module.exports = {
       browserWS: '',
       useChrome: true,
       updatesLog: true,
-      autoClose: 90000,
+      autoClose: 120000, // Aumentado para 2 minutos para melhor estabilidade
       disableSpins: false,
+      disableWelcome: true, // Baseado na documentação para containers
+      folderNameToken: './instances', // ✅ PADRONIZADO - usar pasta local
       browserArgs: this.getBrowserArgs(),
-      createPathFileToken: false
+      createPathFileToken: false,
+      // Opções adicionais baseadas na documentação oficial
+      devtools: false,
+      debug: false,
+      puppeteerOptions: {
+        // Opções específicas do Puppeteer para melhor estabilidade
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu'
+        ]
+      }
     };
   },
 
   async getToken(session) {
-    const Session = doc(db, 'Sessions', session);
-    const dados = await getDoc(Session);
-    if (dados.exists() && dados.data()?.Engine === process.env.ENGINE) {
-      return {
-        WABrowserId: dados.data().WABrowserId,
-        WASecretBundle: dados.data().WASecretBundle,
-        WAToken1: dados.data().WAToken1,
-        WAToken2: dados.data().WAToken2,
-        Engine: process.env.ENGINE
-      };
-    }
-    return null;
+    // ✅ REMOVIDO Firebase - agora usa pasta local instances/
+    // Venom irá salvar tokens automaticamente na pasta instances/
+    console.log(`[VENOM TOKEN] ${session} - Usando tokens da pasta instances/`);
+    return null; // Deixa Venom gerenciar automaticamente via folderNameToken
   }
 };

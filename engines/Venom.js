@@ -1,46 +1,153 @@
 const venom = require('venom-bot');
 const Sessions = require('../controllers/SessionsController.js');
-const events = require('../controllers/events.js');
-const webhooks = require('../controllers/webhooks.js');
+const events = require('../controllers/EventsController.js');
+const webhooks = require('../controllers/WebhooksController.js');
 const config = require('../config.js');
 const VenomHelper = require('./helper/vn.js');
+const customLogger = require('../util/customLogger.js'); // ✅ ADICIONADO
+const { Device, User } = require('../Models'); // ✅ ADICIONADO
 
 module.exports = class Venom {
   static async start(req, res, session) {
-    const token = await VenomHelper.getToken(session);
-    console.log(token);
+    // ✅ Criar ou atualizar dispositivo no banco antes de iniciar a sessão (seguindo padrão WPPConnect)
+    try {
+      const sessionkey = req.headers['sessionkey'];
+      const number = req?.body?.number || '';
+      const body = req?.body || {};
+      
+      const wh_connect = req?.body?.wh_connect || '';
+      const wh_status = req?.body?.wh_status || '';
+      const wh_message = req?.body?.wh_message || '';
+      const wh_qrcode = req?.body?.wh_qrcode || '';
+
+      customLogger.whatsapp(`🚀 Starting Venom - Session: ${session}`);
+
+      // ✅ Payload completo seguindo padrão WPPConnect
+      const sysUser = await User.findOne({ where: { email: process.env.EMAIL } });
+      const payload = {
+        user_id: sysUser?.id,
+        session,
+        sessionkey,
+        qrCode: '',
+        attempts: 0,
+        urlCode: '',
+        attempts_start: 0,
+        last_start: new Date(),
+        state: 'STARTING',
+        status: 'notLogged',
+        number,
+        wh_qrcode,
+        wh_connect,
+        wh_status,
+        wh_message,
+        created_at: new Date(),
+        updated_at: new Date()
+      };
+      
+      await Device.upsert(payload, { conflictFields: ['session'] });
+      customLogger.database(`${session} - 📱 Dispositivo Venom criado/atualizado no banco`);
+    } catch (error) {
+      customLogger.error(`${session} - Erro ao criar dispositivo no banco: ${error.message}`);
+    }
+
+    // ✅ REMOVIDO getToken do Firebase - agora usa pasta local instances/
+    customLogger.whatsapp(`${session} - 🐍 Iniciando Venom com tokens da pasta instances/`);
 
     try {
       const client = await venom.create(
         session,
         (qrCode, asciiQR, attempts, urlCode) => {
+          // ✅ Atualizar status no banco ao gerar QR code (seguindo padrão WPPConnect)
+          Device.update({
+            state: 'QRCODE',
+            status: 'qrCode',
+            qrCode,
+            attempts,
+            urlCode,
+            updated_at: new Date()
+          }, { where: { sessionkey, session } }).catch(err => 
+            customLogger.error(`${session} - Erro ao atualizar QR no banco: ${err.message}`)
+          );
+          
           VenomHelper.generateQRHooksAndEmit({ req, res, qrCode, session });
         },
         (statusSession) => {
-          console.log(statusSession);
+          customLogger.whatsapp(`${session} - 📱 Status: ${statusSession}`);
           Sessions.addInfoSession(session, { status: statusSession });
+
+          // ✅ Atualizar status no banco de dados (seguindo padrão WPPConnect)
+          const updateData = { status: statusSession, updated_at: new Date() };
+          
+          // Estados baseados na documentação oficial do Venom
+          const onlineStatuses = ['isLogged', 'qrReadSuccess', 'chatsAvailable', 'successChat', 'inChat'];
+          const offlineStatuses = ['browserClose', 'qrReadFail', 'autocloseCalled', 'serverClose', 'desconnectedMobile'];
+          
+          if (onlineStatuses.includes(statusSession)) {
+            updateData.state = 'CONNECTED';
+            updateData.last_connect = new Date();
+            updateData.qrCode = '';
+            updateData.attempts = 0;
+            updateData.urlCode = '';
+          } else if (offlineStatuses.includes(statusSession)) {
+            updateData.state = 'DISCONNECTED';
+            updateData.last_disconnect = new Date();
+          }
+          
+          Device.update(updateData, { where: { sessionkey, session } })
+            .catch(err => customLogger.error(`${session} - Erro ao atualizar status no banco: ${err.message}`));
 
           if (statusSession !== 'qrReadSuccess') {
             webhooks.wh_connect(session, statusSession);
           }
 
-          const onlineStatuses = ['isLogged', 'qrReadSuccess', 'chatsAvailable', 'inChat'];
-          const offlineStatuses = ['browserClose', 'qrReadFail', 'autocloseCalled', 'serverClose'];
+          const reconnectableStatuses = ['deviceNotConnected', 'serverWssNotConnected'];
 
           if (offlineStatuses.includes(statusSession)) {
             req.io.emit('whatsapp-status', false);
+            customLogger.warning(`${session} - 🔴 Status offline: ${statusSession}`);
           }
 
           if (onlineStatuses.includes(statusSession)) {
             req.io.emit('whatsapp-status', true);
+            customLogger.success(`${session} - 🟢 Status online: ${statusSession}`);
+          }
+
+          // Tentar reconexão automática em alguns casos
+          if (reconnectableStatuses.includes(statusSession)) {
+            customLogger.warning(`${session} - 🔄 Status reconectável: ${statusSession}`);
+            req.io.emit('whatsapp-status', 'reconnecting');
           }
         },
-        VenomHelper.getClientOptions(),
-        token || {}
+        VenomHelper.getClientOptions()
+        // ✅ REMOVIDO token do Firebase - agora usa pasta local instances/
       );
 
       const info = await client.getHostDevice();
       const tokens = await client.getSessionTokenBrowser();
+
+      // ✅ Atualizar informações do dispositivo no banco após conexão bem-sucedida (seguindo padrão WPPConnect)
+      try {
+        await Device.update({
+          state: 'CONNECTED',
+          status: 'CONNECTED',
+          qrCode: '',
+          attempts: 0,
+          urlCode: '',
+          last_connect: new Date(),
+          number: info?.wid?.user || null,
+          battery: info?.battery || null,
+          platform: info?.platform || 'venom',
+          pushname: info?.pushname || null,
+          wa_version: info?.wa_version || null,
+          wa_js_version: require('venom-bot/package.json').version || null,
+          updated_at: new Date()
+        }, { 
+          where: { sessionkey, session } 
+        });
+        customLogger.database(`${session} - 📱 Informações completas do dispositivo atualizadas no banco`);
+      } catch (error) {
+        customLogger.error(`${session} - Erro ao atualizar info do dispositivo: ${error.message}`);
+      }
 
       webhooks.wh_connect(session, 'connected', info, [], tokens);
 
@@ -49,6 +156,52 @@ module.exports = class Venom {
 
       if (config.useHere === 'true') {
         events.statusConnection(session, client);
+      }
+
+      // Adicionar eventos de reconexão baseados na documentação oficial
+      if (client.onStateChange) {
+        client.onStateChange((state) => {
+          customLogger.debug(`${session} - 🔄 State changed: ${state}`);
+          
+          // Estados baseados na documentação oficial
+          const conflictStates = ['CONFLICT'];
+          const disconnectedStates = ['UNPAIRED', 'UNPAIRED_IDLE'];
+          
+          if (conflictStates.includes(state) && client.useHere) {
+            customLogger.warning(`${session} - ⚠️ Forçando useHere para conflito`);
+            client.useHere();
+          }
+          
+          if (disconnectedStates.includes(state)) {
+            customLogger.warning(`${session} - 🔌 Estado desconectado: ${state}`);
+            req.io.emit('whatsapp-status', false);
+          }
+        });
+      }
+
+      // Monitor de conexão por stream baseado na documentação
+      if (client.onStreamChange) {
+        let reconnectTimeout;
+        client.onStreamChange((state) => {
+          customLogger.debug(`${session} - 📡 Stream state: ${state}`);
+          
+          clearTimeout(reconnectTimeout);
+          
+          if (state === 'DISCONNECTED' || state === 'SYNCING') {
+            console.log(`[VENOM] ${session} - Stream disconnected, iniciando timeout`);
+            reconnectTimeout = setTimeout(() => {
+              console.log(`[VENOM] ${session} - Timeout atingido, fechando cliente`);
+              if (client.close) {
+                client.close();
+              }
+            }, 80000); // Baseado na documentação oficial
+          }
+          
+          if (state === 'CONNECTED') {
+            console.log(`[VENOM] ${session} - Stream reconectado com sucesso`);
+            req.io.emit('whatsapp-status', true);
+          }
+        });
       }
 
       Sessions.addInfoSession(session, {
@@ -66,5 +219,43 @@ module.exports = class Venom {
     const data = Sessions.getSession(session);
     const response = await data.client.close();
     return !!response;
+  }
+
+  static async reconnect(session, req, res) {
+    try {
+      console.log(`[VENOM RECONNECT] Tentando reconectar sessão ${session}`);
+      
+      // Primeiro tentar métodos nativos de reconexão
+      const data = Sessions.getSession(session);
+      if (!data?.client) {
+        throw new Error('Cliente não encontrado');
+      }
+
+      // Tentar restartService se disponível
+      if (data.client.restartService) {
+        await data.client.restartService();
+        console.log(`[VENOM RECONNECT] restartService executado para ${session}`);
+        return true;
+      }
+
+      // Se métodos nativos falharam, reiniciar completamente
+      console.log(`[VENOM RECONNECT] Reiniciando sessão completa para ${session}`);
+      
+      // Fechar sessão atual
+      await this.stop(session);
+      
+      // Aguardar limpeza
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Recriar sessão
+      const newClient = await this.start(req, res, session);
+      
+      console.log(`[VENOM RECONNECT] Sessão ${session} recriada com sucesso`);
+      return true;
+      
+    } catch (error) {
+      console.error(`[VENOM RECONNECT ERROR] ${session} - ${error.message}`);
+      throw error;
+    }
   }
 };

@@ -13,6 +13,7 @@ async function checkNumber(req, res, next) {
     const number = req?.body?.number;
 
     if (typeof device?.client === "undefined") {
+      logger.error(`[CHECKNUMBER] Dispositivo não conectado - Sessão: ${req?.body?.session ?? ""}`);
       return res.status(400).send({
         error: true,
         message: `O dispositivo ${
@@ -50,9 +51,10 @@ async function checkNumber(req, res, next) {
 async function getConnectedDevice(req, res) {
   const device = await Sessions.getClient(req.body.session);
 
-  let status_permited = ["inChat", "qrReadSuccess", "isLogged"];
+  let status_permited = ["inChat", "qrReadSuccess", "isLogged","CONNECTED"];
 
   if (!device || !status_permited.includes(device.status)) {
+    console.log(`[CHECKNUMBER] Dispositivo não conectado - Sessão: ${req?.body?.session ?? ""}`);
     return res.status(400).send({
       error: true,
       status: device.status,
@@ -69,9 +71,11 @@ function cleanNumber(number) {
     throw new Error(`O número não foi informado.`);
   }
 
-  number = number.replace(/\s/g, "");
-  number = number.replace(/[^0-9\-]/g, "");
-
+  // ✅ LIMPEZA MAIS CUIDADOSA - preservar todos os dígitos
+  number = number.toString().replace(/\s/g, ""); // Remove espaços
+  number = number.replace(/[^0-9]/g, ""); // Remove tudo exceto números
+  
+  console.log(`[CLEAN NUMBER] Original: ${arguments[0]} → Limpo: ${number}`);
   return number;
 }
 
@@ -87,23 +91,38 @@ function isGroupNumber(number) {
 
 async function handleNumberVerification(client, number, res) {
   try {
-    if (isGroupNumber(number)) {
-      await Cache.set(number, `${number}@g.us`);
+    const cleanedNumber = cleanNumber(number);
+    console.log(`[NUMBER VERIFICATION] Verificando: ${cleanedNumber}`);
+    
+    if (isGroupNumber(cleanedNumber)) {
+      console.log(`[GROUP NUMBER] ${cleanedNumber} → ${cleanedNumber}@g.us`);
+      await Cache.set(cleanedNumber, `${cleanedNumber}@g.us`);
     } else {
-      const profile = await client.checkNumberStatus(number);
+      // ✅ VERIFICAR SE CLIENT TEM O MÉTODO
+      if (client && typeof client.checkNumberStatus === 'function') {
+        console.log(`[DEBUG] Verificando número ${cleanedNumber} no WhatsApp...`);
+        const profile = await client.checkNumberStatus(cleanedNumber);
+        console.log(`[DEBUG] Resultado checkNumberStatus:`, JSON.stringify(profile, null, 2));
 
-      if (!profile?.numberExists) {
-        return res.status(404).json({
-          response: false,
-          status: "error",
-          message: `O telefone informado ${
-            number ?? ""
-          } não está registrado no WhatsApp.`,
-          profile: profile,
-        });
+        if (!profile?.numberExists) {
+          console.log(`[ERROR] Número ${cleanedNumber} NÃO EXISTE no WhatsApp segundo checkNumberStatus`);
+          return res.status(404).json({
+            response: false,
+            status: "error",
+            message: `O telefone informado ${cleanedNumber} não está registrado no WhatsApp.`,
+            profile: profile,
+          });
+        }
+
+        const whatsappId = profile?.id?._serialized || `${cleanedNumber}@c.us`;
+        console.log(`[NUMBER VERIFIED] ${cleanedNumber} → ${whatsappId}`);
+        await Cache.set(cleanedNumber, whatsappId);
+      } else {
+        // ✅ FALLBACK - Se client não tem o método, assumir formato padrão
+        const fallbackId = `${cleanedNumber}@c.us`;
+        console.log(`⚠️ [FALLBACK] ${cleanedNumber} → ${fallbackId} (método checkNumberStatus não disponível)`);
+        await Cache.set(cleanedNumber, fallbackId);
       }
-
-      await Cache.set(cleanNumber(number), profile?.id?._serialized);
     }
   } catch (error) {
     logger.error(`[HANDLE NUMBER VERIFICATION] ${error.message}`);

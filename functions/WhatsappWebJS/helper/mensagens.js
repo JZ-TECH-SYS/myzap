@@ -5,20 +5,36 @@ const whatsappweb = require("whatsapp-web.js");
 const util = require("util");
 const urlExistsImport = require("url-exists");
 const engine = require("../../../engines/WhatsappWebJS");
+const Cache = require("../../../util/cache"); // ✅ ADICIONADO - Para usar números processados
 
 const urlExists = util.promisify(urlExistsImport);
-const { MessageMedia, Location } = whatsappweb;
+const { MessageMedia, Location, Poll } = whatsappweb;
 
-function buildNumber(req) {
-  return req.body.isGroup
-    ? req.body.number + "@g.us"
-    : req.body.number + "@c.us";
+// ✅ CORRIGIDO - Usar Cache.get() igual WPPConnect
+async function buildNumber(req) {
+  const number = req.body.number;
+  
+  if (req.body.isGroup) {
+    // Para grupos, usar o número diretamente com @g.us
+    return number + "@g.us";
+  } else {
+    // ✅ Para contatos, usar o número processado do Cache (igual WPPConnect)
+    const processedNumber = await Cache.get(number);
+    if (processedNumber) {
+      console.log(`[BUILD NUMBER] ${number} → ${processedNumber} (do cache)`);
+      return processedNumber;
+    } else {
+      // Fallback se não estiver no cache
+      console.log(`[BUILD NUMBER] ${number} → ${number}@c.us (fallback)`);
+      return number + "@c.us";
+    }
+  }
 }
 
 module.exports = {
   async sendText(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = buildNumber(req);
+    const number = await buildNumber(req); // ✅ AWAIT adicionado
     const text = req.body.text;
 
     if (!text) {
@@ -125,7 +141,7 @@ module.exports = {
 
   async sendLink(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = buildNumber(req);
+    const number = await buildNumber(req); // ✅ AWAIT adicionado
 
     if (!req.body.url) {
       return res
@@ -200,90 +216,539 @@ module.exports = {
   },
 
   async startSession(req, res) {
-    let session = req.body.session;
-    let data = await Sessions.getClient(session);
+    const session = req.body.session;
+    const data = await Sessions.getClient(session); // ✅ Busca device no banco + client na memória (igual WPPConnect)
+
+    console.log('[DEBUG] startSession WhatsApp WebJS', session);
+    
+    try {
+      // ✅ CORREÇÃO PRINCIPAL - Verificar se pasta da sessão existe
+      const fs = require('fs');
+      const path = require('path');
+      const sessionPath = path.join('./instances', session);
+      const sessionExists = fs.existsSync(sessionPath);
+      
+      console.log(`[SESSION CHECK] ${session} - Pasta exists: ${sessionExists}`);
+      
+      if (data) {
+        // ✅ IGUAL WPPConnect - Atualizar tentativas
+        const helpSS = require('../../../controllers/helper/sessions.js');
+        await helpSS.atualizarTentativasStart(session, data.attempts_start, new Date(data.last_start));
+        
+        const status = data.status;
+        const state = data.state;
+
+        const resposta = {
+          result: 'success',
+          session,
+          state: state || 'STARTING',
+          status: status || 'INITIALIZING'
+        };
+
+        // ✅ RECONEXÃO CORRIGIDA - Verificar se client está REALMENTE ativo
+        const currentSession = Sessions.getClient(session); // ✅ CORRIGIDO: getClient em vez de getSession
+        const sessionHelper = require('../../../controllers/helper/sessions.js');
+        const injectedClient = sessionHelper.getInjectedClient(session);
+        const isClientActive = injectedClient && injectedClient.info;
+        
+        console.log(`[RECONNECT CHECK] ${session} - Pasta: ${sessionExists} - Status: ${status} - Client ativo: ${!!isClientActive}`);
+        
+        // ✅ SÓ RETORNAR CONECTADO SE: pasta existe + status conectado + CLIENT ATIVO
+        if (sessionExists && ['CONNECTED', 'inChat', 'isLogged', 'isConnected'].includes(status) && isClientActive) {
+          console.log(`[ALREADY CONNECTED] ${session} - Sessão já ativa`);
+          resposta.state = 'CONNECTED';
+          resposta.status = status;
+        } 
+        // ✅ SE TEM PASTA MAS CLIENT NÃO ESTÁ ATIVO = RECONECTAR
+        else if (sessionExists && ['CONNECTED', 'inChat', 'isLogged', 'isConnected'].includes(status) && !isClientActive) {
+          console.log(`[RECONNECT] ${session} - Pasta existe mas client inativo, reconectando...`);
+          const engine = require('../../../engines/WhatsappWebJS.js');
+          engine.start(req, res, session); // 🔄 RECONECTAR sem QR Code
+          resposta.state = 'STARTING';
+          resposta.status = 'RECONNECTING';
+        }
+        // ✅ SE TEM QR CODE NO BANCO = GERAR NOVO (igual WPPConnect)
+        else if (state === 'QRCODE') {
+          console.log(`[QR EXPIRED] ${session} - QR Code no banco expirado, gerando novo`);
+          const engine = require('../../../engines/WhatsappWebJS.js');
+          engine.start(req, res, session); // ✅ SEMPRE gera novo QR
+          resposta.state = 'STARTING';
+          resposta.status = 'INITIALIZING';
+        } 
+        // ✅ OUTROS CASOS - GERAR NOVO
+        else {
+          console.log(`[START NEW] ${session} - Status: ${status} - Iniciando engine`);
+          const engine = require('../../../engines/WhatsappWebJS.js');
+          engine.start(req, res, session); // ✅ Não bloquear com await
+          resposta.state = 'STARTING';
+          resposta.status = 'INITIALIZING';
+        }
+
+        const http = require('../../../controllers/helper/http.js');
+        return http.json(res, 200, resposta);
+      }
+
+      // ✅ IGUAL WPPConnect - Se não tem data, iniciar engine
+      console.log(`[START FRESH] ${session} - Nenhum dado encontrado, iniciando engine`);
+      const engine = require('../../../engines/WhatsappWebJS.js');
+      engine.start(req, res, session); // ✅ Não bloquear com await
+      
+      const http = require('../../../controllers/helper/http.js');
+      return http.json(res, 200, {
+        result: 'success',
+        session,
+        state: 'STARTING',
+        status: 'INITIALIZING'
+      });
+
+    } catch (err) {
+      console.log('error', err);
+      const http = require('../../../controllers/helper/http.js');
+      return http.fail(res, err, 500, 'Erro ao iniciar sessão');
+    }
+  },
+
+  // Funções adicionais para padronização com WPPConnect
+  async sendFile64(req, res) {
+    const { path: base64Data, caption } = req.body;
+    
+    if (!base64Data) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "Base64 data não informado"
+      });
+    }
 
     try {
-      // Exemplo de como acessar o número de solicitações de um usuário específico
-      const session = req.body.session;
+      const data = Sessions.getSession(req.body.session);
+      const number = await buildNumber(req); // ✅ AWAIT adicionado
+      
+      // Criar MessageMedia a partir do base64
+      const media = new MessageMedia('application/octet-stream', base64Data, 'file');
+      
+      const response = await data.client.sendMessage(number, media, {
+        caption: caption || ""
+      });
 
-      let last_start = new Date(data.last_start);
-
-      await Device.update(
-        {
-          last_start: last_start,
-          attempts_start: data.attempts_start + 1,
-        },
-        { where: { session: session } }
-      );
-
-      if (data) {
-        let status_permited = [
-          "CONNECTED",
-          "inChat",
-          "isLogged",
-          "isConnected",
-        ];
-
-        if (status_permited.includes(data?.status)) {
-          return res.status(200).json({
-            result: "success",
-            session: session,
-            state: "CONNECTED",
-            status: data?.status,
-          });
-        } else if (data?.state === "STARTING") {
-          return res.status(200).json({
-            result: "success",
-            session: session,
-            state: "STARTING",
-            status: data?.status,
-          });
-        } else if (data.state === "QRCODE") {
-          return res.status(200).json({
-            result: "success",
-            session: session,
-            state: data?.state,
-            status: data?.status,
-            qrcode: data?.qrCode,
-            urlcode: data?.urlCode,
-          });
-        } else if (data.status === "INITIALIZING") {
-          return res.status(200).json({
-            result: "success",
-            session: session,
-            state: "STARTING",
-            status: data?.status,
-          });
-        } else {
-          engine.start(req, res);
-
-          return res.status(200).json({
-            result: "success",
-            session: session,
-            state: "STARTING",
-            status: "INITIALIZING",
-          });
-        }
-      } else {
-        engine.start(req, res);
-
-        return res.status(200).json({
-          result: "success",
-          session: session,
-          state: "STARTING",
-          status: "INITIALIZING",
-        });
-      }
+      return res.status(200).json({
+        result: 200,
+        type: "file",
+        id: response.id._serialized,
+        session: req.body.session,
+        phone: response.id.remote._serialized,
+        content: response.body,
+        mimetype: response.type
+      });
     } catch (error) {
-      console.log("error", error);
-
-      res.status(500).json({
+      return res.status(500).json({
         result: 500,
         status: "FAIL",
-        response: false,
-        data: error,
+        message: error.message
       });
     }
   },
+
+  async sendMultipleFile64(req, res) {
+    const { files } = req.body;
+    
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "Array de arquivos base64 não informado ou vazio"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      const number = await buildNumber(req); // ✅ AWAIT adicionado
+      const results = [];
+
+      for (const file of files) {
+        const { data: base64Data, filename, mimetype, caption } = file;
+        
+        if (!base64Data) continue;
+
+        const media = new MessageMedia(
+          mimetype || 'application/octet-stream', 
+          base64Data, 
+          filename || 'file'
+        );
+        
+        const response = await data.client.sendMessage(number, media, {
+          caption: caption || ""
+        });
+
+        results.push({
+          id: response.id._serialized,
+          filename: filename || 'file',
+          status: "sent"
+        });
+      }
+
+      return res.status(200).json({
+        result: 200,
+        type: "multiple_files_base64",
+        session: req.body.session,
+        phone: number,
+        files: results,
+        total: results.length
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async sendMultipleFiles(req, res) {
+    const { files } = req.body;
+    
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "Array de arquivos não informado ou vazio"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      const number = buildNumber(req);
+      const results = [];
+
+      for (const file of files) {
+        const { path: filePath, caption } = file;
+        
+        if (!filePath) continue;
+
+        const isURL = await urlExists(filePath);
+        const name = filePath.split(/[\/]/).pop();
+        const dir = "files-received/";
+        const fullPath = isURL ? dir + name : filePath;
+
+        if (isURL) await get(filePath, { directory: dir });
+
+        const media = MessageMedia.fromFilePath(fullPath);
+        const response = await data.client.sendMessage(number, media, {
+          caption: caption || ""
+        });
+
+        if (isURL) fs.unlinkSync(fullPath);
+
+        results.push({
+          id: response.id._serialized,
+          file: filePath,
+          status: "sent"
+        });
+      }
+
+      return res.status(200).json({
+        result: 200,
+        type: "multiple_files",
+        session: req.body.session,
+        phone: number,
+        files: results,
+        total: results.length
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async sendListMessage(req, res) {
+    // Listas foram depreciadas no WhatsApp WebJS conforme documentação oficial
+    return res.status(410).json({
+      result: 410,
+      status: "DEPRECATED",
+      message: "sendListMessage foi descontinuado pelo WhatsApp. Use sendPollMessage como alternativa."
+    });
+  },
+
+  async sendOrderMessage(req, res) {
+    const { products, total, currency } = req.body;
+    
+    if (!products || !Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "Array de produtos é obrigatório"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      const number = buildNumber(req);
+      
+      // Criar mensagem de pedido formatada
+      let orderText = "🛒 *PEDIDO*\n\n";
+      
+      products.forEach((product, index) => {
+        orderText += `${index + 1}. *${product.name}*\n`;
+        orderText += `   Quantidade: ${product.quantity || 1}\n`;
+        orderText += `   Preço: ${currency || 'R$'} ${product.price}\n\n`;
+      });
+      
+      if (total) {
+        orderText += `*Total: ${currency || 'R$'} ${total}*`;
+      }
+      
+      const response = await data.client.sendMessage(number, orderText);
+      
+      return res.status(200).json({
+        result: 200,
+        type: "order",
+        id: response.id._serialized,
+        session: req.body.session,
+        phone: response.to,
+        products: products,
+        total: total
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async sendPollMessage(req, res) {
+    const { question, options } = req.body;
+    
+    if (!question || !options || !Array.isArray(options) || options.length < 2) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "Pergunta e pelo menos 2 opções são obrigatórias"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      const number = buildNumber(req);
+      
+      const poll = new Poll(question, options);
+      
+      const response = await data.client.sendMessage(number, poll);
+      
+      return res.status(200).json({
+        result: 200,
+        type: "poll",
+        id: response.id._serialized,
+        session: req.body.session,
+        phone: response.to,
+        question: question,
+        options: options
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async reply(req, res) {
+    const { text, messageid } = req.body;
+    
+    if (!text || !messageid) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "Text e MessageID são obrigatórios"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      
+      // Buscar a mensagem original
+      const chat = await data.client.getChatById(messageid.split('_')[0] + '@c.us');
+      const messages = await chat.fetchMessages({ limit: 50 });
+      const originalMessage = messages.find(msg => msg.id._serialized === messageid);
+      
+      if (!originalMessage) {
+        return res.status(404).json({
+          result: 404,
+          status: "FAIL",
+          message: "Mensagem original não encontrada"
+        });
+      }
+
+      const response = await originalMessage.reply(text);
+      
+      return res.status(200).json({
+        result: 200,
+        type: "text",
+        id: response.id._serialized,
+        session: req.body.session,
+        phone: response.to,
+        content: response.body
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async forwardMessages(req, res) {
+    const { messageid } = req.body;
+    
+    if (!messageid) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "MessageID é obrigatório"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      const number = buildNumber(req);
+      
+      // Buscar a mensagem para encaminhar
+      const chat = await data.client.getChatById(messageid.split('_')[0] + '@c.us');
+      const messages = await chat.fetchMessages({ limit: 50 });
+      const messageToForward = messages.find(msg => msg.id._serialized === messageid);
+      
+      if (!messageToForward) {
+        return res.status(404).json({
+          result: 404,
+          status: "FAIL",
+          message: "Mensagem não encontrada"
+        });
+      }
+
+      const targetChat = await data.client.getChatById(number);
+      const response = await messageToForward.forward(targetChat);
+      
+      return res.status(200).json({
+        result: 200,
+        type: "forward",
+        id: response.id._serialized,
+        session: req.body.session,
+        phone: response.to,
+        originalMessageId: messageid
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async downloadMediaByMessage(req, res) {
+    const { messageid } = req.body;
+    
+    if (!messageid) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "MessageID é obrigatório"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      
+      // Buscar a mensagem com mídia
+      const chat = await data.client.getChatById(messageid.split('_')[0] + '@c.us');
+      const messages = await chat.fetchMessages({ limit: 50 });
+      const mediaMessage = messages.find(msg => msg.id._serialized === messageid);
+      
+      if (!mediaMessage) {
+        return res.status(404).json({
+          result: 404,
+          status: "FAIL",
+          message: "Mensagem não encontrada"
+        });
+      }
+
+      if (!mediaMessage.hasMedia) {
+        return res.status(400).json({
+          result: 400,
+          status: "FAIL",
+          message: "Mensagem não contém mídia"
+        });
+      }
+
+      const media = await mediaMessage.downloadMedia();
+      
+      return res.status(200).json({
+        result: 200,
+        type: "media",
+        messageId: messageid,
+        session: req.body.session,
+        mimetype: media.mimetype,
+        filename: media.filename,
+        data: media.data, // Base64 data
+        size: media.filesize
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async sendReactionToMessage(req, res) {
+    const { messageid, reaction } = req.body;
+    
+    if (!messageid || !reaction) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "MessageID e reaction são obrigatórios"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      
+      // Buscar a mensagem para reagir
+      const chat = await data.client.getChatById(messageid.split('_')[0] + '@c.us');
+      const messages = await chat.fetchMessages({ limit: 50 });
+      const targetMessage = messages.find(msg => msg.id._serialized === messageid);
+      
+      if (!targetMessage) {
+        return res.status(404).json({
+          result: 404,
+          status: "FAIL",
+          message: "Mensagem não encontrada"
+        });
+      }
+
+      await targetMessage.react(reaction);
+      
+      return res.status(200).json({
+        result: 200,
+        type: "reaction",
+        messageId: messageid,
+        reaction: reaction,
+        session: req.body.session
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  }
 };

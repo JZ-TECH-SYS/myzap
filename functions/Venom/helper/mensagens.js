@@ -6,6 +6,7 @@ const util = require("util");
 const urlExistsImport = require("url-exists");
 const urlExists = util.promisify(urlExistsImport);
 const engine = require("../../../engines/Venom.js");
+const { Device } = require("../../../Models"); // ✅ ADICIONADO
 
 module.exports = {
   async sendAudio(req, res) {
@@ -434,73 +435,84 @@ module.exports = {
     let data = await Sessions.getClient(session);
 
     try {
-      // Exemplo de como acessar o número de solicitações de um usuário específico
-      const session = req.body.session;
+      const sessionName = req.body.session;
+      const sessionkey = req.headers['sessionkey']; // ✅ ADICIONADO
 
-      let last_start = new Date(data.last_start);
+      // ✅ Verificar também no banco de dados (com sessionkey como WPPConnect)
+      const deviceFromDB = await Device.findOne({ 
+        where: { session: sessionName, sessionkey } 
+      });
 
-      await Device.update(
-        {
-          last_start: last_start,
-          attempts_start: data.attempts_start + 1,
-        },
-        { where: { session: session } }
-      );
+      // Usar helper padronizado para atualizar tentativas
+      const helpSS = require('../../../../controllers/helper/sessions.js');
+      const updateSuccess = await helpSS.atualizarTentativasStartSeguro(sessionName, data);
+      
+      if (!updateSuccess) {
+        console.log(`[WARNING] ${sessionName} - Falha ao atualizar tentativas`);
+      }
 
-      if (data) {
+      // ✅ Combinar dados da memória e banco
+      if (data || deviceFromDB) {
         let status_permited = [
           "CONNECTED",
           "inChat",
           "isLogged",
           "isConnected",
+          "connected"
         ];
 
-        if (status_permited.includes(data?.status)) {
-          return res.status(200).json({
-            result: "success",
-            session: session,
-            state: "CONNECTED",
-            status: data?.status,
-          });
-        } else if (data?.state === "STARTING") {
-          return res.status(200).json({
-            result: "success",
-            session: session,
-            state: "STARTING",
-            status: data?.status,
-          });
-        } else if (data.state === "QRCODE") {
-          return res.status(200).json({
-            result: "success",
-            session: session,
-            state: data?.state,
-            status: data?.status,
-            qrcode: data?.qrCode,
-            urlcode: data?.urlCode,
-          });
-        } else if (data.status === "INITIALIZING") {
-          return res.status(200).json({
-            result: "success",
-            session: session,
-            state: "STARTING",
-            status: data?.status,
-          });
-        } else {
-          engine.start(req, res);
+        let responseData = {
+          result: "success",
+          session: sessionName,
+        };
 
-          return res.status(200).json({
-            result: "success",
-            session: session,
-            state: "STARTING",
-            status: "INITIALIZING",
-          });
+        // ✅ Priorizar status do banco se disponível
+        const currentStatus = deviceFromDB?.status || data?.status;
+        const isConnected = deviceFromDB?.connected || status_permited.includes(data?.status);
+
+        if (isConnected && status_permited.includes(currentStatus)) {
+          responseData.state = "CONNECTED";
+          responseData.status = currentStatus;
+        } else if (data?.state === "STARTING" || currentStatus === "INITIALIZING" || currentStatus === "connecting") {
+          responseData.state = "STARTING";
+          responseData.status = currentStatus || "INITIALIZING";
+        } else if (data?.state === "QRCODE" || currentStatus === "qrcode") {
+          responseData.state = "QRCODE";
+          responseData.status = currentStatus || data?.status;
+          responseData.qrcode = deviceFromDB?.qr_code || data?.qrCode;
+          responseData.urlcode = data?.urlCode;
+        } else {
+          // ✅ CORRIGIDO - Não aguardar engine para não bloquear resposta
+          engine.start(req, res, sessionName)
+            .catch((error) => {
+              console.error(`[VENOM ENGINE ERROR] ${sessionName}:`, error);
+              Sessions.addInfoSession(sessionName, { 
+                status: 'ENGINE_ERROR',
+                state: 'DISCONNECTED',
+                error: error.message 
+              });
+            });
+            
+          responseData.state = "STARTING";
+          responseData.status = "INITIALIZING";
         }
+
+        return res.status(200).json(responseData);
       } else {
-        engine.start(req, res);
+        // ✅ CORRIGIDO - Não aguardar engine para não bloquear resposta
+        engine.start(req, res, sessionName)
+          .catch((error) => {
+            console.error(`[VENOM ENGINE ERROR] ${sessionName}:`, error);
+            Sessions.addInfoSession(sessionName, { 
+              status: 'ENGINE_ERROR',
+              state: 'DISCONNECTED',
+              error: error.message 
+            });
+          });
 
         return res.status(200).json({
           result: "success",
-          session: session,
+          session: sessionName,
           state: "STARTING",
           status: "INITIALIZING",
         });
@@ -515,5 +527,345 @@ module.exports = {
         data: error,
       });
     }
-  }
+  },
+
+  // Funções adicionais para padronização com WPPConnect
+  async sendMultipleFile64(req, res) {
+    const { files } = req.body;
+    
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "Array de arquivos base64 é obrigatório"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      const number = req.body.number + "@c.us";
+      const responses = [];
+
+      for (const fileInfo of files) {
+        if (!fileInfo.data) continue;
+        
+        const filename = fileInfo.filename || 'file';
+        const base64Data = fileInfo.data.replace(/^data:[^;]+;base64,/, '');
+        const buffer = Buffer.from(base64Data, 'base64');
+        const tempPath = `temp_${Date.now()}_${filename}`;
+        
+        fs.writeFileSync(tempPath, buffer);
+
+        const response = await data.client.sendFile(
+          number,
+          tempPath,
+          filename,
+          fileInfo.caption || ""
+        );
+        
+        fs.unlink(tempPath, () => null);
+        
+        responses.push({
+          id: response.id,
+          filename: filename,
+          caption: fileInfo.caption || ""
+        });
+      }
+
+      return res.status(200).json({
+        result: 200,
+        type: "files64",
+        session: req.body.session,
+        phone: number,
+        files: responses
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async sendMultipleFiles(req, res) {
+    const { files } = req.body;
+    
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "Array de arquivos é obrigatório"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      const number = req.body.number + "@c.us";
+      const responses = [];
+
+      for (const fileInfo of files) {
+        if (!fileInfo.path) continue;
+        
+        const isURL = await urlExists(fileInfo.path);
+        const file = fileInfo.path.split(/[\/\\]/).pop();
+        const localPath = isURL ? `files-received/${file}` : fileInfo.path;
+        
+        if (isURL) {
+          await get(fileInfo.path, { directory: "files-received" });
+        }
+
+        const response = await data.client.sendFile(
+          number,
+          localPath,
+          file,
+          fileInfo.caption || ""
+        );
+        
+        if (isURL) {
+          fs.unlink(localPath, () => null);
+        }
+        
+        responses.push({
+          id: response.id,
+          file: file,
+          caption: fileInfo.caption || ""
+        });
+      }
+
+      return res.status(200).json({
+        result: 200,
+        type: "files",
+        session: req.body.session,
+        phone: number,
+        files: responses
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async sendListMessage(req, res) {
+    // Lists não são mais suportados pelo WhatsApp
+    return res.status(410).json({
+      result: 410,
+      status: "DEPRECATED",
+      message: "sendListMessage foi descontinuado pelo WhatsApp"
+    });
+  },
+
+  async sendOrderMessage(req, res) {
+    const { productName, price, description } = req.body;
+    
+    if (!productName || !price) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "productName e price são obrigatórios"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      const number = req.body.number + "@c.us";
+      
+      // Formatando mensagem de pedido
+      const orderText = `🛒 *PEDIDO*\n\n📦 Produto: ${productName}\n💰 Preço: ${price}\n${description ? `📄 Descrição: ${description}\n` : ''}\n---\nPedido gerado automaticamente`;
+      
+      const response = await data.client.sendText(number, orderText);
+      
+      return res.status(200).json({
+        result: 200,
+        type: "order",
+        id: response.id,
+        session: req.body.session,
+        phone: number,
+        product: productName,
+        price: price,
+        description: description || ""
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async sendPollMessage(req, res) {
+    const { question, options } = req.body;
+    
+    if (!question || !options || !Array.isArray(options) || options.length < 2) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "Pergunta e pelo menos 2 opções são obrigatórias"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      const number = req.body.number + "@c.us";
+      
+      // Venom suporta polls nativamente
+      const pollOptions = options.map(option => ({ name: option }));
+      
+      const response = await data.client.sendPollMessage(
+        number,
+        question,
+        pollOptions
+      );
+      
+      return res.status(200).json({
+        result: 200,
+        type: "poll",
+        id: response.id,
+        session: req.body.session,
+        phone: number,
+        question: question,
+        options: options
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async downloadMediaByMessage(req, res) {
+    const { messageId } = req.body;
+    
+    if (!messageId) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "messageId é obrigatório"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      
+      const media = await data.client.downloadFileByMessage(messageId);
+      
+      return res.status(200).json({
+        result: 200,
+        type: "download",
+        session: req.body.session,
+        messageId: messageId,
+        media: media
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  async sendReactionToMessage(req, res) {
+    const { messageId, emoji } = req.body;
+    
+    if (!messageId || !emoji) {
+      return res.status(400).json({
+        result: 400,
+        status: "FAIL",
+        message: "messageId e emoji são obrigatórios"
+      });
+    }
+
+    try {
+      const data = Sessions.getSession(req.body.session);
+      
+      const response = await data.client.sendReactionToMessage(messageId, emoji);
+      
+      return res.status(200).json({
+        result: 200,
+        type: "reaction",
+        id: response.id,
+        session: req.body.session,
+        messageId: messageId,
+        emoji: emoji
+      });
+    } catch (error) {
+      return res.status(500).json({
+        result: 500,
+        status: "FAIL",
+        message: error.message
+      });
+    }
+  },
+
+  // ✅ Função para verificar status da sessão (consistência com outros engines)
+  async getSessionResponse(session, sessionkey = null) {
+    try {
+      // ✅ Primeiro verificar no banco de dados (com sessionkey como WPPConnect)
+      const where = sessionkey ? { session, sessionkey } : { session };
+      const deviceFromDB = await Device.findOne({ where });
+
+      // ✅ Verificar na memória
+      const sessionFromMemory = Sessions.getSession(session);
+
+      // ✅ Priorizar dados do banco se existirem
+      if (deviceFromDB) {
+        return {
+          session: session,
+          state: deviceFromDB.state || (deviceFromDB.connected ? 'CONNECTED' : 'DISCONNECTED'),
+          status: deviceFromDB.status || 'unknown',
+          engine: 'venom',
+          qrcode: deviceFromDB.qrCode || null,
+          device: {
+            wid: deviceFromDB.wid,
+            phone: deviceFromDB.phone,
+            platform: deviceFromDB.platform,
+            battery: deviceFromDB.battery,
+            pushname: deviceFromDB.pushname,
+            wa_version: deviceFromDB.wa_version
+          },
+          source: 'database'
+        };
+      }
+
+      // ✅ Fallback para dados da memória
+      if (sessionFromMemory) {
+        return {
+          session: session,
+          state: sessionFromMemory.status || 'UNKNOWN',
+          status: sessionFromMemory.status || 'unknown',
+          engine: 'venom',
+          qrcode: sessionFromMemory.qrCode || null,
+          device: sessionFromMemory.client ? 'connected' : 'disconnected',
+          source: 'memory'
+        };
+      }
+
+      // ✅ Nenhuma sessão encontrada
+      return {
+        session: session,
+        state: 'NOT_FOUND',
+        status: 'not_found',
+        engine: 'venom',
+        source: 'none'
+      };
+
+    } catch (error) {
+      console.error(`[VENOM] Erro ao verificar status da sessão ${session}:`, error);
+      return {
+        session: session,
+        state: 'ERROR',
+        status: 'error',
+        engine: 'venom',
+        error: error.message,
+        source: 'error'
+      };
+    }
+  },
 };

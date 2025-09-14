@@ -1,0 +1,268 @@
+[2025-09-14T20:44:53.245Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:44:53.280Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:44:53.281Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:44:53.289Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:46:07.087Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:46:07.128Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:46:07.129Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:46:07.167Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:46:11.067Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:46:11.108Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:46:11.108Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:46:11.116Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:46:29.254Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:46:29.292Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:46:29.293Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:46:29.300Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:46:44.176Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:46:44.214Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:46:44.215Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:46:44.251Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:46:56.247Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:46:56.293Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:46:56.293Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:46:56.329Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:47:20.928Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:47:20.969Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:47:20.970Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:47:20.978Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:49:01.282Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:49:01.321Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:49:01.321Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:49:01.332Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:49:17.233Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:49:17.274Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:49:17.274Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:49:17.282Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:50:13.363Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:50:13.400Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:50:13.400Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:50:13.409Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:50:22.627Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:50:22.629Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:50:26.453Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:50:26.457Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:50:28.085Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:50:28.086Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:50:29.672Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:50:29.674Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:50:33.108Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-14T20:50:34.024Z] [SUCCESS] joaosn - 🚀 WhatsApp está pronto!
+[2025-09-14T20:50:38.998Z] [SUCCESS] joaosn - 💾 Sessão carregada com sucesso (sem QR Code)
+[2025-09-14T20:50:41.107Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-14T20:50:41.305Z] [SUCCESS] joaosn - 🚀 WhatsApp está pronto!
+[2025-09-14T20:51:25.307Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:51:25.346Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:51:25.347Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:51:25.355Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:51:59.449Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:51:59.486Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:51:59.486Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:51:59.494Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:52:03.164Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:52:03.166Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:52:04.073Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:52:04.074Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:52:05.115Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:52:05.116Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:52:06.195Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:52:06.196Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:52:07.253Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:52:07.255Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:52:08.626Z] [SUCCESS] joaosn - 💾 Sessão carregada com sucesso (sem QR Code)
+[2025-09-14T20:52:09.080Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:52:09.082Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:52:10.068Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:52:10.069Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:52:11.079Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:52:11.081Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:52:11.472Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-14T20:52:14.178Z] [SUCCESS] joaosn - 🚀 WhatsApp está pronto!
+[2025-09-14T20:55:24.442Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:55:24.488Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:55:24.488Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:55:24.494Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:55:38.240Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:55:38.315Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:55:38.316Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:55:38.324Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:55:58.045Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:55:58.088Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:55:58.088Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:55:58.096Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:56:15.743Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:56:15.811Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:56:15.811Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:56:15.823Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:56:28.271Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:56:28.307Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:56:28.307Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:56:28.316Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:56:54.012Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:56:54.014Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:56:55.111Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T20:56:55.112Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T20:57:01.494Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-14T20:57:01.655Z] [SUCCESS] joaosn - 🚀 WhatsApp está pronto!
+[2025-09-14T20:59:24.628Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:59:24.664Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:59:24.665Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:59:24.671Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:59:34.094Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:59:34.139Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:59:34.139Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:59:34.144Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T20:59:51.413Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T20:59:51.472Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T20:59:51.472Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T20:59:51.516Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T21:00:07.224Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T21:00:07.281Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T21:00:07.282Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T21:00:07.310Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T21:00:53.833Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T21:00:53.869Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T21:00:53.869Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T21:00:53.877Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T21:01:14.150Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:01:14.151Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:01:21.838Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-14T21:01:22.865Z] [SUCCESS] joaosn - 🚀 WhatsApp está pronto!
+[2025-09-14T21:04:26.835Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T21:04:26.876Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T21:04:26.877Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T21:04:26.885Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T21:07:28.099Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:28.100Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:29.008Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:29.010Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:29.128Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:29.129Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:29.360Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:29.362Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:29.411Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:29.415Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:30.954Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:30.956Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:31.107Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:31.111Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:31.144Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:31.146Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:31.167Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:31.168Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:31.982Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:31.985Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:32.029Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:32.031Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:32.876Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:32.878Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:33.152Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:33.154Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:33.212Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:33.214Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:33.850Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:33.852Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:34.563Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:34.564Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:34.976Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:34.977Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:35.368Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:35.369Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:35.751Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:35.752Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:45.052Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:45.055Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:45.077Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:45.078Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:45.099Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:07:45.100Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:07:45.609Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-14T21:07:47.550Z] [SUCCESS] joaosn - 🚀 WhatsApp está pronto!
+[2025-09-14T21:16:31.625Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T21:16:31.671Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T21:16:31.672Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T21:16:31.680Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T21:16:53.530Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:16:53.532Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:16:58.796Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:16:58.797Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:16:58.832Z] [SUCCESS] joaosn - 💾 Sessão carregada com sucesso (sem QR Code)
+[2025-09-14T21:16:59.161Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:16:59.163Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:16:59.807Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:16:59.809Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:17:01.282Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-14T21:17:02.819Z] [SUCCESS] joaosn - 🚀 WhatsApp está pronto!
+[2025-09-14T21:18:56.536Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-14T21:18:56.578Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-14T21:18:56.579Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-14T21:18:56.586Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-14T21:19:28.732Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:28.734Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:30.214Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:30.215Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:30.798Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:30.799Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:31.469Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:31.470Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:31.654Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:31.656Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:32.067Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:32.068Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:32.347Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:32.348Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:32.419Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:32.420Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:32.438Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:32.439Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:32.474Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:32.475Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:32.604Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:32.605Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:32.651Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:32.653Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:33.809Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:33.810Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:34.519Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:34.520Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:35.041Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:35.043Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:35.936Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:35.938Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:36.258Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:36.264Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:37.317Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:37.318Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:38.095Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:38.096Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:43.515Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-14T21:19:44.270Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:44.271Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:44.325Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-14T21:19:44.327Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-14T21:19:47.168Z] [SUCCESS] joaosn - 🚀 WhatsApp está pronto!

@@ -15,6 +15,20 @@ const socket = io(url, {
   },
 });
 
+// ✅ ADICIONADO - Logs de conexão Socket.IO para debugging
+socket.on('connect', () => {
+  console.log('🔌 Socket.IO conectado com sucesso');
+  console.log('📡 Socket ID:', socket.id);
+});
+
+socket.on('disconnect', () => {
+  console.log('❌ Socket.IO desconectado');
+});
+
+socket.on('connect_error', (error) => {
+  console.error('❌ Erro de conexão Socket.IO:', error);
+});
+
 async function getClient(session) {
   const payload = {
     session: document.getElementById("session").value,
@@ -35,14 +49,44 @@ async function getClient(session) {
 
   try {
     const value = await axios.post(`${url}/start`, payload, { headers });
+    
+    console.log('📨 Resposta do /start:', value.data);
 
     if (value.data?.state === 'CONNECTED') {
       Swal.fire('Sucesso!!', 'Whatsapp já está conectado', 'success');
-      document.getElementById('image').src = "/ok.png";
+      const imageElement = document.getElementById('image');
+      if (imageElement) {
+        imageElement.src = "/ok.png";
+        imageElement.style.visibility = "visible";
+      }
     }
+    
+    // ✅ ADICIONADO - Verificar se QR Code veio na resposta HTTP (para WhatsApp WebJS)
+    if (value.data?.state === 'QRCODE' && value.data?.qrcode) {
+      console.log('📱 QR Code recebido via HTTP:', value.data);
+      
+      const imageElement = document.getElementById('image');
+      if (imageElement) {
+        imageElement.src = value.data.qrcode;
+        imageElement.style.visibility = "visible";
+        console.log('✅ QR Code exibido via resposta HTTP');
+        
+        // Atualizar texto da área do QR Code
+        const qrArea = document.querySelector('.qrcode-area h4');
+        const qrSmall = document.querySelector('.qrcode-area small');
+        if (qrArea) qrArea.innerHTML = '<i class="fas fa-qrcode"></i> QR Code Gerado (HTTP)';
+        if (qrSmall) qrSmall.textContent = 'Escaneie o QR Code com seu celular!';
+      }
+    }
+    
   } catch (err) {
+    console.error('❌ Erro na requisição /start:', err);
     Swal.fire('Erro!!', `${err?.response?.data?.message || err}`, 'error');
-    document.getElementById('image').src = "/error.png";
+    const imageElement = document.getElementById('image');
+    if (imageElement) {
+      imageElement.src = "/error.png";
+      imageElement.style.visibility = "visible";
+    }
   }
 }
 
@@ -73,16 +117,32 @@ async function alterSession(session) {
 
   await getClient(session);
 
-  // QR Code listener
+  // QR Code listener (Socket.IO)
   socket.on('qrcode', (qrcode) => {
     if (session === qrcode.session) {
-      console.log('qrcode ===>', qrcode);
-      document.getElementById('image').src = qrcode.qrCode || "/error.png";
+      console.log('📡 QR Code recebido via Socket.IO:', qrcode);
+      
+      // ✅ CORRIGIDO - Tornar a imagem visível e definir o QR Code
+      const imageElement = document.getElementById('image');
+      if (imageElement) {
+        imageElement.src = qrcode.qrCode || "/error.png";
+        imageElement.style.visibility = "visible"; // Mostrar a imagem
+        console.log('✅ QR Code exibido via Socket.IO');
+        
+        // Atualizar texto da área do QR Code
+        const qrArea = document.querySelector('.qrcode-area h4');
+        const qrSmall = document.querySelector('.qrcode-area small');
+        if (qrArea) qrArea.innerHTML = '<i class="fas fa-qrcode"></i> QR Code Gerado (Socket.IO)';
+        if (qrSmall) qrSmall.textContent = 'Escaneie o QR Code com seu celular!';
+      } else {
+        console.error('❌ Elemento #image não encontrado');
+      }
     }
   });
 
   // Eventos gerais
   socket.on('events', (event) => {
+    console.log('📨 Evento recebido:', event);
     if (session === event.session) {
       console.log('event ===>', event);
 
@@ -91,12 +151,20 @@ async function alterSession(session) {
 
       if (event?.state === 'CONNECTED') {
         Swal.fire('Sucesso!!', 'Whatsapp Aberto com sucesso', 'success');
-        document.getElementById('image').src = "/ok.png";
+        const imageElement = document.getElementById('image');
+        if (imageElement) {
+          imageElement.src = "/ok.png";
+          imageElement.style.visibility = "visible";
+        }
       }
 
       if (event?.state === 'DISCONNECTED') {
         Swal.fire('Erro!!', 'Erro durante a inicialização da sessão', 'error');
-        document.getElementById('image').src = "/error.png";
+        const imageElement = document.getElementById('image');
+        if (imageElement) {
+          imageElement.src = "/error.png";
+          imageElement.style.visibility = "visible";
+        }
       }
     }
   });

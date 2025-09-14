@@ -10,6 +10,7 @@ const { yo } = require("yoo-hoo");
 const config = require("./config");
 const { startAllSessions } = require("./startup");
 const logger = require("./util/logger");
+const customLogger = require("./util/customLogger"); // ✅ ADICIONADO - Logger customizado
 const expressPinoLogger = require("express-pino-logger");
 const authApi = require("./routers/Auth");
 const chatRouter = require("./routers/Chat");
@@ -107,8 +108,24 @@ io.on("connection", (socket) => {
   });
 });
 
-// Configuração de rotas
-const router = require("./routers/WppConnect");
+// Configuração de rotas baseada na engine selecionada
+let router;
+const engine = config.engine;
+
+if (engine === '1') {
+  router = require("./routers/WhatsappWebJS");
+  customLogger.success('🚀 Engine selecionada: WhatsApp-Web-JS');
+} else if (engine === '2') {
+  router = require("./routers/WppConnect");
+  customLogger.success('🚀 Engine selecionada: WPPConnect');
+} else if (engine === '3') {
+  router = require("./routers/Venom");
+  customLogger.success('🚀 Engine selecionada: Venom');
+} else {
+  customLogger.error('Engine não reconhecida. Use 1 (WhatsappWebJS), 2 (WppConnect) ou 3 (Venom).');
+  process.exit(1);
+}
+
 const manager = require("./routers/Manager");
 
 app.use(router, loggerMiddleware);
@@ -125,16 +142,18 @@ server.listen(config.port, async (error) => {
     const serverURL = config.host_ssl
       ? config.host_ssl
       : `${config.host}:${config.port}`;
-    console.log(
-      `\nServer running on ${serverURL}\nAccess ${serverURL}/doc to view API documentation\n`
-    );
+    
+    customLogger.success(`\n🚀 Server running on ${serverURL}`);
+    customLogger.info(`📚 Access ${serverURL}/doc to view API documentation`);
 
     // Inicia todas as sessões se a configuração estiver ativada
     if (config.start_all_sessions === "true") {
       try {
+        customLogger.info('🔄 Iniciando todas as sessões...');
         await startAllSessions();
+        customLogger.success('✅ Todas as sessões iniciadas com sucesso');
       } catch (error) {
-        logger.error("Error starting all sessions:", error);
+        customLogger.error("❌ Error starting all sessions:", error);
       }
     }
   }
@@ -161,11 +180,17 @@ function handleProcessExit(code) {
 }
 
 function handleUncaughtException(err) {
-  logger.error(`Uncaught Exception: ${err.message}`);
+  customLogger.error(`💥 Uncaught Exception: ${err.message}`);
   process.exit(1);
 }
 
 function handleUnhandledRejection(err, promise) {
-  logger.error("Unhandled rejection at ", promise, `reason: ${err}`);
-  process.exit(1);
+  customLogger.error(`🚨 Unhandled rejection: ${err.message}`);
+  customLogger.debug('Promise details:', promise);
+  
+  // ✅ MELHORADO - Não sair do processo imediatamente, apenas logar
+  // Em desenvolvimento, é melhor continuar rodando
+  if (process.env.NODE_ENV === 'production') {
+    process.exit(1);
+  }
 }
