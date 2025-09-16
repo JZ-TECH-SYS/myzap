@@ -2,7 +2,7 @@
 
 const moment = require('moment');
 const webhooks = require('./WebhooksController.js');
-const logger = require('../util/logger.js');
+const customLogger = require('../util/customLogger.js'); // ✅ Logger padronizado
 const config = require('../config.js');
 
 const DeviceModel = require('../Models/device.js');
@@ -47,7 +47,7 @@ module.exports = class Events {
       if (req.funcoesSocket && typeof req.funcoesSocket.events === 'function') {
         req.funcoesSocket.events(session, message);
       } else {
-        console.log(`⚠️ [${session}] funcoesSocket.events não disponível`);
+        customLogger.info(`⚠️ [${session}] funcoesSocket.events não disponível`);
       }
     }
 
@@ -191,7 +191,7 @@ module.exports = class Events {
         try {
           // ✅ VERIFICAÇÕES DE SEGURANÇA
           if (!msg) {
-            console.log(`⚠️ [${session}] message_ack: msg é undefined`);
+            customLogger.info(`⚠️ [${session}] message_ack: msg é undefined`);
             return;
           }
 
@@ -214,12 +214,12 @@ module.exports = class Events {
           if (req.funcoesSocket && typeof req.funcoesSocket.ack === 'function') {
             req.funcoesSocket.ack(session, response);
           } else {
-            console.log(`⚠️ [${session}] funcoesSocket.ack não disponível`);
+            customLogger.info(`⚠️ [${session}] funcoesSocket.ack não disponível`);
           }
           
           await webhooks?.wh_messages(session, response);
         } catch (error) {
-          console.log(`❌ [${session}] Erro no message_ack: ${error.message}`);
+          customLogger.info(`❌ [${session}] Erro no message_ack: ${error.message}`);
         }
       });
     }
@@ -227,7 +227,7 @@ module.exports = class Events {
 
   // ✅ ADICIONADO - Método StatusMessage que estava sendo chamado
   static StatusMessage(req, status, session) {
-    console.log(`[STATUS MESSAGE] ${session}: ${status}`);
+    customLogger.info(`[STATUS MESSAGE] ${session}: ${status}`);
     // Emitir evento de status via Socket.IO
     req.io.emit('whatsapp-status', { session, status });
   }
@@ -248,17 +248,17 @@ module.exports = class Events {
   }
 
   static async processStateChange(state, session, client, req) {
-    console.log('State changed', state);
+    customLogger.info('State changed', state);
     await Device.update(
       { state, updated_at: moment().format('YYYY-MM-DD HH:mm:ss') },
       { where: { session } }
     );
 
-    if (state === 'OPENING') logger.info(`[SESSION] ${session} - Abrindo navegador.`);
-    if (state === 'PAIRING') logger.info(`[SESSION] ${session} - Lendo o QRCode.`);
+    if (state === 'OPENING') customLogger.info(`[SESSION] ${session} - Abrindo navegador.`);
+    if (state === 'PAIRING') customLogger.info(`[SESSION] ${session} - Lendo o QRCode.`);
     if (state === 'CONFLICT') {
       client?.useHere();
-      logger.info(`[SESSION] ${session} - Conflito de login.`);
+      customLogger.info(`[SESSION] ${session} - Conflito de login.`);
     }
     if (state === 'UNPAIRED') {
       await Device.destroy({ where: { session } });

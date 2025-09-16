@@ -39,6 +39,25 @@ module.exports = class Wppconnect {
     customLogger.whatsapp(`🚀 Starting WppConnect - Session: ${session}`);
 
     try {
+      // ✅ VERIFICA SE SESSÃO JÁ EXISTE E ESTÁ CONECTADA
+      const existingClient = Sessions.getClient(session);
+      if (existingClient && existingClient.status === 'inChat') {
+        customLogger.info(`✅ Sessão ${session} já conectada`);
+        return res?.status(200)?.json({ 
+          result: 200, 
+          status: 'CONNECTED',
+          response: `Sessão ${session} já está ativa` 
+        });
+      }
+
+      // ✅ DETECTA SESSÃO PERDIDA APÓS RESTART (existe no banco mas não na memória)
+      const device = await Device.findOne({ where: { session } });
+      if (device && (device.status === 'inChat' || device.status === 'isLogged') && !existingClient) {
+        customLogger.info(`🔄 Detectada sessão perdida após restart: ${session} - Status banco: ${device.status}`);
+        customLogger.info(`🚀 Tentando reconectar sessão existente: ${session}`);
+        // Continua para initSession que tentará restaurar a sessão automaticamente
+      }
+
       // cria / atualiza device
       const { empresa_nome, api_url } = body;
       const sysUser = await User.findOne({ where: { email: process.env.EMAIL } });

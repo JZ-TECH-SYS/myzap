@@ -1,7 +1,7 @@
 const Sessions = require('../../../../controllers/SessionsController');
 const config = require('../../../../config');
 const Cache = require('../../../../util/cache');
-const logger = require('../../../../util/logger');
+const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
 
 
 module.exports = {
@@ -33,7 +33,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on sendImage: ${error.message}`);
+      customLogger.error(`Error on sendImage: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -70,7 +70,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on sendVideo: ${error.message}`);
+      customLogger.error(`Error on sendVideo: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -105,7 +105,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on sendFile: ${error.message}`);
+      customLogger.error(`Error on sendFile: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -133,7 +133,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on sendFile64: ${error.message}`);
+      customLogger.error(`Error on sendFile64: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -182,7 +182,7 @@ module.exports = {
         files: results
       });
     } catch (error) {
-      logger.error(`Error on sendMultipleFiles: ${error.message}`);
+      customLogger.error(`Error on sendMultipleFiles: ${error.message}`);
       res.status(500).json({ response: false, error: error.message });
     }
   },
@@ -228,7 +228,7 @@ module.exports = {
       });
 
     } catch (error) {
-      logger.error(`Error on sendSticker: ${error?.message}`);
+      customLogger.error(`Error on sendSticker: ${error?.message}`);
       res.status(500).json({ response: false, data: error?.message });
     }
   }

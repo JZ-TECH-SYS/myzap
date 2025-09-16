@@ -1,5 +1,5 @@
-const Sessions = require('../../../controllers/SessionsController');
-const logger = require('../../../util/logger');
+const Sessions = require('../../../../controllers/SessionsController');
+const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
 
 module.exports = {
     async sendTextToStorie(req, res) {
@@ -27,7 +27,7 @@ module.exports = {
                 data: response,
             });
         } catch (error) {
-            logger.error(`Error on sendTextToStorie: ${error?.message}`);
+            customLogger.error(`Error on sendTextToStorie: ${error?.message}`);
             res.status(500).json({ response: false, data: error?.message });
         }
     },
@@ -54,7 +54,7 @@ module.exports = {
                 data: response,
             });
         } catch (error) {
-            logger.error(`Error on sendImageToStorie: ${error?.message}`);
+            customLogger.error(`Error on sendImageToStorie: ${error?.message}`);
             res.status(500).json({ response: false, data: error?.message });
         }
     },
@@ -86,7 +86,7 @@ module.exports = {
                 data: response,
             });
         } catch (error) {
-            logger.error(`Error on sendVideoToStorie: ${error?.message}`);
+            customLogger.error(`Error on sendVideoToStorie: ${error?.message}`);
             res.status(500).json({ response: false, data: error?.message });
         }
     },

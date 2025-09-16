@@ -1,10 +1,11 @@
 const helper = require('./helper/auth.js');
+const customLogger = require('../../util/customLogger.js'); // ✅ Logger padronizado
 
 module.exports = class Auth {
   static async getQrCode(req, res) {
     // ✅ CORRIGIDO - GET usa query params, não body
     const session = req.query.session || req.params.session;
-    console.log(`[GET QR CODE] ${session}`);
+    customLogger.info(`[GET QR CODE] ${session}`);
     
     if (!session) {
       return res.status(400).json({

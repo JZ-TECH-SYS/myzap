@@ -1,6 +1,6 @@
 const DeviceModel = require('../../Models/device.js');
 const config = require('../../config.js');
-const logger = require('../../util/logger.js');
+const customLogger = require('../../util/customLogger.js'); // ✅ Logger padronizado
 
 const Device = DeviceModel(config.sequelize);
 
@@ -40,7 +40,7 @@ const SessionsHelper = {
       delete this.clients[session];
       return true;
     } catch (err) {
-      logger.error(`[❌ DELETE SESSION] ${session} - ${err.message}`);
+      customLogger.error(`[❌ DELETE SESSION] ${session} - ${err.message}`);
       return false;
     }
   },

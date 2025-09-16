@@ -21,16 +21,18 @@ module.exports = {
       });
     },
   
-    fail(res, error = null, statusCode = 500, reason = 'Erro inesperado') {
-      return res.status(statusCode).json({
-        result: statusCode,
-        status: 'FAIL',
-        reason,
-        data: error
-      });
-    },
-  
-    invalid(res, message = 'Requisição inválida', data = null) {
+  fail(res, error = null, statusCode = 500, reason = 'Erro inesperado') {
+    // ✅ Verificação segura para evitar erro "Cannot read properties of undefined"
+    const safeError = error || {};
+    const errorStatus = safeError.status || statusCode;
+    
+    return res.status(errorStatus).json({
+      result: errorStatus,
+      status: 'FAIL',
+      reason,
+      data: error
+    });
+  },    invalid(res, message = 'Requisição inválida', data = null) {
       return res.status(400).json({
         result: 400,
         status: 'INVALID',

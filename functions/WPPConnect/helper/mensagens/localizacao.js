@@ -1,7 +1,7 @@
 const Sessions = require('../../../../controllers/SessionsController');
 const config = require('../../../../config');
 const Cache = require('../../../../util/cache');
-const logger = require('../../../../util/logger');
+const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
 
 
 module.exports = {
@@ -40,7 +40,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on sendLocation: ${error.message}`);
+      customLogger.error(`Error on sendLocation: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -69,7 +69,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on sendContact: ${error.message}`);
+      customLogger.error(`Error on sendContact: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   }

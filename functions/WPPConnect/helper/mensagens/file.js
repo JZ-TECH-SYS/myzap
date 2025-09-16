@@ -1,6 +1,6 @@
 const Sessions = require('../../../../controllers/SessionsController');
 const Cache = require('../../../../util/cache');
-const logger = require('../../../../util/logger');
+const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
 
 module.exports = {
   async sendFile(req, res) {
@@ -20,7 +20,7 @@ module.exports = {
       res.status(200).json({ result: 200, type: 'file', session, data: response });
 
     } catch (error) {
-      logger.error(`Error on sendFile: ${error.message}`);
+      customLogger.error(`Error on sendFile: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -49,7 +49,7 @@ module.exports = {
       res.status(200).json({ result: 200, session, number, total: results.length, files: results });
 
     } catch (error) {
-      logger.error(`Error on sendMultipleFiles: ${error.message}`);
+      customLogger.error(`Error on sendMultipleFiles: ${error.message}`);
       res.status(500).json({ response: false, error: error.message });
     }
   },
@@ -71,7 +71,7 @@ module.exports = {
       res.status(200).json({ result: 200, type: 'file', session, file: file.name, data: response });
 
     } catch (error) {
-      logger.error(`Error on sendFileLocal: ${error.message}`);
+      customLogger.error(`Error on sendFileLocal: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -90,7 +90,7 @@ module.exports = {
       res.status(200).json({ result: 200, type: 'file', session, data: response });
 
     } catch (error) {
-      logger.error(`Error on sendFile64: ${error.message}`);
+      customLogger.error(`Error on sendFile64: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -119,7 +119,7 @@ module.exports = {
       res.status(200).json({ result: 200, session, number, total: results.length, files: results });
 
     } catch (error) {
-      logger.error(`Error on sendMultipleFile64: ${error.message}`);
+      customLogger.error(`Error on sendMultipleFile64: ${error.message}`);
       res.status(500).json({ response: false, error: error.message });
     }
   },
@@ -151,7 +151,7 @@ module.exports = {
       });
   
     } catch (error) {
-      logger.error(`Error on downloadMediaByMessage: ${error?.message}`);
+      customLogger.error(`Error on downloadMediaByMessage: ${error?.message}`);
       return res.status(500).json({ response: false, data: error?.message });
     }
   }

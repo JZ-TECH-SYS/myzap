@@ -1,7 +1,7 @@
 const Sessions = require('../../../../controllers/SessionsController');
 const config = require('../../../../config');
 const Cache = require('../../../../util/cache');
-const logger = require('../../../../util/logger');
+const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
 
 module.exports = {
   async sendAudio(req, res) {
@@ -48,7 +48,7 @@ module.exports = {
         });
       }
     } catch (error) {
-      logger.error(`Error on sendAudio: ${error.message}`);
+      customLogger.error(`Error on sendAudio: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -80,7 +80,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on sendVoiceBase64: ${error.message}`);
+      customLogger.error(`Error on sendVoiceBase64: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -93,7 +93,7 @@ module.exports = {
       const response = await data.client.startRecording(phone, time);
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on startRecording: ${error?.message}`);
+      customLogger.error(`Error on startRecording: ${error?.message}`);
       res.status(500).json({ response: false, data: error?.message });
     }
   },
@@ -106,7 +106,7 @@ module.exports = {
       const response = await data.client.stopRecoring(phone, time);
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on stopRecording: ${error?.message}`);
+      customLogger.error(`Error on stopRecording: ${error?.message}`);
       res.status(500).json({ response: false, data: error?.message });
     }
   }

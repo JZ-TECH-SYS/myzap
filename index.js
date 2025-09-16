@@ -9,8 +9,8 @@ const path = require("path");
 const { yo } = require("yoo-hoo");
 const config = require("./config");
 const { startAllSessions } = require("./startup");
-const logger = require("./util/logger");
-const customLogger = require("./util/customLogger"); // ✅ ADICIONADO - Logger customizado
+const logger = require("./util/logger"); // Para expressPinoLogger  
+const customLogger = require("./util/customLogger"); // ✅ Logger padronizado
 const expressPinoLogger = require("express-pino-logger");
 const authApi = require("./routers/Auth");
 const chatRouter = require("./routers/Chat");
@@ -34,7 +34,7 @@ app.use(
 
 // Configuração do logger
 const loggerMiddleware = expressPinoLogger({
-  logger: logger,
+  logger: logger, // Usa logger antigo para middleware
   autoLogging: true,
 });
 
@@ -88,10 +88,10 @@ io.setMaxListeners(0); // Aumenta o número máximo de listeners
 
 // Configuração de eventos do socket.io
 io.on("connection", (socket) => {
-  logger.info(`ID: ${socket.id} socket connected`);
+  customLogger.info(`ID: ${socket.id} socket connected`);
 
   socket.on("event", (data) => {
-    logger.info(data);
+    customLogger.info(data);
   });
 
   socket.on("room", (room) => {
@@ -100,11 +100,11 @@ io.on("connection", (socket) => {
     }
     socket.join(room);
     socket.room = room;
-    logger.info(`Session: ${room} joined Socket.io`);
+    customLogger.info(`Session: ${room} joined Socket.io`);
   });
 
   socket.on("disconnect", () => {
-    logger.info(`ID: ${socket.id} socket disconnected`);
+    customLogger.info(`ID: ${socket.id} socket disconnected`);
   });
 });
 
@@ -135,7 +135,7 @@ app.use(chatRouter);
 // Inicialização do servidor
 server.listen(config.port, async (error) => {
   if (error) {
-    logger.error(error);
+    customLogger.error(error);
   } else {
     yo("Myzap3", { color: "rainbow", spacing: 1, waitMode: "line" });
 
@@ -168,15 +168,15 @@ process.on("uncaughtException", handleUncaughtException);
 process.on("unhandledRejection", handleUnhandledRejection);
 
 function gracefulShutdown(signal) {
-  logger.info(`Received ${signal}. Starting graceful shutdown...`);
+  customLogger.info(`Received ${signal}. Starting graceful shutdown...`);
   server.close(() => {
-    logger.info("Server closed. Exiting process...");
+    customLogger.info("Server closed. Exiting process...");
     process.exit(0);
   });
 }
 
 function handleProcessExit(code) {
-  logger.info(`Process exited with code: ${code}`);
+  customLogger.info(`Process exited with code: ${code}`);
 }
 
 function handleUncaughtException(err) {

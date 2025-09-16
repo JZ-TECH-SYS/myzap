@@ -1,6 +1,6 @@
 const Sessions = require('../../../../controllers/SessionsController');
 const Cache = require('../../../../util/cache');
-const logger = require('../../../../util/logger');
+const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
 
 module.exports = {
   async startTyping(req, res) {
@@ -12,7 +12,7 @@ module.exports = {
       const response = await data.client.startTyping(phone, time);
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on startTyping: ${error.message}`);
+      customLogger.error(`Error on startTyping: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -26,7 +26,7 @@ module.exports = {
       const response = await data.client.stopTyping(phone);
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on stopTyping: ${error.message}`);
+      customLogger.error(`Error on stopTyping: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -40,7 +40,7 @@ module.exports = {
       const response = await data.client.startRecording(phone, time);
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on startRecording: ${error.message}`);
+      customLogger.error(`Error on startRecording: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -54,7 +54,7 @@ module.exports = {
       const response = await data.client.stopRecoring(phone);
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on stopRecording: ${error.message}`);
+      customLogger.error(`Error on stopRecording: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -84,7 +84,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on sendReactionToMessage: ${error.message}`);
+      customLogger.error(`Error on sendReactionToMessage: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -95,7 +95,7 @@ module.exports = {
       const response = await data.client.createNewsletter(name, options);
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on createNewsletter: ${error?.message}`);
+      customLogger.error(`Error on createNewsletter: ${error?.message}`);
       res.status(500).json({ response: false, data: error?.message });
     }
   },
@@ -107,7 +107,7 @@ module.exports = {
       const response = await data.client.editMessage(messageid, newText);
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on editMessage: ${error?.message}`);
+      customLogger.error(`Error on editMessage: ${error?.message}`);
       res.status(500).json({ response: false, data: error?.message });
     }
   },
@@ -121,7 +121,7 @@ module.exports = {
       const response = await client.sendListMessage(phone, { buttonText, description, sections });
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on sendListMessage: ${error?.message}`);
+      customLogger.error(`Error on sendListMessage: ${error?.message}`);
       res.status(500).json({ response: false, data: error?.message });
     }
   },
@@ -135,7 +135,7 @@ module.exports = {
       const response = await client.sendOrderMessage(phone, items, options);
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on sendOrderMessage: ${error?.message}`);
+      customLogger.error(`Error on sendOrderMessage: ${error?.message}`);
       res.status(500).json({ response: false, data: error?.message });
     }
   },
@@ -151,7 +151,7 @@ module.exports = {
       });
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on sendPollMessage: ${error?.message}`);
+      customLogger.error(`Error on sendPollMessage: ${error?.message}`);
       res.status(500).json({ response: false, data: error?.message });
     }
   },
@@ -169,7 +169,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on getPlatformFromMessage: ${error?.message}`);
+      customLogger.error(`Error on getPlatformFromMessage: ${error?.message}`);
       return res.status(500).json({ response: false, data: error?.message });
     }
   }

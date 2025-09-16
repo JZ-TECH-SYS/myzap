@@ -1,5 +1,5 @@
-const Sessions = require('../../../controllers/SessionsController');
-const logger = require('../../../util/logger');
+const Sessions = require('../../../../controllers/SessionsController');
+const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
 
 module.exports = {
     async setProfilePic(req, res) {
@@ -42,7 +42,7 @@ module.exports = {
                 data: response,
             });
         } catch (error) {
-            logger.error(`Error on setProfilePic: ${error?.message}`);
+            customLogger.error(`Error on setProfilePic: ${error?.message}`);
             res.status(500).json({ response: false, data: error?.message });
         }
     },
@@ -65,7 +65,7 @@ module.exports = {
                 data: response,
             });
         } catch (error) {
-            logger.error(`Error on setProfileName: ${error?.message}`);
+            customLogger.error(`Error on setProfileName: ${error?.message}`);
             res.status(500).json({ response: false, data: error?.message });
         }
     },
@@ -88,7 +88,7 @@ module.exports = {
                 data: response,
             });
         } catch (error) {
-            logger.error(`Error on setProfileStatus: ${error?.message}`);
+            customLogger.error(`Error on setProfileStatus: ${error?.message}`);
             res.status(500).json({ response: false, data: error?.message });
         }
     },

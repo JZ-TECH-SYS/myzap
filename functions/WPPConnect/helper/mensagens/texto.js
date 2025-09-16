@@ -1,7 +1,7 @@
 const Sessions = require('../../../../controllers/SessionsController');
 const config = require('../../../../config');
 const Cache = require('../../../../util/cache');
-const logger = require('../../../../util/logger');
+const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
 
 module.exports = {
   async sendText(req, res) {
@@ -24,7 +24,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on sendText: ${error.message}`);
+      customLogger.error(`Error on sendText: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -50,7 +50,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on reply: ${error.message}`);
+      customLogger.error(`Error on reply: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -75,7 +75,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on forwardMessages: ${error.message}`);
+      customLogger.error(`Error on forwardMessages: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -91,7 +91,7 @@ module.exports = {
         data: response
       });
     } catch (error) {
-      logger.error(`Error on editMessage: ${error.message}`);
+      customLogger.error(`Error on editMessage: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   }

@@ -3,14 +3,14 @@ require('dotenv').config();
 const config = require('../config.js');
 
 const CacheModel = require('../Models/cache');
-const logger = require('./logger.js');
+const customLogger = require('./customLogger.js'); // ✅ Corrigido nome da variável
 const CacheDB = CacheModel(config.sequelize);
 
 module.exports = class Cache {
   static async get(number) {
     let cacheData = await CacheDB.findOne({ where: { number: number } });
     let response = cacheData ? cacheData.profile : null;
-    logger.info(`Cache.get(${number}) = ${response}`);
+    customLogger.info(`Cache.get(${number}) = ${response}`);
     return response;
   }
 
@@ -21,13 +21,13 @@ module.exports = class Cache {
     } else {
       await CacheDB.create({ number: number, profile: profile });
     }
-    logger.info(`Cache.set(${number}, ${profile})`);
+    customLogger.info(`Cache.set(${number}, ${profile})`);
     return profile
   }
 
   static async del(number) {
     await CacheDB.destroy({ where: { number: number } });
-    logger.info(`Cache.del(${number})`);
+    customLogger.info(`Cache.del(${number})`);
     return true;
   }
 }

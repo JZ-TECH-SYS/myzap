@@ -1,8 +1,7 @@
 const SessionsHelper = require('./helper/sessions.js');
 const http = require('./helper/http.js');
 const chalk = require('chalk');
-const logger = require('../util/logger.js');
-const customLogger = require('../util/customLogger.js'); // ✅ ADICIONADO
+const customLogger = require('../util/customLogger.js'); // ✅ Logger padronizado
 
 class Sessions {
   static async instances(req, res) {
@@ -29,36 +28,36 @@ class Sessions {
       return true;
     }
 
-    logger.error(`[❌ CLIENT INJECTED] ${session} / ${sessionkey}`);
+    customLogger.error(`❌ CLIENT INJECTED, SESSION INVALID - ${session} / ${sessionkey}`);
     return false;
   }
 
   static async addInfoSession(session, data) {
     try {
-      logger.info(`[ADD INFO SESSION] ${session} - Adicionando informações da sessão`);
+      customLogger.info(`[ADD INFO SESSION] ${session} - Adicionando informações da sessão`);
       
       // Injetar o client se fornecido
       if (data.client) {
         SessionsHelper.injectClient(session, data.client);
-        logger.info(`[CLIENT INJECTED] ${session} - Cliente injetado com sucesso`);
+        customLogger.info(`[CLIENT INJECTED] ${session} - Cliente injetado com sucesso`);
       }
 
       // Salvar dados adicionais no helper se necessário
       if (data.tokens) {
-        logger.info(`[TOKENS SAVED] ${session} - Tokens salvos`);
+        customLogger.info(`[TOKENS SAVED] ${session} - Tokens salvos`);
       }
 
       if (data.status) {
-        logger.info(`[STATUS UPDATE] ${session} - Status: ${data.status}`);
+        customLogger.info(`[STATUS UPDATE] ${session} - Status: ${data.status}`);
       }
 
       if (data.qrCode) {
-        logger.info(`[QR CODE] ${session} - QR Code atualizado`);
+        customLogger.info(`[QR CODE] ${session} - QR Code atualizado`);
       }
 
       return true;
     } catch (error) {
-      logger.error(`[ADD INFO SESSION ERROR] ${session} - ${error.message}`);
+      customLogger.error(`[ADD INFO SESSION ERROR] ${session} - ${error.message}`);
       return false;
     }
   }
@@ -145,7 +144,7 @@ class Sessions {
 
       // Tentar reconexão automática para status recuperáveis
       if (reconnectableStatuses.includes(device?.status)) {
-        logger.info(`[RECONNECT ATTEMPT] ${req.body.session} - Status: ${device?.status}`);
+        customLogger.info(`[RECONNECT ATTEMPT] ${req.body.session} - Status: ${device?.status}`);
         
         try {
           // Tentar reconectar através do engine específico
@@ -159,7 +158,7 @@ class Sessions {
             data: device
           });
         } catch (reconnectError) {
-          logger.error(`[RECONNECT FAILED] ${req.body.session} - ${reconnectError.message}`);
+          customLogger.error(`[RECONNECT FAILED] ${req.body.session} - ${reconnectError.message}`);
           
           return http.json(res, 200, {
             result: 200,
@@ -175,7 +174,7 @@ class Sessions {
       return http.invalid(res, 'Sessão não está em chat', device);
 
     } catch (err) {
-      logger.error(`[ERROR GET CONNECTION STATUS] ${req.body.session}`);
+      customLogger.error(`[ERROR GET CONNECTION STATUS] ${req.body.session}`);
       return http.fail(res, err, 500, 'Erro ao verificar status da conexão');
     }
   }
@@ -199,7 +198,7 @@ class Sessions {
     const config = require('../config');
     const engine = config.engine;
 
-    logger.info(`[RECONNECT] Tentando reconectar sessão ${session} no engine ${engine}`);
+    customLogger.info(`[RECONNECT] Tentando reconectar sessão ${session} no engine ${engine}`);
 
     try {
       switch (engine) {
@@ -216,7 +215,7 @@ class Sessions {
           throw new Error(`Engine ${engine} não suportado para reconexão`);
       }
     } catch (error) {
-      logger.error(`[RECONNECT ERROR] ${session} - ${error.message}`);
+      customLogger.error(`[RECONNECT ERROR] ${session} - ${error.message}`);
       throw error;
     }
   }
@@ -229,7 +228,7 @@ class Sessions {
     // Forçar inicialização se necessário
     if (data.client.initialize) {
       await data.client.initialize();
-      logger.info(`[RECONNECT] WhatsApp WebJS ${session} - initialize() chamado`);
+      customLogger.info(`[RECONNECT] WhatsApp WebJS ${session} - initialize() chamado`);
       return true;
     }
     
@@ -243,7 +242,7 @@ class Sessions {
     // WppConnect pode verificar estado e tentar reconectar
     if (data.client.getConnectionState) {
       const state = await data.client.getConnectionState();
-      logger.info(`[RECONNECT] WppConnect ${session} - Estado atual: ${state}`);
+      customLogger.info(`[RECONNECT] WppConnect ${session} - Estado atual: ${state}`);
       
       // Se não estiver pareado, não pode reconectar
       if (state === 'UNPAIRED') {
@@ -261,13 +260,13 @@ class Sessions {
     const data = await Sessions.getClient(session);
     if (!data?.client) throw new Error('Cliente não encontrado');
 
-    logger.info(`[RECONNECT] Venom ${session} - Tentando reconexão baseada na documentação oficial`);
+    customLogger.info(`[RECONNECT] Venom ${session} - Tentando reconexão baseada na documentação oficial`);
     
     try {
       // Baseado na documentação do Venom, verificar se cliente ainda está ativo
       if (data.client.isConnected) {
         const isConnected = await data.client.isConnected();
-        logger.info(`[RECONNECT] Venom ${session} - Status conectado: ${isConnected}`);
+        customLogger.info(`[RECONNECT] Venom ${session} - Status conectado: ${isConnected}`);
         
         if (isConnected) {
           return true; // Já está conectado
@@ -277,7 +276,7 @@ class Sessions {
       // Tentar usar getConnectionState se disponível (algumas versões têm)
       if (data.client.getConnectionState) {
         const state = await data.client.getConnectionState();
-        logger.info(`[RECONNECT] Venom ${session} - Estado: ${state}`);
+        customLogger.info(`[RECONNECT] Venom ${session} - Estado: ${state}`);
         
         // Estados reconectáveis baseados na documentação
         const reconnectableStates = ['DISCONNECTED', 'SYNCING', 'RESUMING'];
@@ -290,7 +289,7 @@ class Sessions {
       // Última tentativa: verificar se podemos usar restartService
       if (data.client.restartService) {
         await data.client.restartService();
-        logger.info(`[RECONNECT] Venom ${session} - restartService() executado`);
+        customLogger.info(`[RECONNECT] Venom ${session} - restartService() executado`);
         return true;
       }
 
@@ -298,20 +297,20 @@ class Sessions {
       throw new Error('Venom: Métodos de reconexão esgotados - QR Code necessário');
       
     } catch (error) {
-      logger.error(`[RECONNECT] Venom ${session} - Erro: ${error.message}`);
+      customLogger.error(`[RECONNECT] Venom ${session} - Erro: ${error.message}`);
       throw new Error(`Venom: Falha na reconexão - ${error.message}`);
     }
   }
 
   static async restartVenomSession(session, req) {
     try {
-      logger.info(`[RESTART] Venom ${session} - Iniciando restart da sessão`);
+      customLogger.info(`[RESTART] Venom ${session} - Iniciando restart da sessão`);
       
       // Fechar sessão atual primeiro
       const data = await Sessions.getClient(session);
       if (data?.client?.close) {
         await data.client.close();
-        logger.info(`[RESTART] Venom ${session} - Sessão anterior fechada`);
+        customLogger.info(`[RESTART] Venom ${session} - Sessão anterior fechada`);
       }
 
       // Pequena pausa para garantir limpeza
@@ -322,14 +321,14 @@ class Sessions {
       const result = await engine.reconnect(session, req, null);
       
       if (result) {
-        logger.info(`[RESTART] Venom ${session} - Nova sessão criada com sucesso`);
+        customLogger.info(`[RESTART] Venom ${session} - Nova sessão criada com sucesso`);
         return true;
       } else {
         throw new Error('Falha ao recriar sessão');
       }
       
     } catch (error) {
-      logger.error(`[RESTART] Venom ${session} - Falha: ${error.message}`);
+      customLogger.error(`[RESTART] Venom ${session} - Falha: ${error.message}`);
       throw new Error(`Restart falhou: ${error.message}`);
     }
   }
@@ -343,7 +342,7 @@ class Sessions {
         return http.notFound(res, 'Sessão não encontrada!');
       }
 
-      logger.info(`[FORCE RECONNECT] Tentativa manual para sessão ${session}`);
+      customLogger.info(`[FORCE RECONNECT] Tentativa manual para sessão ${session}`);
 
       try {
         await Sessions.attemptReconnection(session, req);
@@ -355,7 +354,7 @@ class Sessions {
         }, 'Tentativa de reconexão iniciada');
         
       } catch (reconnectError) {
-        logger.error(`[FORCE RECONNECT FAILED] ${session} - ${reconnectError.message}`);
+        customLogger.error(`[FORCE RECONNECT FAILED] ${session} - ${reconnectError.message}`);
         
         return http.json(res, 400, {
           result: 400,
@@ -367,7 +366,7 @@ class Sessions {
       }
 
     } catch (err) {
-      logger.error(`[FORCE RECONNECT ERROR] ${req.body.session} - ${err.message}`);
+      customLogger.error(`[FORCE RECONNECT ERROR] ${req.body.session} - ${err.message}`);
       return http.fail(res, err, 500, 'Erro ao tentar reconectar');
     }
   }
@@ -381,7 +380,7 @@ class Sessions {
         return http.fail(res, 'Sessão não informada', 400, 'Sessão obrigatória');
       }
 
-      logger.info(`[REPAIR SESSION] Reparando sessão ${session}`);
+      customLogger.info(`[REPAIR SESSION] Reparando sessão ${session}`);
 
       // Verificar se é WhatsApp WebJS
       const config = require('../config');
@@ -391,7 +390,7 @@ class Sessions {
         const HelperWhatsappWeb = require('../engines/helper/wweb.js');
         await HelperWhatsappWeb.repairSession(session);
         
-        logger.info(`[REPAIR SESSION] ${session} - Cache WhatsApp WebJS limpo`);
+        customLogger.info(`[REPAIR SESSION] ${session} - Cache WhatsApp WebJS limpo`);
       }
       
       // Limpar sessão do banco também
@@ -405,8 +404,29 @@ class Sessions {
       }, 'Sessão reparada com sucesso');
 
     } catch (err) {
-      logger.error(`[REPAIR SESSION ERROR] ${req.body.session} - ${err.message}`);
+      customLogger.error(`[REPAIR SESSION ERROR] ${req.body.session} - ${err.message}`);
       return http.fail(res, err, 500, 'Erro ao reparar sessão');
+    }
+  }
+
+  /**
+   * Remove sessão da memória sem precisar de req/res
+   * Método seguro para uso em reconexões automáticas
+   */
+  static removeSessionFromMemory(session) {
+    try {
+      if (Sessions.client[session]) {
+        // Tentar fechar client se existir
+        if (Sessions.client[session].client && typeof Sessions.client[session].client.close === 'function') {
+          Sessions.client[session].client.close().catch(() => {});
+        }
+        
+        // Remover da memória
+        delete Sessions.client[session];
+        customLogger.info(`[SESSIONS] Sessão ${session} removida da memória`);
+      }
+    } catch (error) {
+      customLogger.warning(`[SESSIONS] Erro ao remover sessão ${session} da memória:`, error.message);
     }
   }
 }

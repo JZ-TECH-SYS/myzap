@@ -4,11 +4,12 @@
  * Mantém toda a lógica de persistência e comunicação (banco, socket, webhooks).
  */
 const chalk     = require('chalk');
-const { exec }  = require('child_process');
+const stealth   = require('./stealth'); // NOVO: Sistema anti-detecção
 const webhooks  = require('../../controllers/WebhooksController.js');
 const fnSocket  = require('../../controllers/FNSocketsController.js');
 const config    = require('../../config.js');
 const Device    = require('../../Models/device.js')(config.sequelize);
+const customLogger = require('../../util/customLogger');
 
 const now = () => new Date();
 
@@ -62,6 +63,14 @@ async function handleStatusFind(session, statusSession, { sessionkey, io }) {
 
   switch (statusSession) {
     case 'inChat':
+    case 'isLogged':
+    case 'CONNECTED':
+      // ✅ LOG DE RECONEXÃO AUTOMÁTICA
+      const device = await Device.findOne({ where });
+      if (device && device.status !== 'inChat') {
+        customLogger.success(`🎉 RECONEXÃO AUTOMÁTICA BEM-SUCEDIDA: ${session} - Era: ${device.status} → Agora: inChat`);
+      }
+
       await Device.update({
         state        : 'CONNECTED',
         status       : 'inChat',
@@ -79,10 +88,28 @@ async function handleStatusFind(session, statusSession, { sessionkey, io }) {
       webhooks?.wh_connect(session, 'CONNECTED');
       break;
 
+    case 'qrReadSuccess':
+    case 'qrRead':
+      // QR Code foi lido, aguardando conexão
+      await Device.update({
+        state      : 'CONNECTING',
+        status     : 'qrRead',
+        updated_at : now()
+      }, { where });
+
+      emitSocket(io, session, {
+        message: 'QR Code lido, conectando...',
+        state  : 'CONNECTING',
+        status : 'qrRead',
+        session
+      });
+      break;
+
     case 'browserClose':
     case 'serverClose':
     case 'autocloseCalled':
     case 'phoneNotConnected':
+    case 'desconnectedMobile':
       await Device.update({
         state          : 'DISCONNECTED',
         status         : statusSession,
@@ -102,7 +129,18 @@ async function handleStatusFind(session, statusSession, { sessionkey, io }) {
     case 'qrReadError':
     case 'qrReadFail':
       await Device.destroy({ where });
-      exec(`rm -rf instances/${session}`);
+      
+      // Remove diretório da sessão de forma compatível com Windows
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const sessionPath = path.join('instances', session);
+        if (fs.existsSync(sessionPath)) {
+          fs.rmSync(sessionPath, { recursive: true, force: true });
+        }
+      } catch (rmErr) {
+        console.error('Erro ao remover diretório da sessão:', rmErr);
+      }
 
       emitSocket(io, session, {
         message: 'Falha ao ler QRCode.',
@@ -114,8 +152,47 @@ async function handleStatusFind(session, statusSession, { sessionkey, io }) {
       webhooks?.wh_connect(session, statusSession);
       break;
 
+    case 'notLogged':
+      // Status específico para quando não conseguiu fazer login
+      // Baseado no issue #2489 - limpa tokens corrompidos e força novo QR
+      customLogger.whatsapp(`⚠️ notLogged detectado para sessão ${session} - limpando tokens e forçando novo QR`);
+      
+      // Limpa tokens corrompidos
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const tokensPath = path.join('instances', session, 'tokens');
+        if (fs.existsSync(tokensPath)) {
+          fs.rmSync(tokensPath, { recursive: true, force: true });
+          customLogger.whatsapp(`🧹 Tokens removidos para sessão ${session}`);
+        }
+      } catch (tokenErr) {
+        console.error('Erro ao remover tokens:', tokenErr);
+      }
+
+      await Device.update({
+        state          : 'DISCONNECTED',
+        status         : 'notLogged',
+        qrCode         : '',
+        attempts       : 0,
+        urlCode        : '',
+        last_disconnect: now(),
+        updated_at     : now()
+      }, { where });
+
+      emitSocket(io, session, {
+        message: 'Falha na autenticação. Gerando novo QR Code...',
+        state  : 'DISCONNECTED',
+        status : 'notLogged',
+        session
+      });
+
+      webhooks?.wh_connect(session, 'notLogged');
+      break;
+
     default:
-      // Outros status apenas log
+      // Log para status não tratados
+      console.log(`[WPP] Status não tratado: ${statusSession} para sessão ${session}`);
       break;
   }
 }
@@ -180,6 +257,57 @@ async function updateDeviceAfterSessionStart({ session, sessionkey, stateSession
 }
 
 /* -------------------------------------------------------------------------- */
+/* cleanCorruptedSession – limpa sessões corrompidas ----------------------- */
+/* -------------------------------------------------------------------------- */
+async function cleanCorruptedSession(session) {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    
+    const sessionPath = path.join('instances', session);
+    const tokenFiles = [
+      path.join(sessionPath, 'tokens', 'session.data.json'),
+      path.join(sessionPath, 'tokens', 'session-data.json'),
+      path.join(sessionPath, 'Default', 'Local Storage'),
+      path.join(sessionPath, 'Default', 'Session Storage'),
+      path.join(sessionPath, 'Default', 'IndexedDB')
+    ];
+    
+    // Verifica se há arquivos corrompidos ou inconsistentes
+    let hasCorruption = false;
+    
+    for (const filePath of tokenFiles) {
+      if (fs.existsSync(filePath)) {
+        try {
+          if (filePath.includes('.json')) {
+            const content = fs.readFileSync(filePath, 'utf8');
+            JSON.parse(content); // Tenta fazer parse para verificar se não está corrompido
+          }
+        } catch (error) {
+          console.log(`[WPP] Arquivo corrompido detectado: ${filePath}`);
+          hasCorruption = true;
+          break;
+        }
+      }
+    }
+    
+    // Se detectou corrupção, limpa a sessão
+    if (hasCorruption) {
+      console.log(`[WPP] Limpando sessão corrompida: ${session}`);
+      if (fs.existsSync(sessionPath)) {
+        fs.rmSync(sessionPath, { recursive: true, force: true });
+      }
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error(`[WPP] Erro ao verificar sessão ${session}:`, error);
+    return false;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
 /* Payload helpers ---------------------------------------------------------- */
 function getPayloadUpdateDevice({
   userId, session, sessionkey, number,
@@ -210,45 +338,16 @@ function getPayloadCreateDevice(params) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Options                                                                    */
+/* Options STEALTH                                                           */
 function buildOptions(session) {
-  return {
-    headless         : process.env.HEADLESS ? false : 'new',
-    devtools         : false,
-    debug            : true,
-    logQR            : !!process.env.HOST,
-    updatesLog       : !!process.env.HOST,
-    useChrome        : false,
-    autoClose        : 120000,
-    disableWelcome   : true,
-    deviceSyncTimeout: 980000,
-    whatsappVersion  : process.env.WHATSAPP_VERSION,
-    folderNameToken  : './instances',
-    puppeteerOptions : { userDataDir: `instances/${session}` },
-    browserArgs      : [
-      '--disable-web-security',
-      '--no-sandbox',
-      '--aggressive-cache-discard',
-      '--disable-cache',
-      '--disable-application-cache',
-      '--disable-offline-load-stale-cache',
-      '--disk-cache-size=0',
-      '--disable-background-networking',
-      '--disable-default-apps',
-      '--disable-extensions',
-      '--disable-sync',
-      '--disable-translate',
-      '--hide-scrollbars',
-      '--metrics-recording-only',
-      '--mute-audio',
-      '--no-first-run',
-      '--safebrowsing-disable-auto-update',
-      '--ignore-certificate-errors',
-      '--ignore-ssl-errors',
-      '--ignore-certificate-errors-spki-list',
-      '--disable-features=LeakyPeeker'
-    ]
-  };
+  customLogger.info(`[STEALTH] Configurando sessão ${session} com modo anti-detecção`);
+  
+  // Usa configuração stealth completa
+  const stealthConfig = stealth.getStealthConfig(session);
+  
+  customLogger.info(`[STEALTH] Sessão ${session} configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO`);
+  
+  return stealthConfig;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -270,5 +369,6 @@ module.exports = {
   getPayloadUpdateDevice,
   getPayloadCreateDevice,
   buildOptions,
-  logSessionStatus
+  logSessionStatus,
+  cleanCorruptedSession
 };

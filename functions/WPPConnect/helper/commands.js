@@ -1,6 +1,6 @@
 const Sessions = require("../../../controllers/SessionsController");
 const Cache = require("../../../util/cache");
-const logger = require("../../../util/logger");
+const customLogger = require("../../../util/customLogger.js"); // ✅ Logger padronizado
 
 const moment = require("moment");
 moment().format("DD-MM-YYYY HH:mm:ss");
@@ -13,7 +13,7 @@ module.exports = {
       let response = await data.client.getClientTokenBrowser();
       res.status(200).json({ result: 200, token: response });
     } catch (error) {
-      logger.error(`Error on getClientTokenBrowser: ${error?.message}`);
+      customLogger.error(`Error on getClientTokenBrowser: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -24,7 +24,7 @@ module.exports = {
       let response = await data.client.getLastSeen(req.body.number + "@c.us");
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on getLastSeen: ${error?.message}`);
+      customLogger.error(`Error on getLastSeen: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -35,7 +35,7 @@ module.exports = {
       let response = await data.client.getTheme();
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on getTheme: ${error?.message}`);
+      customLogger.error(`Error on getTheme: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -46,7 +46,7 @@ module.exports = {
       let response = await data.client.getWAJSVersion();
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on getWAJSVersion: ${error?.message}`);
+      customLogger.error(`Error on getWAJSVersion: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -57,7 +57,7 @@ module.exports = {
       let response = await data.client.getWAVersion();
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on getWAVersion: ${error?.message}`);
+      customLogger.error(`Error on getWAVersion: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -68,7 +68,7 @@ module.exports = {
       let response = await data.client.getHostDevice();
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on getHostDevice: ${error?.message}`);
+      customLogger.error(`Error on getHostDevice: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -79,7 +79,7 @@ module.exports = {
       const response = await data.client.getWid();
       res.status(200).json({ result: 200, number: response });
     } catch (error) {
-      logger.error(`Error on getWid: ${error?.message}`);
+      customLogger.error(`Error on getWid: ${error?.message}`);
       res
         .status(400)
         .json({
@@ -98,7 +98,7 @@ module.exports = {
       const response = await data.client.getContact(number + "@c.us");
       res.status(200).json({ result: 200, number: response });
     } catch (error) {
-      logger.error(`Error on getContact: ${error?.message}`);
+      customLogger.error(`Error on getContact: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -122,7 +122,7 @@ module.exports = {
 
       res.status(200).json({ result: 200, messages: "SUCCESS", contacts });
     } catch (error) {
-      logger.error(`Error on getAllContacts: ${error?.message}`);
+      customLogger.error(`Error on getAllContacts: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -140,7 +140,7 @@ module.exports = {
 
       res.status(200).json({ result: 200, data: response });
     } catch (error) {
-      logger.error(`Error on getMessagesChat: ${error?.message}`);
+      customLogger.error(`Error on getMessagesChat: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -158,7 +158,7 @@ module.exports = {
         pic_profile: response,
       });
     } catch (error) {
-      logger.error(`Error on getProfilePic: ${error?.message}`);
+      customLogger.error(`Error on getProfilePic: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -180,7 +180,7 @@ module.exports = {
 
       res.status(400).json({ result: 400, messages: "chat not found" });
     } catch (error) {
-      logger.error(`Error on getChat: ${error?.message}`);
+      customLogger.error(`Error on getChat: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -196,7 +196,7 @@ module.exports = {
         profile,
       });
     } catch (error) {
-      logger.error(`Error on verifyNumber: ${error?.message}`);
+      customLogger.error(`Error on verifyNumber: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -215,7 +215,7 @@ module.exports = {
         contacts: response,
       });
     } catch (error) {
-      logger.error(`Error on getAllChats: ${error?.message}`);
+      customLogger.error(`Error on getAllChats: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -229,7 +229,7 @@ module.exports = {
         .status(200)
         .json({ result: 200, messages: "SUCCESS", contacts: response });
     } catch (error) {
-      logger.error(`Error on getAllChatsWithMessages: ${error?.message}`);
+      customLogger.error(`Error on getAllChatsWithMessages: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -243,7 +243,7 @@ module.exports = {
         .status(200)
         .json({ result: 200, messages: "SUCCESS", contacts: response });
     } catch (error) {
-      logger.error(`Error on getAllNewMessages: ${error?.message}`);
+      customLogger.error(`Error on getAllNewMessages: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -257,7 +257,7 @@ module.exports = {
         .status(200)
         .json({ result: 200, messages: "SUCCESS", contacts: response });
     } catch (error) {
-      logger.error(`Error on getAllUnreadMessages: ${error?.message}`);
+      customLogger.error(`Error on getAllUnreadMessages: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -275,7 +275,7 @@ module.exports = {
         .status(200)
         .json({ result: 200, messages: "SUCCESS", contacts: blkcontacts });
     } catch (error) {
-      logger.error(`Error on getBlockList: ${error?.message}`);
+      customLogger.error(`Error on getBlockList: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -289,7 +289,7 @@ module.exports = {
 
       res.status(200).json({ result: 200, messages: "SUCCESS" });
     } catch (error) {
-      logger.error(`Error on deleteChat: ${error?.message}`);
+      customLogger.error(`Error on deleteChat: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -303,7 +303,7 @@ module.exports = {
 
       res.status(200).json({ result: 200, messages: "SUCCESS" });
     } catch (error) {
-      logger.error(`Error on clearChat: ${error?.message}`);
+      customLogger.error(`Error on clearChat: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -317,7 +317,7 @@ module.exports = {
 
       res.status(200).json({ result: 200, messages: "SUCCESS" });
     } catch (error) {
-      logger.error(`Error on archiveChat: ${error?.message}`);
+      customLogger.error(`Error on archiveChat: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -360,7 +360,7 @@ module.exports = {
         response: { message: "Error unknown on delete message" },
       });
     } catch (error) {
-      logger.error(`Error on deleteMessage: ${error?.message}`);
+      customLogger.error(`Error on deleteMessage: ${error?.message}`);
       res.status(401).json({ status: "error", data: error?.message });
     }
   },
@@ -375,7 +375,7 @@ module.exports = {
 
       res.status(200).json({ result: 200, messages: "SUCCESS" });
     } catch (error) {
-      logger.error(`Error on markUnseenMessage: ${error?.message}`);
+      customLogger.error(`Error on markUnseenMessage: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -390,7 +390,7 @@ module.exports = {
 
       res.status(200).json({ result: 200, messages: "SUCCESS" });
     } catch (error) {
-      logger.error(`Error on blockContact: ${error?.message}`);
+      customLogger.error(`Error on blockContact: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -405,7 +405,7 @@ module.exports = {
 
       res.status(200).json({ result: 200, messages: "SUCCESS" });
     } catch (error) {
-      logger.error(`Error on unblockContact: ${error?.message}`);
+      customLogger.error(`Error on unblockContact: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -420,7 +420,7 @@ module.exports = {
 
       res.status(200).json({ result: 200, messages: "SUCCESS" });
     } catch (error) {
-      logger.error(`Error on pinChat: ${error?.message}`);
+      customLogger.error(`Error on pinChat: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   },
@@ -439,7 +439,7 @@ module.exports = {
         isBusiness: response.isBusiness,
       });
     } catch (error) {
-      logger.error(`Error on checkNumberStatus: ${error?.message}`);
+      customLogger.error(`Error on checkNumberStatus: ${error?.message}`);
       res.status(400).json({ response: false, data: error?.message });
     }
   }

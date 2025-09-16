@@ -6,6 +6,7 @@ const util = require("util");
 const urlExistsImport = require("url-exists");
 const engine = require("../../../engines/WhatsappWebJS");
 const Cache = require("../../../util/cache"); // ✅ ADICIONADO - Para usar números processados
+const customLogger = require('../../../util/customLogger.js'); // ✅ Logger padronizado
 
 const urlExists = util.promisify(urlExistsImport);
 const { MessageMedia, Location, Poll } = whatsappweb;
@@ -21,11 +22,11 @@ async function buildNumber(req) {
     // ✅ Para contatos, usar o número processado do Cache (igual WPPConnect)
     const processedNumber = await Cache.get(number);
     if (processedNumber) {
-      console.log(`[BUILD NUMBER] ${number} → ${processedNumber} (do cache)`);
+      customLogger.info(`[BUILD NUMBER] ${number} → ${processedNumber} (do cache)`);
       return processedNumber;
     } else {
       // Fallback se não estiver no cache
-      console.log(`[BUILD NUMBER] ${number} → ${number}@c.us (fallback)`);
+      customLogger.info(`[BUILD NUMBER] ${number} → ${number}@c.us (fallback)`);
       return number + "@c.us";
     }
   }
@@ -219,7 +220,7 @@ module.exports = {
     const session = req.body.session;
     const data = await Sessions.getClient(session); // ✅ Busca device no banco + client na memória (igual WPPConnect)
 
-    console.log('[DEBUG] startSession WhatsApp WebJS', session);
+    customLogger.info('[DEBUG] startSession WhatsApp WebJS', session);
     
     try {
       // ✅ CORREÇÃO PRINCIPAL - Verificar se pasta da sessão existe
@@ -228,7 +229,7 @@ module.exports = {
       const sessionPath = path.join('./instances', session);
       const sessionExists = fs.existsSync(sessionPath);
       
-      console.log(`[SESSION CHECK] ${session} - Pasta exists: ${sessionExists}`);
+      customLogger.info(`[SESSION CHECK] ${session} - Pasta exists: ${sessionExists}`);
       
       if (data) {
         // ✅ IGUAL WPPConnect - Atualizar tentativas
@@ -251,17 +252,17 @@ module.exports = {
         const injectedClient = sessionHelper.getInjectedClient(session);
         const isClientActive = injectedClient && injectedClient.info;
         
-        console.log(`[RECONNECT CHECK] ${session} - Pasta: ${sessionExists} - Status: ${status} - Client ativo: ${!!isClientActive}`);
+        customLogger.info(`[RECONNECT CHECK] ${session} - Pasta: ${sessionExists} - Status: ${status} - Client ativo: ${!!isClientActive}`);
         
         // ✅ SÓ RETORNAR CONECTADO SE: pasta existe + status conectado + CLIENT ATIVO
         if (sessionExists && ['CONNECTED', 'inChat', 'isLogged', 'isConnected'].includes(status) && isClientActive) {
-          console.log(`[ALREADY CONNECTED] ${session} - Sessão já ativa`);
+          customLogger.info(`[ALREADY CONNECTED] ${session} - Sessão já ativa`);
           resposta.state = 'CONNECTED';
           resposta.status = status;
         } 
         // ✅ SE TEM PASTA MAS CLIENT NÃO ESTÁ ATIVO = RECONECTAR
         else if (sessionExists && ['CONNECTED', 'inChat', 'isLogged', 'isConnected'].includes(status) && !isClientActive) {
-          console.log(`[RECONNECT] ${session} - Pasta existe mas client inativo, reconectando...`);
+          customLogger.info(`[RECONNECT] ${session} - Pasta existe mas client inativo, reconectando...`);
           const engine = require('../../../engines/WhatsappWebJS.js');
           engine.start(req, res, session); // 🔄 RECONECTAR sem QR Code
           resposta.state = 'STARTING';
@@ -269,7 +270,7 @@ module.exports = {
         }
         // ✅ SE TEM QR CODE NO BANCO = GERAR NOVO (igual WPPConnect)
         else if (state === 'QRCODE') {
-          console.log(`[QR EXPIRED] ${session} - QR Code no banco expirado, gerando novo`);
+          customLogger.info(`[QR EXPIRED] ${session} - QR Code no banco expirado, gerando novo`);
           const engine = require('../../../engines/WhatsappWebJS.js');
           engine.start(req, res, session); // ✅ SEMPRE gera novo QR
           resposta.state = 'STARTING';
@@ -277,7 +278,7 @@ module.exports = {
         } 
         // ✅ OUTROS CASOS - GERAR NOVO
         else {
-          console.log(`[START NEW] ${session} - Status: ${status} - Iniciando engine`);
+          customLogger.info(`[START NEW] ${session} - Status: ${status} - Iniciando engine`);
           const engine = require('../../../engines/WhatsappWebJS.js');
           engine.start(req, res, session); // ✅ Não bloquear com await
           resposta.state = 'STARTING';
@@ -289,7 +290,7 @@ module.exports = {
       }
 
       // ✅ IGUAL WPPConnect - Se não tem data, iniciar engine
-      console.log(`[START FRESH] ${session} - Nenhum dado encontrado, iniciando engine`);
+      customLogger.info(`[START FRESH] ${session} - Nenhum dado encontrado, iniciando engine`);
       const engine = require('../../../engines/WhatsappWebJS.js');
       engine.start(req, res, session); // ✅ Não bloquear com await
       
@@ -302,7 +303,7 @@ module.exports = {
       });
 
     } catch (err) {
-      console.log('error', err);
+      customLogger.info('error', err);
       const http = require('../../../controllers/helper/http.js');
       return http.fail(res, err, 500, 'Erro ao iniciar sessão');
     }
@@ -310,7 +311,7 @@ module.exports = {
 
   // Funções adicionais para padronização com WPPConnect
   async sendFile64(req, res) {
-    const { path: base64Data, caption } = req.body;
+    const { path: base64Data, caption, filename, mimetype } = req.body;
     
     if (!base64Data) {
       return res.status(400).json({
@@ -324,8 +325,44 @@ module.exports = {
       const data = Sessions.getSession(req.body.session);
       const number = await buildNumber(req); // ✅ AWAIT adicionado
       
-      // Criar MessageMedia a partir do base64
-      const media = new MessageMedia('application/octet-stream', base64Data, 'file');
+      // ✅ LIMPAR E VALIDAR BASE64
+      let cleanBase64 = base64Data;
+      
+      // Remover data URI prefix se existir (data:image/png;base64,)
+      if (cleanBase64.includes(',')) {
+        cleanBase64 = cleanBase64.split(',')[1];
+      }
+      
+      // Remover espaços e quebras de linha
+      cleanBase64 = cleanBase64.replace(/\s/g, '');
+      
+      // Validar se é base64 válido
+      try {
+        atob(cleanBase64);
+      } catch (e) {
+        return res.status(400).json({
+          result: 400,
+          status: "FAIL", 
+          message: "Base64 inválido ou malformado"
+        });
+      }
+      
+      // ✅ DETECTAR MIMETYPE AUTOMATICAMENTE SE NÃO FORNECIDO
+      let detectedMimetype = mimetype || 'application/octet-stream';
+      
+      if (!mimetype && base64Data.includes('data:')) {
+        const mimeMatch = base64Data.match(/data:([^;]+)/);
+        if (mimeMatch) {
+          detectedMimetype = mimeMatch[1];
+        }
+      }
+      
+      // Criar MessageMedia a partir do base64 limpo
+      const media = new MessageMedia(
+        detectedMimetype, 
+        cleanBase64, 
+        filename || 'file'
+      );
       
       const response = await data.client.sendMessage(number, media, {
         caption: caption || ""
@@ -338,7 +375,8 @@ module.exports = {
         session: req.body.session,
         phone: response.id.remote._serialized,
         content: response.body,
-        mimetype: response.type
+        mimetype: response.type,
+        filename: filename || 'file'
       });
     } catch (error) {
       return res.status(500).json({

@@ -1,5 +1,5 @@
 const Sessions = require("../../../controllers/SessionsController");
-const logger = require("../../../util/logger");
+const customLogger = require("../../../util/customLogger.js"); // ✅ Logger padronizado
 
 module.exports = {
   async getQrCode(req, res) {
@@ -34,7 +34,7 @@ module.exports = {
 
       res.end(img);
     } catch (error) {
-      logger.error(`Error on getQrCode: ${error?.message}`);
+      customLogger.error(`Error on getQrCode: ${error?.message}`);
 
       res.status(500).json({
         response: false,

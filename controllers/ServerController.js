@@ -1,4 +1,5 @@
 const { exec } = require("child_process");
+const customLogger = require('../util/customLogger.js'); // ✅ Logger padronizado
 
 class ServerController {
   //update
@@ -6,14 +7,14 @@ class ServerController {
     try {
       exec("bash ./scripts/update.sh", (error, stdout, stderr) => {
         if (error) {
-          console.error(`Erro ao executar o comando: ${error}`);
+          customLogger.error(`Erro ao executar o comando: ${error}`);
           return res.status(500).json({
             success: false,
             message: "Erro interno do servidor ao executar o comando.",
             output: error,
           });
         }
-        console.log(`Saída do comando: ${stdout}`);
+        customLogger.info(`Saída do comando: ${stdout}`);
         res.json({
           success: true,
           message: "Comando executado com sucesso.",
@@ -21,7 +22,7 @@ class ServerController {
         });
       });
     } catch (error) {
-      console.error(`Erro ao executar o comando: ${error}`);
+      customLogger.error(`Erro ao executar o comando: ${error}`);
       return res.status(500).json({
         success: false,
         message: "Erro interno do servidor ao executar o comando.",
@@ -55,14 +56,14 @@ class ServerController {
       // Execute o comando
       exec(command, (error, stdout, stderr) => {
         if (error) {
-          console.error(`Erro ao executar o comando: ${error}`);
+          customLogger.error(`Erro ao executar o comando: ${error}`);
           return res.status(500).json({
             success: false,
             message: "Erro interno do servidor ao executar o comando.",
             output: error,
           });
         }
-        console.log(`Saída do comando: ${stdout}`);
+        customLogger.info(`Saída do comando: ${stdout}`);
         res.json({
           success: true,
           message: "Comando executado com sucesso.",
@@ -70,7 +71,7 @@ class ServerController {
         });
       });
     } catch (error) {
-      console.error(`Erro ao executar o comando: ${error}`);
+      customLogger.error(`Erro ao executar o comando: ${error}`);
       return res.status(500).json({
         success: false,
         message: "Erro interno do servidor ao executar o comando.",

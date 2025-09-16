@@ -1,5 +1,5 @@
 const Sessions = require('../../../../controllers/SessionsController');
-const logger = require('../../../../util/logger');
+const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
 const engine = require('../../../../engines/WppConnect');
 const helpSS = require('../../../../controllers/helper/sessions');
 const http = require('../../../../controllers/helper/http');
@@ -14,7 +14,7 @@ module.exports = {
       res.status(200).json({ status: 'success', data: response });
 
     } catch (error) {
-      logger.error(`Error on getPlatformFromMessage: ${error.message}`);
+      customLogger.error(`Error on getPlatformFromMessage: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -42,7 +42,7 @@ module.exports = {
       });
 
     } catch (error) {
-      logger.error(`Error on downloadMediaByMessage: ${error.message}`);
+      customLogger.error(`Error on downloadMediaByMessage: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -56,7 +56,7 @@ module.exports = {
       res.status(200).json({ result: 200, data: response });
 
     } catch (error) {
-      logger.error(`Error on editMessage: ${error.message}`);
+      customLogger.error(`Error on editMessage: ${error.message}`);
       res.status(500).json({ response: false, data: error.message });
     }
   },
@@ -85,7 +85,7 @@ module.exports = {
       });
 
     } catch (error) {
-      logger.error(`Error on sendLink: ${error?.message}`);
+      customLogger.error(`Error on sendLink: ${error?.message}`);
       return res.status(500).json({ response: false, data: error?.message });
     }
   },
@@ -114,7 +114,7 @@ module.exports = {
       });
 
     } catch (error) {
-      logger.error(`Error on sendContact: ${error?.message}`);
+      customLogger.error(`Error on sendContact: ${error?.message}`);
       return res.status(500).json({ response: false, data: error?.message });
     }
   },
@@ -147,7 +147,7 @@ module.exports = {
       });
 
     } catch (error) {
-      logger.error(`Error on downloadMediaByMessage: ${error?.message}`);
+      customLogger.error(`Error on downloadMediaByMessage: ${error?.message}`);
       return res.status(500).json({ response: false, data: error?.message });
     }
   },
@@ -155,7 +155,7 @@ module.exports = {
     const session = req.body.session;
     const data = await Sessions.getClient(session);
 
-    console.log('[DEBUG] startSession', session);
+    customLogger.debug('[DEBUG] startSession', session);
     try {
       if (data) {
         await helpSS.atualizarTentativasStart(session, data.attempts_start, new Date(data.last_start));
@@ -194,7 +194,7 @@ module.exports = {
       });
 
     } catch (err) {
-      console.log('error', err);
+      customLogger.error('error ao iniciar sessão', err);
       return http.fail(res, err, 500, 'Erro ao iniciar sessão');
     }
   }

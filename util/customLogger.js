@@ -8,6 +8,19 @@ if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
 }
 
+// ✅ FUNÇÃO - Obter pasta do dia atual
+function getTodayLogsDir() {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const todayDir = path.join(logsDir, today);
+    
+    // Criar pasta do dia se não existir
+    if (!fs.existsSync(todayDir)) {
+        fs.mkdirSync(todayDir, { recursive: true });
+    }
+    
+    return todayDir;
+}
+
 // ✅ CONFIGURAÇÃO - Tipos de log e suas cores
 const LOG_TYPES = {
     INFO: { color: chalk.blue, file: 'app.log' },
@@ -23,6 +36,9 @@ class CustomLogger {
     constructor() {
         this.showDatabase = process.env.DEBUG_SQL === 'true';
         this.logLevel = process.env.LOG_LEVEL || 'INFO'; // DEBUG, INFO, WARNING, ERROR
+        
+        // ✅ Limpar logs antigos na inicialização (manter 7 dias)
+        this.cleanOldLogs(7);
     }
 
     // ✅ MÉTODO PRINCIPAL - Log com tipo
@@ -66,10 +82,11 @@ class CustomLogger {
         return messageLevelIndex >= currentLevelIndex;
     }
 
-    // ✅ ESCREVER ARQUIVO
+    // ✅ ESCREVER ARQUIVO - Agora salva na pasta do dia
     writeToFile(filename, message) {
         try {
-            const filePath = path.join(logsDir, filename);
+            const todayDir = getTodayLogsDir();
+            const filePath = path.join(todayDir, filename);
             fs.appendFileSync(filePath, message + '\n');
         } catch (error) {
             console.error('Erro ao escrever log:', error);
@@ -97,7 +114,8 @@ class CustomLogger {
         if (query.includes('CREATE')) queryType = 'CREATE';
         if (query.includes('DROP')) queryType = 'DROP';
 
-        // Log completo no arquivo
+        // Log completo no arquivo - Agora salva na pasta do dia
+        const todayDir = getTodayLogsDir();
         this.writeToFile('database.log', `[${timestamp}] [${queryType}] ${query}`);
 
         // Console apenas se necessário
@@ -108,6 +126,31 @@ class CustomLogger {
         // Sempre mostrar erros de banco
         if (options?.type === 'ERROR') {
             console.log(chalk.red(`[DB ERROR]`), query);
+        }
+    }
+
+    // ✅ MÉTODO - Limpar logs antigos (manter apenas X dias)
+    cleanOldLogs(daysToKeep = 7) {
+        try {
+            const items = fs.readdirSync(logsDir);
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+            
+            items.forEach(item => {
+                const itemPath = path.join(logsDir, item);
+                const stat = fs.statSync(itemPath);
+                
+                // Se for uma pasta de data (formato YYYY-MM-DD)
+                if (stat.isDirectory() && /^\d{4}-\d{2}-\d{2}$/.test(item)) {
+                    const itemDate = new Date(item);
+                    if (itemDate < cutoffDate) {
+                        fs.rmSync(itemPath, { recursive: true, force: true });
+                        console.log(chalk.yellow(`🗑️ Logs antigos removidos: ${item}`));
+                    }
+                }
+            });
+        } catch (error) {
+            this.error('Erro ao limpar logs antigos:', error);
         }
     }
 }

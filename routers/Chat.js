@@ -4,6 +4,7 @@ const { Op } = require('sequelize');
 
 const config = require('../config');
 const ChatHistoryModel = require('../Models/chatHistory.js');
+const customLogger = require('../util/customLogger.js'); // ✅ Logger padronizado
 
 const ChatHistory = ChatHistoryModel(config.sequelize);
 
@@ -12,7 +13,7 @@ Router.post('/api/chat/limpar-historico', async (req, res) => {
     const { session, sessionkey } = req.body || {};
 
     if (!session || !sessionkey) {
-      return res.status(400).json({ status: 'erro', mensagem: 'Par\u00e2metros inv\u00e1lidos' });
+      return res.status(400).json({ status: 'erro', mensagem: 'Parâmetros inválidos' });
     }
 
     const inicioHoje = new Date();
@@ -26,9 +27,9 @@ Router.post('/api/chat/limpar-historico', async (req, res) => {
       }
     });
 
-    res.json({ status: 'ok', mensagem: 'Hist\u00f3rico limpo com sucesso.' });
+    res.json({ status: 'ok', mensagem: 'Histórico limpo com sucesso.' });
   } catch (err) {
-    console.error('Erro ao limpar hist\u00f3rico:', err);
+    customLogger.error('Erro ao limpar histórico:', err);
     res.status(500).json({ status: 'erro', mensagem: 'Erro interno' });
   }
 });
