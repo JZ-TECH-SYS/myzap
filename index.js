@@ -145,6 +145,7 @@ server.listen(config.port, async (error) => {
     
     customLogger.success(`\n🚀 Server running on ${serverURL}`);
     customLogger.info(`📚 Access ${serverURL}/doc to view API documentation`);
+    customLogger.info(`🤫 Engine: ${engine === '1' ? 'WhatsApp-Web-JS' : engine === '2' ? 'WPPConnect' : 'Venom'}`);
 
     // Inicia todas as sessões se a configuração estiver ativada
     if (config.start_all_sessions === "true") {

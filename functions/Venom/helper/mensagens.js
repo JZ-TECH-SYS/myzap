@@ -444,7 +444,7 @@ module.exports = {
       });
 
       // Usar helper padronizado para atualizar tentativas
-      const helpSS = require('../../../../controllers/helper/sessions.js');
+      const helpSS = require('../../../controllers/helper/sessions.js');
       const updateSuccess = await helpSS.atualizarTentativasStartSeguro(sessionName, data);
       
       if (!updateSuccess) {

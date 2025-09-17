@@ -53,15 +53,21 @@ module.exports = class Venom {
     // ✅ REMOVIDO getToken do Firebase - agora usa pasta local instances/
     customLogger.whatsapp(`${session} - 🐍 Iniciando Venom com tokens da pasta instances/`);
 
+    // ✅ Capturar sessionkey antes dos callbacks
+    const sessionkey = req.headers['sessionkey'];
+
     try {
-      const client = await venom.create(
+      customLogger.debug(`${session} - Inicializando venom.create() (object signature)`);
+      const client = await venom.create({
         session,
-        (qrCode, asciiQR, attempts, urlCode) => {
+        catchQR: (base64Qr, asciiQR, attempts, urlCode) => {
+          customLogger.whatsapp(`${session} - 📱 QR Code gerado (tentativa ${attempts})`);
+          
           // ✅ Atualizar status no banco ao gerar QR code (seguindo padrão WPPConnect)
           Device.update({
             state: 'QRCODE',
             status: 'qrCode',
-            qrCode,
+            qrCode: base64Qr,
             attempts,
             urlCode,
             updated_at: new Date()
@@ -69,9 +75,10 @@ module.exports = class Venom {
             customLogger.error(`${session} - Erro ao atualizar QR no banco: ${err.message}`)
           );
           
-          VenomHelper.generateQRHooksAndEmit({ req, res, qrCode, session });
+          // ✅ Enviar QR
+          VenomHelper.generateQRHooksAndEmit({ req, res, qrCode: base64Qr, session });
         },
-        (statusSession) => {
+        statusFind: (statusSession) => {
           customLogger.whatsapp(`${session} - 📱 Status: ${statusSession}`);
           Sessions.addInfoSession(session, { status: statusSession });
 
@@ -118,9 +125,9 @@ module.exports = class Venom {
             req.io.emit('whatsapp-status', 'reconnecting');
           }
         },
-        VenomHelper.getClientOptions()
-        // ✅ REMOVIDO token do Firebase - agora usa pasta local instances/
-      );
+        ...VenomHelper.getClientOptions()
+      });
+      customLogger.debug(`${session} - venom.create() resolvido, obtendo device info`);
 
       const info = await client.getHostDevice();
       const tokens = await client.getSessionTokenBrowser();
@@ -188,9 +195,9 @@ module.exports = class Venom {
           clearTimeout(reconnectTimeout);
           
           if (state === 'DISCONNECTED' || state === 'SYNCING') {
-            console.log(`[VENOM] ${session} - Stream disconnected, iniciando timeout`);
+            customLogger.warning(`[VENOM] ${session} - Stream disconnected, iniciando timeout`);
             reconnectTimeout = setTimeout(() => {
-              console.log(`[VENOM] ${session} - Timeout atingido, fechando cliente`);
+              customLogger.warning(`[VENOM] ${session} - Timeout atingido, fechando cliente`);
               if (client.close) {
                 client.close();
               }
@@ -198,7 +205,7 @@ module.exports = class Venom {
           }
           
           if (state === 'CONNECTED') {
-            console.log(`[VENOM] ${session} - Stream reconectado com sucesso`);
+            customLogger.success(`[VENOM] ${session} - Stream reconectado com sucesso`);
             req.io.emit('whatsapp-status', true);
           }
         });
@@ -209,9 +216,10 @@ module.exports = class Venom {
         tokens
       });
 
-      return client, tokens;
+  return client; // tokens já armazenados em Sessions
     } catch (error) {
-      console.log(error);
+      customLogger.error(`[VENOM ERROR] ${session} - ${error.message}`);
+  customLogger.debug(`${session} - Stack: ${error.stack}`);
     }
   }
 
@@ -223,7 +231,7 @@ module.exports = class Venom {
 
   static async reconnect(session, req, res) {
     try {
-      console.log(`[VENOM RECONNECT] Tentando reconectar sessão ${session}`);
+  customLogger.debug(`[VENOM RECONNECT] Tentando reconectar sessão ${session}`);
       
       // Primeiro tentar métodos nativos de reconexão
       const data = Sessions.getSession(session);
@@ -234,12 +242,12 @@ module.exports = class Venom {
       // Tentar restartService se disponível
       if (data.client.restartService) {
         await data.client.restartService();
-        console.log(`[VENOM RECONNECT] restartService executado para ${session}`);
+        customLogger.debug(`[VENOM RECONNECT] restartService executado para ${session}`);
         return true;
       }
 
       // Se métodos nativos falharam, reiniciar completamente
-      console.log(`[VENOM RECONNECT] Reiniciando sessão completa para ${session}`);
+  customLogger.debug(`[VENOM RECONNECT] Reiniciando sessão completa para ${session}`);
       
       // Fechar sessão atual
       await this.stop(session);
@@ -248,13 +256,12 @@ module.exports = class Venom {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       // Recriar sessão
-      const newClient = await this.start(req, res, session);
-      
-      console.log(`[VENOM RECONNECT] Sessão ${session} recriada com sucesso`);
+  await this.start(req, res, session);
+  customLogger.debug(`[VENOM RECONNECT] Sessão ${session} recriada com sucesso`);
       return true;
       
     } catch (error) {
-      console.error(`[VENOM RECONNECT ERROR] ${session} - ${error.message}`);
+  customLogger.error(`[VENOM RECONNECT ERROR] ${session} - ${error.message}`);
       throw error;
     }
   }

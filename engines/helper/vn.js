@@ -5,12 +5,26 @@ const Sessions = require('../../controllers/SessionsController.js');
 
 module.exports = {
   exportQR(req, res, qrCode, session) {
-    qrCode = qrCode.replace('data:image/png;base64,', '');
-    const imageBuffer = Buffer.from(qrCode, 'base64');
+    // ✅ Aceitar base64 vindo com ou sem prefixo e normalizar
+    if (!qrCode) {
+      console.warn(`${session} - QR Code vazio ou undefined`);
+      return;
+    }
+
+    let normalized = qrCode;
+    if (!normalized.startsWith('data:image')) {
+      normalized = 'data:image/png;base64,' + normalized.replace(/^data:[^,]+,/, '');
+    }
+
+    const base64Data = normalized.replace('data:image/png;base64,', '');
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+
     req.io.emit('qrCode', {
       data: 'data:image/png;base64,' + imageBuffer.toString('base64'),
       session
     });
+
+    console.log(`${session} - QR Code emitido (normalizado=${qrCode !== normalized})`);
   },
 
   async generateQRHooksAndEmit({ req, res, qrCode, session }) {
@@ -54,26 +68,25 @@ module.exports = {
   getClientOptions() {
     return {
       headless: true,
-      logQR: true,
-      browserWS: '',
-      useChrome: true,
-      updatesLog: true,
-      autoClose: 120000, // Aumentado para 2 minutos para melhor estabilidade
-      disableSpins: false,
-      disableWelcome: true, // Baseado na documentação para containers
+      logQR: false, // ✅ Desabilitar log no terminal, usar callbacks
+      autoClose: 0, // ✅ Desabilitar auto-close para evitar problemas de sessão
+      disableSpins: true,
+      disableWelcome: true,
+      updatesLog: false,
       folderNameToken: './instances', // ✅ PADRONIZADO - usar pasta local
-      browserArgs: this.getBrowserArgs(),
-      createPathFileToken: false,
-      // Opções adicionais baseadas na documentação oficial
-      devtools: false,
-      debug: false,
+      createPathFileToken: true, // ✅ Habilitar criação de tokens
+      useChrome: true,
+    browserArgs: this.getBrowserArgs().filter(arg => arg !== '--single-process'), // evitar flag problemática no Windows
       puppeteerOptions: {
-        // Opções específicas do Puppeteer para melhor estabilidade
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
-          '--disable-gpu'
+          '--disable-gpu',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+      '--no-zygote',
+          '--disable-extensions'
         ]
       }
     };

@@ -16,10 +16,8 @@ const customLogger = require('./util/customLogger.js');
 if (is_production) {
     database_config.development.logging = false;
 } else {
-    // ✅ MODIFICADO - Usar logger customizado do Sequelize
-    database_config.development.logging = (query, options) => {
-        customLogger.sequelizeLogger(query, options);
-    };
+    // ✅ DESABILITADO - Logs SQL só em arquivo, não no console para evitar poluição
+    database_config.development.logging = false; // Apenas em arquivo via customLogger.database()
 }
 
 let sequelize = new Sequelize(database_config.development);
