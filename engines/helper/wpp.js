@@ -257,6 +257,45 @@ async function updateDeviceAfterSessionStart({ session, sessionkey, stateSession
 }
 
 /* -------------------------------------------------------------------------- */
+/* cleanBrowserCache – limpa cache do navegador para reconexões ------------ */
+/* -------------------------------------------------------------------------- */
+async function cleanBrowserCache(session) {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    
+    const sessionPath = path.join('instances', session);
+    const cachePaths = [
+      path.join(sessionPath, 'Default', 'Cache'),
+      path.join(sessionPath, 'Default', 'Code Cache'),
+      path.join(sessionPath, 'Default', 'GPUCache'),
+      path.join(sessionPath, 'Default', 'Service Worker'),
+      path.join(sessionPath, 'ShaderCache'),
+      path.join(sessionPath, 'Default', 'blob_storage'),
+      path.join(sessionPath, 'Default', 'File System')
+    ];
+    
+    customLogger.info(`🧹 [CACHE CLEANUP] ${session} - Limpando cache do navegador para reconexão`);
+    
+    for (const cachePath of cachePaths) {
+      if (fs.existsSync(cachePath)) {
+        try {
+          fs.rmSync(cachePath, { recursive: true, force: true });
+          customLogger.info(`✅ [CACHE CLEANUP] ${session} - Cache removido: ${path.basename(cachePath)}`);
+        } catch (error) {
+          customLogger.warning(`⚠️ [CACHE CLEANUP] ${session} - Falha ao remover: ${path.basename(cachePath)}`);
+        }
+      }
+    }
+    
+    return true;
+  } catch (error) {
+    customLogger.error(`❌ [CACHE CLEANUP] ${session} - Erro: ${error.message}`);
+    return false;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
 /* cleanCorruptedSession – limpa sessões corrompidas ----------------------- */
 /* -------------------------------------------------------------------------- */
 async function cleanCorruptedSession(session) {
@@ -370,5 +409,6 @@ module.exports = {
   getPayloadCreateDevice,
   buildOptions,
   logSessionStatus,
-  cleanCorruptedSession
+  cleanCorruptedSession,
+  cleanBrowserCache
 };

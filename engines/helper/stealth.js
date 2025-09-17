@@ -3,6 +3,7 @@
  * Sistema de anti-detecção baseado em comportamentos humanos
  */
 
+const path = require('path');
 const customLogger = require('../../util/customLogger');
 
 /**
@@ -39,67 +40,90 @@ function getStealthBrowserArgs() {
         '--disable-popup-blocking',
         '--disable-translate',
         '--disable-features=VizDisplayCompositor',
-        // ✅ Argumentos extras para Windows (prevenir Code: 21)
+        // extras úteis (cuidado com flags que causam crash em alguns ambientes)
         '--disable-web-security',
         '--disable-site-isolation-trials',
         '--disable-background-networking',
         '--disable-sync',
         '--disable-extensions',
         '--disable-default-apps',
-        '--no-first-run',
-        '--single-process' // ✅ Importante para evitar conflitos no Windows
+        '--no-first-run'
+        // NOTE: removemos '--single-process' porque causa crash em Windows / ambientes com multi-proc
     ];
 }
 
 /**
  * Configuração stealth completa
+ *
+ * Behavior changes:
+ * - HEADLESS por padrão (defina HEADLESS=false para dev local com interface)
+ * - CHROME_PATH pode ser definido no environment para apontar Chrome/Chrome.exe
+ * - userDataDir definido por sessão para persistir perfil e tokens
  */
 function getStealthConfig(session) {
-    // ✅ Corrigido: usar apenas o diretório base, WppConnect adiciona o nome da sessão
+    // diretório base onde ficam as sessões (cada sessão terá subpasta)
     const tokensPath = './instances';
     
+    // HEADLESS default true (mais estável em servidores). Para dev local: HEADLESS=false
+    const useHeadlessEnv = process.env.HEADLESS;
+    const headlessDefault = (typeof useHeadlessEnv !== 'undefined') ? (useHeadlessEnv === 'true') : true;
+    
+    // Se quiser usar um Chrome específico (Windows): defina CHROME_PATH
+    const chromePath = process.env.CHROME_PATH || undefined; // ex: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+
+    // Construir args e remover flags problemáticas (se presentes)
+    const baseArgs = getStealthBrowserArgs();
+    const filteredArgs = baseArgs.filter(a => a !== '--single-process');
+
+    customLogger.info(`[STEALTH] getStealthConfig -> session=${session} headless=${headlessDefault} useChrome=${!!chromePath}`);
+
     return {
-        // Configurações básicas
-        headless: false,           // SEMPRE visível para parecer humano
+        // Configurações básicas (WPPConnect)
+        headless: headlessDefault,
         devtools: false,
         debug: false,
         logQR: true,
         updatesLog: false,
-        useChrome: false,
+        useChrome: !!chromePath, // força se chromePath definido
         
-        // Timeouts conservadores
+        // Timeouts
         autoClose: 0,              // Sem auto-close
         autoCloseInterval: 0,
         deviceSyncTimeout: 0,      // Sem timeout de sync
         
-        // Configurações de sessão
+        // Sessão / token
         disableWelcome: true,
         whatsappVersion: undefined,
-        folderNameToken: tokensPath, // ✅ Apenas o diretório base
+        folderNameToken: tokensPath,
         waitForLogin: true,
         browserRevision: undefined,
-        createPathFileToken: false,
+        createPathFileToken: true,
         disableSpins: true,
         tokenStore: 'file',
         
-        // Puppeteer ultra-conservador
+        // Puppeteer options (mais robustas)
         puppeteerOptions: {
-            headless: false,       // SEMPRE visível
-            timeout: 0,            // Sem timeout
-            slowMo: randomDelay(200, 800), // Ações lentas e randômicas
-            
-            // Argumentos mínimos
-            args: getStealthBrowserArgs(),
-            
-            // Configurações padrão
+            headless: headlessDefault,
+            timeout: 0,
+            slowMo: randomDelay(200, 800),
+
+            // args filtradas (sem single-process)
+            args: filteredArgs,
+
             ignoreDefaultArgs: false,
             defaultViewport: null,
             ignoreHTTPSErrors: true,
-            
-            // Handlers desabilitados
+
+            // Não deixar o Node finalizar o browser por signals internos
             handleSIGINT: false,
             handleSIGTERM: false,
-            handleSIGHUP: false
+            handleSIGHUP: false,
+
+            // Caminho para Chrome (se definido)
+            executablePath: chromePath,
+
+            // userDataDir por sessão -> garante perfil persistente e reuso de tokens
+            userDataDir: path.join(tokensPath, session, 'Default')
         }
     };
 }

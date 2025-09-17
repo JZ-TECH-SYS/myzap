@@ -20,6 +20,7 @@ const Device = DeviceModel(config.sequelize);
 const User = UserModel(config.sequelize);
 
 module.exports = class Wppconnect {
+
   /**
    * Endpoint /start
    * - garante linha na tabela device
@@ -39,7 +40,7 @@ module.exports = class Wppconnect {
     customLogger.whatsapp(`🚀 Starting WppConnect - Session: ${session}`);
 
     try {
-      // ✅ VERIFICA SE SESSÃO JÁ EXISTE E ESTÁ CONECTADA
+      // ✅ VERIFICAR SE SESSÃO JÁ EXISTE E ESTÁ CONECTADA
       const existingClient = Sessions.getClient(session);
       if (existingClient && existingClient.status === 'inChat') {
         customLogger.info(`✅ Sessão ${session} já conectada`);
@@ -48,6 +49,19 @@ module.exports = class Wppconnect {
           status: 'CONNECTED',
           response: `Sessão ${session} já está ativa` 
         });
+      }
+
+      // ✅ REGRA SIMPLES: SE TEM QR CODE NO BANCO, LIMPAR E GERAR NOVO
+      const existingDevice = await Device.findOne({ where: { session } });
+      if (existingDevice && existingDevice.status === 'qrCode') {
+        customLogger.info(`� ${session} - Tem QR Code existente, limpando para gerar novo`);
+        await Device.update({
+          status: 'INITIALIZING',
+          state: 'STARTING',
+          qrCode: null,
+          urlCode: null,
+          updated_at: new Date()
+        }, { where: { session } });
       }
 
       // ✅ DETECTA SESSÃO PERDIDA APÓS RESTART (existe no banco mas não na memória)
@@ -93,6 +107,18 @@ module.exports = class Wppconnect {
 
     req.funcoesSocket = socketFns;
 
+    // ✅ ATUALIZAR STATUS NO BANCO PARA INITIALIZING
+    try {
+      await Device.update({
+        state: 'STARTING',
+        status: 'INITIALIZING',
+        updated_at: new Date()
+      }, { where: { session, sessionkey }});
+      customLogger.debug(`[DB UPDATE] ${session} - Status atualizado para INITIALIZING`);
+    } catch (err) {
+      customLogger.warning(`[DB UPDATE WARNING] ${session} - Erro ao atualizar status: ${err.message}`);
+    }
+
     // cria sessão
     this.initSession(req, res);
   }
@@ -104,6 +130,28 @@ module.exports = class Wppconnect {
     const session = req?.body?.session;
     const sessionkey = req.headers['sessionkey'];
     const io = req.io;
+    
+    // ✅ VERIFICAR TOKENS EXISTENTES ANTES DE GERAR QR CODE
+    const fs = require('fs');
+    const path = require('path');
+    const sessionPath = path.join('./instances', session);
+    const hasExistingTokens = fs.existsSync(sessionPath);
+    
+    if (hasExistingTokens) {
+      customLogger.info(`🔑 Tokens encontrados para ${session}, tentando reconectar automaticamente`);
+      
+      // Verificar se há arquivos de sessão válidos
+      const tokenFiles = fs.readdirSync(sessionPath).filter(file => 
+        file.includes('session') || file.includes('token') || file.includes('.json')
+      );
+      
+      if (tokenFiles.length > 0) {
+        customLogger.info(`📁 ${tokenFiles.length} arquivo(s) de sessão encontrados: [${tokenFiles.join(', ')}]`);
+      }
+    } else {
+      customLogger.info(`🆕 Primeira inicialização para ${session}, QR Code será necessário`);
+    }
+
     const options = WppHelper.buildOptions(session);
 
     try {
@@ -148,8 +196,23 @@ module.exports = class Wppconnect {
           number, host_device, wa_version, wa_js_version
         });
 
+        // Inicia o watchdog para checar periodicamente a conexão com o telefone.
+        // O intervalo (em ms) pode ser ajustado conforme necessidade.
+        if (client.startPhoneWatchdog) {
+          // verificação a cada 15 segundos
+          await client.startPhoneWatchdog(15000);
+        }
+
+        // Em sessões multi‑device, se o WhatsApp Web estiver "dormindo" em outro
+        // dispositivo, useHere() reivindica o uso nesta instância.
+        if (client.useHere) {
+          await client.useHere().catch(() => {});
+        }
+
         logger.info(`[${session}] READY - ${stateSession}`);
       }).catch((err) => {
+        customLogger.error(`❌ Erro ao criar sessão ${session}:`, err);
+        
         logger.error('Erro ao criar sessão no browser', err);
         exec(`rm -rf instances/${session}`);
         return res?.status(500)?.json({ result: 500, status: 'ERROR', response: err });
@@ -157,6 +220,8 @@ module.exports = class Wppconnect {
 
       wppconnect.defaultLogger.level = 'silly';
     } catch (err) {
+      customLogger.error(`❌ Erro fatal na sessão ${session}:`, err);
+      
       logger.error('Erro fatal, sessão não criada', err);
       exec(`rm -rf instances/${session}`);
       return res?.status(500)?.json({ result: 500, status: 'ERROR', response: err });

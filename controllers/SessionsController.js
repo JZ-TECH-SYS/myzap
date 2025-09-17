@@ -100,6 +100,7 @@ class Sessions {
 
   static async getConnectionStatus(req, res) {
     try {
+      const session = req.body.session;
       const device = await SessionsHelper.getDevice(req.body.session, req.headers['sessionkey']);
 
       // Status que indicam conexão ativa
@@ -138,6 +139,17 @@ class Sessions {
           result: 200,
           status: device.status,
           state: 'QRCODE',
+          data: device
+        });
+      }
+
+      // ✅ VERIFICAR SE ESTÁ INICIALIZANDO (status INITIALIZING mas sem QR ainda)
+      if (device?.status === 'INITIALIZING') {
+        return http.json(res, 200, {
+          result: 200,
+          status: 'INITIALIZING',
+          state: 'STARTING',
+          message: 'Sessão está sendo inicializada. Aguarde...',
           data: device
         });
       }
@@ -238,22 +250,43 @@ class Sessions {
   static async reconnectWppConnect(session, req) {
     const data = await Sessions.getClient(session);
     if (!data?.client) throw new Error('Cliente não encontrado');
+    const client = data.client;
+    if (!client.getConnectionState) {
+      throw new Error('Método de verificação de estado não disponível');
+    }
+    const state = await client.getConnectionState();
+    customLogger.info(`[RECONNECT] WppConnect ${session} - Estado atual: ${state}`);
 
-    // WppConnect pode verificar estado e tentar reconectar
-    if (data.client.getConnectionState) {
-      const state = await data.client.getConnectionState();
-      customLogger.info(`[RECONNECT] WppConnect ${session} - Estado atual: ${state}`);
-      
-      // Se não estiver pareado, não pode reconectar
-      if (state === 'UNPAIRED') {
-        throw new Error('Dispositivo não pareado - QR Code necessário');
-      }
-      
-      // WppConnect geralmente se reconecta automaticamente via onStateChange
+    // Se o telefone foi desvinculado, não há tokens válidos e um novo QR é necessário.
+    if (state === 'UNPAIRED') {
+      throw new Error('Dispositivo não pareado - QR Code necessário');
+    }
+
+    // Tenta reivindicar a sessão nesta máquina
+    if (client.useHere) {
+      await client.useHere().catch(() => {});
+    }
+    // Reinicia o watchdog para forçar verificação periódica
+    if (client.startPhoneWatchdog) {
+      await client.startPhoneWatchdog(15000).catch(() => {});
+    }
+
+    // Espera alguns segundos e verifica se a sessão voltou a ficar conectada
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    const newState = await client.getConnectionState();
+    if (newState && newState !== 'UNPAIRED') {
+      customLogger.success(`[RECONNECT] WppConnect ${session} - Reconectado (state=${newState})`);
       return true;
     }
-    
-    throw new Error('Método de verificação de estado não disponível');
+
+    // Se ainda não reconectou, fecha a instância e cria de novo usando o token salvo em disco
+    if (client.close) {
+      await client.close().catch(() => {});
+    }
+    const WppEngine = require('../engines/WppConnect.js');
+    // Cria uma nova sessão. O token armazenado em instances/<session> será reutilizado.
+    await WppEngine.initSession(req, null);
+    return true;
   }
 
   static async reconnectVenom(session, req) {

@@ -1,0 +1,680 @@
+[2025-09-17T01:59:19.171Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-17T01:59:19.329Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T01:59:19.330Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T01:59:19.339Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T01:59:50.870Z] [INFO] [DEBUG] startSession WhatsApp WebJS | Data: "joaosn"
+[2025-09-17T01:59:50.871Z] [INFO] [SESSION CHECK] joaosn - Pasta exists: false
+[2025-09-17T01:59:50.871Z] [INFO] [START FRESH] joaosn - Nenhum dado encontrado, iniciando engine
+[2025-09-17T01:59:50.890Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-17T01:59:50.892Z] [INFO] joaosn - ℹ️ Nova sessão, QR Code será necessário
+[2025-09-17T01:59:58.093Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-17T01:59:58.094Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-17T01:59:58.095Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-17T01:59:58.106Z] [SUCCESS] 📊 Device atualizado com QR Code - Sessão: joaosn
+[2025-09-17T01:59:58.119Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-17T01:59:58.129Z] [INFO] [CLIENT INJECTED] joaosn - Cliente injetado com sucesso
+[2025-09-17T02:00:19.750Z] [SUCCESS] joaosn - 💾 Sessão carregada com sucesso (sem QR Code)
+[2025-09-17T02:00:25.680Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-17T02:00:25.680Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-17T02:00:25.681Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-17T02:00:25.713Z] [SUCCESS] 📊 Device atualizado com QR Code - Sessão: joaosn
+[2025-09-17T02:00:27.086Z] [WARNING] joaosn - 🔌 Desconectado: LOGOUT
+[2025-09-17T02:00:37.033Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:01:08.006Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:01:08.045Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:01:08.045Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:01:08.054Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:03:13.052Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:03:13.053Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:03:35.888Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:03:35.893Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:03:43.793Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:03:43.794Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:03:50.503Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:03:50.504Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:03:52.642Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:03:52.643Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:04:04.823Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:04:04.824Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:07:56.671Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:07:56.705Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:07:56.706Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:07:56.713Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:08:43.597Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:08:43.634Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:08:43.634Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:08:43.642Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:09:19.882Z] [INFO] [START FRESH] joaosn - Nenhum dado encontrado, iniciando engine…
+[2025-09-17T02:09:19.907Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:09:19.908Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:09:43.445Z] [INFO] [RECONNECT] joaosn - Status browserClose, reconectando utilizando tokens existentes…
+[2025-09-17T02:09:43.461Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:09:43.462Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:09:48.094Z] [INFO] [RECONNECT ATTEMPT] joaosn - Status: browserClose
+[2025-09-17T02:09:48.095Z] [INFO] [RECONNECT] Tentando reconectar sessão joaosn no engine 2
+[2025-09-17T02:09:48.697Z] [INFO] [RECONNECT ATTEMPT] joaosn - Status: browserClose
+[2025-09-17T02:09:48.697Z] [INFO] [RECONNECT] Tentando reconectar sessão joaosn no engine 2
+[2025-09-17T02:09:56.713Z] [INFO] [RECONNECT] joaosn - Status browserClose, reconectando utilizando tokens existentes…
+[2025-09-17T02:09:56.727Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:09:56.727Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:10:11.700Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:18:00.371Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:18:00.405Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:18:00.406Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:18:00.414Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:18:32.107Z] [INFO] [START FRESH] joaosn - Nenhum dado encontrado, iniciando engine…
+[2025-09-17T02:18:32.178Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:18:32.179Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:18:32.179Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:18:43.947Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:18:43.983Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:18:43.983Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:18:43.990Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:18:46.925Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:18:46.943Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:18:46.944Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:18:46.945Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:18:52.427Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:18:52.453Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:18:52.453Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:18:52.454Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:18:54.122Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:18:54.155Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:18:54.160Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:18:54.193Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:18:55.440Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:18:55.463Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:18:55.464Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:18:55.465Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:18:57.646Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:18:57.664Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:18:57.665Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:18:57.666Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:19:03.398Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:19:03.414Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:19:03.414Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:19:03.415Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:19:29.437Z] [SUCCESS] � CLIENT INJECTED - joaosn / joaosn
+[2025-09-17T02:19:30.520Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:19:30.544Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:19:30.545Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:19:30.545Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:19:32.554Z] [SUCCESS] 🎉 RECONEXÃO AUTOMÁTICA BEM-SUCEDIDA: joaosn - Era: notLogged → Agora: inChat
+[2025-09-17T02:19:59.035Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:21:07.327Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:21:07.360Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:21:07.360Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:21:07.369Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:21:19.632Z] [INFO] [RECONNECT] joaosn - Sessão existe mas client inativo, iniciando engine…
+[2025-09-17T02:21:19.654Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:19.655Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:19.656Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:20.547Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:20.565Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:20.566Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:20.567Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:23.177Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:23.193Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:23.194Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:23.195Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:26.291Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:26.310Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:26.312Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:26.313Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:28.719Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:28.735Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:28.736Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:28.738Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:32.935Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:32.951Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:32.952Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:32.952Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:37.068Z] [INFO] [RECONNECT] joaosn - Status desconnectedMobile, reconectando utilizando tokens existentes…
+[2025-09-17T02:21:37.082Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:37.083Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:37.083Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:38.475Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:38.493Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:38.494Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:38.495Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:39.056Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:39.071Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:39.072Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:39.073Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:39.664Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:39.677Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:39.678Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:39.678Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:40.067Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:40.088Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:40.089Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:40.090Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:40.101Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:40.117Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:40.119Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:40.121Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:21:40.159Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:21:40.178Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:21:40.182Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:21:40.186Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:22:27.685Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:22:27.720Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:22:27.721Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:22:27.733Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:22:33.781Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:22:33.814Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:22:33.815Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:22:33.822Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:23:10.273Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:23:10.305Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:23:10.305Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:23:10.312Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:23:34.658Z] [INFO] [START FRESH] joaosn - Nenhum dado encontrado, iniciando engine…
+[2025-09-17T02:23:34.682Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:23:34.683Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:23:34.684Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:23:46.444Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:23:46.478Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:23:46.479Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:23:46.487Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:23:51.074Z] [INFO] [RECONNECT] joaosn - Status desconnectedMobile, reconectando utilizando tokens existentes…
+[2025-09-17T02:23:51.095Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:23:51.096Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:23:51.097Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:23:53.061Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:23:53.076Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:23:53.077Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:23:53.077Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:23:54.668Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:23:54.702Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:23:54.703Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:23:54.710Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:23:56.736Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:23:56.757Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:23:56.758Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:23:56.758Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:24:08.301Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:24:08.334Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:24:08.335Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:24:08.341Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:24:25.585Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:24:25.630Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:24:25.635Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:24:25.638Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:24:39.535Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:24:39.568Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:24:39.568Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:24:39.578Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:24:43.341Z] [INFO] [RECONNECT] joaosn - Status desconnectedMobile, reconectando utilizando tokens existentes…
+[2025-09-17T02:24:43.362Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:24:43.363Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:24:43.364Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:24:43.969Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:24:43.985Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:24:43.986Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:24:43.987Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:24:45.985Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:24:46.025Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:24:46.026Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:24:46.034Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:24:46.234Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:24:46.255Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:24:46.256Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:24:46.257Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:24:46.889Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:24:46.905Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:24:46.907Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:24:46.909Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:25:00.362Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:25:00.402Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:25:00.403Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:25:00.413Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:25:05.430Z] [INFO] [RECONNECT] joaosn - Status desconnectedMobile, reconectando utilizando tokens existentes…
+[2025-09-17T02:25:05.453Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:25:05.454Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:25:05.456Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:25:12.404Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:25:12.464Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:25:12.464Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:25:12.475Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:25:22.617Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:25:22.651Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:25:22.651Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:25:22.660Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:25:28.412Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:25:32.378Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:25:32.411Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:25:32.411Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:25:32.418Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:25:32.723Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:25:40.760Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:25:40.796Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:25:40.796Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:25:40.804Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:26:01.918Z] [INFO] [START FRESH] joaosn - Nenhum dado encontrado, iniciando engine…
+[2025-09-17T02:26:01.943Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:26:01.943Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:26:01.944Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:26:05.539Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:26:05.555Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:26:05.556Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:26:05.556Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:26:07.871Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:26:07.893Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:26:07.896Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:26:07.900Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:26:28.098Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:26:28.123Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:26:28.130Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:26:28.131Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:26:29.787Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:26:29.799Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:26:29.800Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:26:29.800Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:26:30.771Z] [INFO] [START NEW] joaosn - Nenhuma sessão ativa ou reconectável encontrada, iniciando engine…
+[2025-09-17T02:26:30.783Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:26:30.783Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:26:30.784Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:29:58.722Z] [SUCCESS] � CLIENT INJECTED - joaosn / joaosn
+[2025-09-17T02:29:59.836Z] [SUCCESS] 🎉 RECONEXÃO AUTOMÁTICA BEM-SUCEDIDA: joaosn - Era: qrRead → Agora: inChat
+[2025-09-17T02:30:21.259Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T02:30:21.262Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T02:30:23.907Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T02:30:23.910Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T02:30:33.414Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:30:33.415Z] [INFO] Server closed. Exiting process...
+[2025-09-17T02:30:33.421Z] [INFO] Process exited with code: 0
+[2025-09-17T02:30:37.066Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:30:37.099Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:30:37.099Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:30:37.107Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:30:55.725Z] [INFO] [RECONNECT] joaosn - Sessão existe mas client inativo, iniciando engine…
+[2025-09-17T02:30:55.743Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:30:55.744Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:30:55.745Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:44:18.358Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:44:18.360Z] [INFO] Server closed. Exiting process...
+[2025-09-17T02:44:18.362Z] [INFO] Process exited with code: 0
+[2025-09-17T02:44:58.686Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:44:58.724Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:44:58.725Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:44:58.734Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:45:02.825Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:02.830Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:07.954Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:07.957Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:11.855Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:11.858Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:13.440Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:13.443Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:15.715Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:15.718Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:16.611Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:16.613Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:23.353Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:23.356Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:25.413Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:25.416Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:25.422Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:25.425Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:26.067Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:26.070Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:55.691Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:55.695Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:58.264Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:58.273Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:58.274Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:58.276Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há NaNs, retornando estado atual
+[2025-09-17T02:45:58.279Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:45:58.280Z] [INFO] Cache.get(wpp_initializing_joaosn) = null
+[2025-09-17T02:47:33.576Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:47:33.577Z] [INFO] Server closed. Exiting process...
+[2025-09-17T02:47:33.579Z] [INFO] Process exited with code: 0
+[2025-09-17T02:47:56.652Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:47:56.690Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:47:56.690Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:47:56.699Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:47:59.408Z] [INFO] [START FRESH] joaosn - Nenhum dado encontrado, iniciando engine…
+[2025-09-17T02:47:59.433Z] [INFO] 🆕 Primeira inicialização para joaosn, QR Code será necessário
+[2025-09-17T02:47:59.433Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T02:47:59.434Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T02:47:59.435Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T02:48:05.913Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há 7s, retornando estado atual
+[2025-09-17T02:48:15.206Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há 16s, retornando estado atual
+[2025-09-17T02:48:28.187Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há 29s, retornando estado atual
+[2025-09-17T02:49:25.958Z] [INFO] [WPP IDEMPOTENT] joaosn - Já inicializando há 87s, retornando estado atual
+[2025-09-17T02:53:36.733Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:53:36.734Z] [INFO] Server closed. Exiting process...
+[2025-09-17T02:53:36.737Z] [INFO] Process exited with code: 0
+[2025-09-17T02:53:39.264Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:53:39.306Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:53:39.306Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:53:39.316Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:58:46.031Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:58:46.032Z] [INFO] Server closed. Exiting process...
+[2025-09-17T02:58:46.035Z] [INFO] Process exited with code: 0
+[2025-09-17T02:58:48.796Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:58:48.840Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:58:48.840Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:58:48.849Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T02:59:33.357Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T02:59:33.358Z] [INFO] Server closed. Exiting process...
+[2025-09-17T02:59:33.361Z] [INFO] Process exited with code: 0
+[2025-09-17T02:59:36.161Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T02:59:36.197Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T02:59:36.197Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T02:59:36.205Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:05:31.511Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:05:31.513Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:05:31.515Z] [INFO] Process exited with code: 0
+[2025-09-17T03:05:33.874Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:05:33.909Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:05:33.910Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:05:33.918Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:07:07.909Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:07:07.910Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:07:07.913Z] [INFO] Process exited with code: 0
+[2025-09-17T03:07:10.679Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:07:10.716Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:07:10.716Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:07:10.727Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:07:11.801Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:07:12.765Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:07:13.868Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:07:16.043Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:07:16.055Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:08:32.891Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:08:32.892Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:08:32.894Z] [INFO] Process exited with code: 0
+[2025-09-17T03:08:35.002Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:08:35.040Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:08:35.041Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:08:35.048Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:08:40.718Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:08:42.118Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:08:44.323Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:08:44.348Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:09:47.335Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:09:47.336Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:09:47.339Z] [INFO] Process exited with code: 0
+[2025-09-17T03:09:49.771Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:09:49.807Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:09:49.807Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:09:49.816Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:09:52.859Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:09:52.894Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:09:52.895Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:09:52.896Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:09:52.896Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:09:55.343Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:09:55.368Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:09:55.368Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:09:55.369Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:09:55.369Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:09:57.048Z] [INFO] [FORCE NEW QR] joaosn - /start sempre gera QR novo, limpando estado anterior
+[2025-09-17T03:09:57.077Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:09:57.084Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:09:57.085Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:09:57.089Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:11:47.271Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:11:47.273Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:11:47.275Z] [INFO] Process exited with code: 0
+[2025-09-17T03:11:50.032Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:11:50.072Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:11:50.072Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:11:50.079Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:11:51.808Z] [INFO] [FORCE NEW QR] joaosn - Status: qrCode, forçando nova inicialização
+[2025-09-17T03:11:51.836Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:11:51.837Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:11:51.838Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:11:51.839Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:11:53.192Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:11:55.361Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:09.530Z] [INFO] [FORCE NEW QR] joaosn - Status: notLogged, forçando nova inicialização
+[2025-09-17T03:12:09.534Z] [INFO] [FORCE NEW QR] joaosn - Status: notLogged, forçando nova inicialização
+[2025-09-17T03:12:09.577Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:12:09.577Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:12:09.578Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:12:09.578Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:12:09.588Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:12:09.589Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:12:09.590Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:12:09.590Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:12:09.761Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:10.960Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:11.836Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:12.335Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:12.868Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:20.658Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:21.791Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:33.500Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:35.659Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:36.792Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:37.237Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:37.714Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:42.948Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:44.776Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:44.778Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:45.029Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:46.265Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:46.461Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:46.659Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:46.877Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:47.027Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:47.285Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:47.480Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:47.753Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:12:49.324Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:03.247Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:13:03.248Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:13:03.250Z] [INFO] Process exited with code: 0
+[2025-09-17T03:13:08.806Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:13:08.842Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:13:08.842Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:13:08.850Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:13:16.395Z] [INFO] [FORCE NEW QR] joaosn - Status: qrCode, forçando nova inicialização
+[2025-09-17T03:13:16.423Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:13:16.424Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:13:16.424Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:13:16.425Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:13:17.216Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:30.151Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:32.446Z] [INFO] [FORCE NEW QR] joaosn - Status: desconnectedMobile, forçando nova inicialização
+[2025-09-17T03:13:32.469Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:13:32.470Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:13:32.471Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:13:32.471Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:13:32.887Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:33.976Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:34.701Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:35.686Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:36.543Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:37.242Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:37.797Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:37.976Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:38.141Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:38.480Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:13:38.492Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:14:14.251Z] [SUCCESS] � CLIENT INJECTED - joaosn / joaosn
+[2025-09-17T03:14:14.453Z] [SUCCESS] 🎉 RECONEXÃO AUTOMÁTICA BEM-SUCEDIDA: joaosn - Era: qrRead → Agora: inChat
+[2025-09-17T03:14:57.522Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T03:14:57.525Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T03:15:00.033Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T03:15:00.036Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T03:15:05.426Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T03:15:05.430Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T03:15:08.406Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:15:08.408Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:15:08.410Z] [INFO] Process exited with code: 0
+[2025-09-17T03:15:11.654Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:15:11.705Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:15:11.706Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:15:11.715Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:15:26.816Z] [INFO] [RECONNECT] joaosn - Sessão existe mas client inativo, iniciando engine…
+[2025-09-17T03:15:26.843Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:15:26.844Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:15:26.844Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:15:26.845Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:19:19.159Z] [INFO] [FORCE NEW QR] joaosn - Status: qrCode, forçando nova inicialização
+[2025-09-17T03:19:19.192Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:19:19.193Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:19:19.194Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:19:19.194Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:19:21.233Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:28.397Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:30.723Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:41.104Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:41.804Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:42.312Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:42.735Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:42.937Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:43.398Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:43.445Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:43.460Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:44.176Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:44.635Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:59.661Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:59.783Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:59.795Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:59.797Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:59.799Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:19:59.800Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:12.649Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:20:12.650Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:20:12.653Z] [INFO] Process exited with code: 0
+[2025-09-17T03:20:15.739Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:20:15.775Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:20:15.776Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:20:15.785Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:20:16.773Z] [INFO] [FORCE NEW QR] joaosn - Status: qrCode, forçando nova inicialização
+[2025-09-17T03:20:16.804Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:20:16.804Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:20:16.805Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:20:16.805Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:20:19.585Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:27.849Z] [INFO] [FORCE NEW QR] joaosn - Status: desconnectedMobile, forçando nova inicialização
+[2025-09-17T03:20:27.878Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:20:27.879Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:20:27.879Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:20:27.880Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:20:31.999Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:32.958Z] [INFO] [FORCE NEW QR] joaosn - Status: notLogged, forçando nova inicialização
+[2025-09-17T03:20:32.983Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:20:32.984Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:20:32.985Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:20:32.985Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:20:34.016Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:34.788Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:35.172Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:35.434Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:35.710Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:35.899Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:36.070Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:36.262Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:36.569Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:38.712Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:38.768Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:43.285Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:43.939Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:20:46.564Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:09.502Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:10.354Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:10.827Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:15.085Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:21:15.087Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:21:15.089Z] [INFO] Process exited with code: 0
+[2025-09-17T03:21:18.573Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:21:18.608Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:21:18.608Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:21:18.616Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:21:27.879Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:28.057Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:28.651Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:29.046Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:29.794Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:30.493Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:30.915Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:21:47.238Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:21:47.239Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:21:47.242Z] [INFO] Process exited with code: 0
+[2025-09-17T03:22:02.429Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:22:02.463Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:22:02.463Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:22:02.471Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:22:04.472Z] [INFO] [START FRESH] joaosn - Nenhum dado encontrado, iniciando engine…
+[2025-09-17T03:22:04.508Z] [INFO] 🆕 Primeira inicialização para joaosn, QR Code será necessário
+[2025-09-17T03:22:04.509Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:22:04.510Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:22:04.510Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:22:25.720Z] [INFO] [FORCE NEW QR] joaosn - Status: desconnectedMobile, forçando nova inicialização
+[2025-09-17T03:22:25.749Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:22:25.751Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:22:25.751Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:22:25.752Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:22:31.135Z] [INFO] [IDEMPOTENT] joaosn - Já inicializando no banco, retornando estado atual
+[2025-09-17T03:22:33.671Z] [INFO] [FORCE NEW QR] joaosn - Status: notLogged, forçando nova inicialização
+[2025-09-17T03:22:33.697Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:22:33.698Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:22:33.698Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:22:33.699Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:22:41.637Z] [SUCCESS] � CLIENT INJECTED - joaosn / joaosn
+[2025-09-17T03:22:43.369Z] [SUCCESS] 🎉 RECONEXÃO AUTOMÁTICA BEM-SUCEDIDA: joaosn - Era: qrRead → Agora: inChat
+[2025-09-17T03:22:59.103Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T03:22:59.106Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T03:22:59.592Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T03:22:59.595Z] [INFO] Cache.get(5544997633866) = 554497633866@c.us
+[2025-09-17T03:23:00.808Z] [INFO] State changed | Data: "CONNECTED"
+[2025-09-17T03:23:03.894Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:23:03.895Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:23:03.899Z] [INFO] Process exited with code: 0
+[2025-09-17T03:23:06.447Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-17T03:23:06.486Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-17T03:23:06.487Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-17T03:23:06.494Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-17T03:23:13.777Z] [INFO] [RECONNECT] joaosn - Sessão existe mas client inativo, iniciando reconexão...
+[2025-09-17T03:23:13.778Z] [INFO] 🧹 [CACHE CLEANUP] joaosn - Limpando cache do navegador para reconexão
+[2025-09-17T03:23:13.809Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-17T03:23:13.810Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-17T03:23:13.810Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-17T03:23:13.811Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-17T03:24:24.058Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-17T03:24:24.060Z] [INFO] Server closed. Exiting process...
+[2025-09-17T03:24:24.062Z] [INFO] Process exited with code: 0
