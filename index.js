@@ -9,6 +9,8 @@ const path = require("path");
 const { yo } = require("yoo-hoo");
 const config = require("./config");
 const { startAllSessions } = require("./startup");
+const SessionsHelper = require("./controllers/helper/sessions.js");
+const { startSessionKeepAliveJob } = require("./jobs/sessionKeepAlive");
 const logger = require("./util/logger"); // Para expressPinoLogger  
 const customLogger = require("./util/customLogger"); // ✅ Logger padronizado
 const expressPinoLogger = require("express-pino-logger");
@@ -132,6 +134,63 @@ app.use(router, loggerMiddleware);
 app.use(manager);
 app.use(authApi);
 app.use(chatRouter);
+
+const toPlainDevice = (device) => (device?.get ? device.get({ plain: true }) : device);
+
+app.get('/health', async (req, res) => {
+  const response = {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    engine: config.engine,
+  };
+
+  try {
+    await config.sequelize.authenticate();
+    response.db = 'up';
+  } catch (error) {
+    response.db = 'down';
+    response.db_error = error?.message || String(error);
+  }
+
+  try {
+    const devices = await SessionsHelper.listDevices();
+    const items = devices.map(toPlainDevice);
+    const connected = items.filter((item) => {
+      const status = (item?.status || '').toLowerCase();
+      return ['connected', 'inchat', 'islogged', 'isconnected'].includes(status);
+    });
+    response.sessions_total = items.length;
+    response.sessions_connected = connected.length;
+  } catch (error) {
+    response.sessions_total = 0;
+    response.sessions_connected = 0;
+    response.sessions_error = error?.message || String(error);
+  }
+
+  return res.json(response);
+});
+
+app.get('/health/sessions', async (req, res) => {
+  try {
+    const devices = await SessionsHelper.listDevices();
+    const items = devices.map((device) => {
+      const row = toPlainDevice(device);
+      return {
+        session: row.session,
+        sessionkey: row.sessionkey,
+        status: row.status,
+        state: row.state,
+        updated_at: row.updated_at,
+      };
+    });
+    return res.json({ status: 'ok', data: items });
+  } catch (error) {
+    customLogger.error('[HEALTH] Falha ao listar sessoes', error?.message || error);
+    return res.status(500).json({ status: 'fail', reason: 'Erro ao listar sessoes' });
+  }
+});
+
 // Inicialização do servidor
 server.listen(config.port, async (error) => {
   if (error) {
@@ -157,6 +216,8 @@ server.listen(config.port, async (error) => {
         customLogger.error("❌ Error starting all sessions:", error);
       }
     }
+
+    startSessionKeepAliveJob();
   }
 });
 
@@ -195,3 +256,8 @@ function handleUnhandledRejection(err, promise) {
     process.exit(1);
   }
 }
+
+
+
+
+

@@ -13,6 +13,7 @@ module.exports = (sequelize) => {
         numero_cliente: DataTypes.TEXT,
         role: DataTypes.TEXT,
         msg: DataTypes.TEXT,
+        message_type: DataTypes.STRING,
         created_at: DataTypes.DATE,
     }, {
         sequelize,

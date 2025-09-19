@@ -66,8 +66,24 @@ module.exports = class Events {
    
     /* 3. mensagens enviadas pelo próprio bot ou vc*/
     if (message.fromMe) {
-      funcoesSocket.messagesent(session, payload);
-      await webhooks?.wh_messages(session, payload);   // ⬅️ um único disparo
+      if (funcoesSocket && typeof funcoesSocket.messagesent === 'function') {
+        funcoesSocket.messagesent(session, payload);
+      }
+      await webhooks?.wh_messages(session, payload);
+
+      const outboundText = typeof message.body === 'string' ? message.body.trim() : '';
+      const isEcho = await ChatHistoryHelper.isRecentAssistantEcho({
+        session,
+        sessionkey,
+        numero,
+        text: outboundText,
+      });
+
+      if (!isEcho && outboundText) {
+        await ChatHistoryHelper.registerAgentMessage({ session, sessionkey, numero, text: outboundText });
+        customLogger.info(`${LOG_PREFIX} Agent reply detected`, { session, numero });
+      }
+
       return;
     }
    
@@ -107,14 +123,6 @@ module.exports = class Events {
         const textoTranscrito = await transcribe({ buffer: mediaBuffer, session, sessionkey });
         if (!textoTranscrito) throw new Error('transcrição vazia');
 
-        // grava no histórico ANTES de mudar o type
-        await ChatHistoryHelper.savePair({
-          session,
-          sessionkey,
-          numero,
-          userText: textoTranscrito,
-          assistantText: null
-        });
 
         message.body = textoTranscrito;
         message.type = 'chat';
@@ -128,28 +136,111 @@ module.exports = class Events {
       }
     }
 
-    const ativa = await ChatHistoryHelper.hasRecent({
-      session, sessionkey, numero, minutos: 30
-    });
+    const plainBody = typeof message.body === 'string' ? message.body.trim() : '';
+    if (plainBody) {
+      await ChatHistoryHelper.registerUserMessage({ session, sessionkey, numero, text: plainBody });
+    }
 
-    if (ativa) {
-      let idprompt = empresa.idprompt || null;
-      let vetor = empresa.vector_name || null;
-      const resposta = await EmpresaIA.processarMensagem(
-        { session, sessionkey, message, idprompt, vetor }
-      );
-      if (resposta) await client.sendText(numero, resposta);
+    const iaAtiva = empresa.ia_ativa !== false;
+    const mensagemPadrao = typeof empresa.mensagem_padrao === 'string' ? empresa.mensagem_padrao.trim() : '';
+    const cooldownPadrao = Number.isInteger(empresa.tempo_mensagem_padrao) ? empresa.tempo_mensagem_padrao : 0;
 
-    } else if (empresa.mensagem_padrao) {
-      await client.sendText(numero, empresa.mensagem_padrao);
-      await ChatHistoryHelper.savePair({
+    const enviarMensagemPadrao = async (motivo) => {
+      if (!mensagemPadrao) {
+        return false;
+      }
+
+      const jaEnviouHoje = await ChatHistoryHelper.jaEnvieiMensagemPadraoHoje({ session, sessionkey, numero });
+      if (jaEnviouHoje) {
+        return false;
+      }
+
+      const dentroDoCooldown = await ChatHistoryHelper.dentroDoCooldownPadrao({
         session,
         sessionkey,
         numero,
-        userText: null,
-        assistantText: empresa.mensagem_padrao   // grava saudação
+        minutos: cooldownPadrao,
       });
+      if (dentroDoCooldown) {
+        return false;
+      }
+
+      await client.sendText(numero, mensagemPadrao);
+      await ChatHistoryHelper.registerAssistantMessage({
+        session,
+        sessionkey,
+        numero,
+        text: mensagemPadrao,
+        messageType: 'mensagem_padrao',
+      });
+      customLogger.info(`${LOG_PREFIX} Mensagem padrao enviada`, { session, numero, motivo });
+      return true;
+    };
+
+    if (!iaAtiva) {
+      await enviarMensagemPadrao('ia_desligada');
+      await responseDefault(payload);
+      return;
     }
+
+    const humanoFalou = await ChatHistoryHelper.humanoFalouRecentemente({
+      session,
+      sessionkey,
+      numero,
+      minutos: HUMAN_PAUSE_MINUTES,
+    });
+    if (humanoFalou) {
+      await enviarMensagemPadrao('agente_recente');
+      await responseDefault(payload);
+      return;
+    }
+
+    const iaEmCooldown = await ChatHistoryHelper.emCooldownDeIA({
+      session,
+      sessionkey,
+      numero,
+      segundos: IA_COOLDOWN_SECONDS,
+    });
+    if (iaEmCooldown) {
+      await enviarMensagemPadrao('ia_em_cooldown');
+      await responseDefault(payload);
+      return;
+    }
+
+    const gatilhoIA = TriggersHelper.necessitaIA(plainBody);
+    if (!gatilhoIA) {
+      await enviarMensagemPadrao('gatilho_nao_acionado');
+      await responseDefault(payload);
+      return;
+    }
+
+    try {
+      const respostaIA = await EmpresaIA.processarMensagem({
+        session,
+        sessionkey,
+        message,
+        idprompt: empresa.idprompt || null,
+        vetor: empresa.vector_name || null,
+      });
+
+      if (respostaIA) {
+        await client.sendText(numero, respostaIA);
+        await ChatHistoryHelper.registerAssistantMessage({
+          session,
+          sessionkey,
+          numero,
+          text: respostaIA,
+          messageType: 'ia',
+        });
+        customLogger.info(`${LOG_PREFIX} Resposta IA enviada`, { session, numero });
+      } else {
+        await enviarMensagemPadrao('ia_sem_resposta');
+      }
+    } catch (error) {
+      customLogger.error(`${LOG_PREFIX} Erro ao processar IA`, error?.message || error);
+      await enviarMensagemPadrao('erro_ia');
+    }
+
 
     /* 5. webhook + evento genérico */
     await responseDefault(payload);
@@ -269,3 +360,9 @@ module.exports = class Events {
     }
   }
 };
+
+
+
+
+
+

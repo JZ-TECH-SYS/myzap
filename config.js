@@ -44,7 +44,10 @@ const {
     FORCE_CONNECTION_USE_HERE,
     CORS_ORIGIN,
     TIME_TYPING,
-    ENGINE
+    ENGINE,
+    SESSION_KEEPALIVE_ENABLED,
+    SESSION_KEEPALIVE_INTERVAL_MS,
+    SESSION_KEEPALIVE_ONLY_CONNECTED
 } = process.env;
 
 assert(PORT, 'PORT is required, please set the PORT variable value in the .env file');
@@ -75,5 +78,9 @@ module.exports = {
     cors_origin: CORS_ORIGIN,
     time_typing: TIME_TYPING,
     engine: ENGINE,
+    session_keepalive_enabled: SESSION_KEEPALIVE_ENABLED === "true",
+    session_keepalive_interval_ms: parseInt(SESSION_KEEPALIVE_INTERVAL_MS, 10) || 300000,
+    session_keepalive_only_connected: SESSION_KEEPALIVE_ONLY_CONNECTED !== "false",
     sequelize
 }
+

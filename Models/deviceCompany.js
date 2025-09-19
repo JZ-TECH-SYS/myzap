@@ -2,7 +2,7 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class DeviceCompany extends Model {
     static associate(models) {
-      // relações futuras, se quiser
+      // relations placeholder
     }
   }
 
@@ -13,7 +13,17 @@ module.exports = (sequelize) => {
     api_url: DataTypes.STRING,
     mensagem_padrao: DataTypes.TEXT,
     idprompt: DataTypes.TEXT,
-    vector_name: DataTypes.STRING
+    vector_name: DataTypes.STRING,
+    ia_ativa: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    tempo_mensagem_padrao: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    }
   }, {
     sequelize,
     modelName: 'DeviceCompany',

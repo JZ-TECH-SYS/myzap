@@ -1,0 +1,148 @@
+const axios = require('axios');
+const SessionsHelper = require('../controllers/helper/sessions.js');
+const customLogger = require('../util/customLogger.js');
+const config = require('../config');
+
+const CONNECTED_STATUSES = new Set(['CONNECTED', 'inChat', 'isLogged', 'isConnected']);
+const CONNECTED_STATES = new Set(['CONNECTED', 'inChat', 'isLogged', 'isConnected']);
+
+let intervalHandle = null;
+let timeoutHandle = null;
+let running = false;
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function shouldRunOnThisProcess() {
+  const pmId = process.env.pm_id ?? process.env.PM_ID;
+  return !pmId || pmId === '0';
+}
+
+function resolveBaseUrl() {
+  const normalized = (config.host_ssl ?? '').trim();
+  if (normalized) {
+    return normalized.replace(/\/$/, '');
+  }
+
+  return `http://127.0.0.1:${config.port}`;
+}
+
+function isEligible(device) {
+  if (!device?.session) {
+    return false;
+  }
+
+  if (!device.sessionkey) {
+    customLogger.warning(`[SESSION KEEPALIVE] Sessao ${device.session} ignorada: sessionkey ausente`);
+    return false;
+  }
+
+  if (!config.session_keepalive_only_connected) {
+    return true;
+  }
+
+  const status = device.status || '';
+  const state = device.state || '';
+
+  return CONNECTED_STATUSES.has(status) || CONNECTED_STATES.has(state);
+}
+
+async function triggerStart(device, baseURL) {
+  try {
+    await axios.post(
+      `${baseURL}/start`,
+      { session: device.session },
+      {
+        headers: {
+          apitoken: config.token,
+          sessionkey: device.sessionkey,
+        },
+        timeout: 20000,
+      }
+    );
+
+    customLogger.debug(`[SESSION KEEPALIVE] start enviado para ${device.session}`);
+  } catch (error) {
+    const errorMessage = error?.response?.data?.error || error?.message || 'Erro desconhecido';
+    customLogger.warning(`[SESSION KEEPALIVE] Falha ao iniciar ${device.session}: ${errorMessage}`);
+  }
+}
+
+async function runCycle() {
+  if (running) {
+    customLogger.debug('[SESSION KEEPALIVE] Ciclo anterior ainda em execucao, ignorando novo disparo');
+    return;
+  }
+
+  running = true;
+  const baseURL = resolveBaseUrl();
+
+  try {
+    const records = await SessionsHelper.listDevices();
+    if (!records?.length) {
+      customLogger.debug('[SESSION KEEPALIVE] Nenhuma sessao cadastrada no banco');
+      return;
+    }
+
+    const devices = records
+      .map((item) => (item?.dataValues ? { ...item.dataValues } : item))
+      .filter((device) => isEligible(device));
+
+    if (!devices.length) {
+      customLogger.debug('[SESSION KEEPALIVE] Nenhuma sessao elegivel para keepalive');
+      return;
+    }
+
+    customLogger.info(`[SESSION KEEPALIVE] Executando ciclo para ${devices.length} sessao(oes)`);
+
+    for (const device of devices) {
+      await triggerStart(device, baseURL);
+      await wait(2000);
+    }
+  } catch (err) {
+    customLogger.error(`[SESSION KEEPALIVE] Erro no ciclo: ${err.message}`);
+  } finally {
+    running = false;
+  }
+}
+
+function startSessionKeepAliveJob() {
+  if (!config.session_keepalive_enabled) {
+    customLogger.info('[SESSION KEEPALIVE] Job desabilitado nas configuracoes');
+    return;
+  }
+
+  if (!shouldRunOnThisProcess()) {
+    customLogger.info('[SESSION KEEPALIVE] Ignorando agendamento neste worker PM2');
+    return;
+  }
+
+  const interval = parseInt(config.session_keepalive_interval_ms, 10) || 300000;
+  const initialDelay = Math.min(interval, 15000);
+
+  const scheduleRecurring = () => {
+    intervalHandle = setInterval(runCycle, interval);
+    if (typeof intervalHandle.unref === 'function') {
+      intervalHandle.unref();
+    }
+  };
+
+  timeoutHandle = setTimeout(async () => {
+    try {
+      await runCycle();
+    } finally {
+      scheduleRecurring();
+    }
+  }, initialDelay);
+
+  if (typeof timeoutHandle.unref === 'function') {
+    timeoutHandle.unref();
+  }
+
+  customLogger.info(
+    `[SESSION KEEPALIVE] Job agendado. Intervalo: ${interval}ms | Delay inicial: ${initialDelay}ms`
+  );
+}
+
+module.exports = {
+  startSessionKeepAliveJob,
+};
