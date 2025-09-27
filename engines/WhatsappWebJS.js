@@ -130,7 +130,10 @@ module.exports = class WhatsappWebJS {
         client.on('qr', async (qr) => {
           customLogger.whatsapp(`${session} - 📱 Novo QR Code gerado`);
           
-          // ✅ ADICIONADO - Atualizar device no banco SEM BLOQUEAR o QR Code
+          // ✅ IMPORTANTE - Gerar imagem base64 PRIMEIRO
+          const qrCodeImage = await HelperWhatsappWeb.generateQRHooksAndEmit({ qr, req, res, session });
+          
+          // ✅ CORREÇÃO - Salvar a IMAGEM BASE64 no banco, não o texto
           Device.findOne({ where: { session, sessionkey } })
             .then(currentDevice => {
               const attempts = (currentDevice?.attempts || 0) + 1;
@@ -138,14 +141,14 @@ module.exports = class WhatsappWebJS {
               return Device.update({
                 state: 'QRCODE',
                 status: 'qrCode',
-                qrCode: qr,
+                qrCode: qrCodeImage, // ✅ IMAGEM BASE64 em vez de texto
                 attempts: attempts,
-                urlCode: '', 
+                urlCode: qr, // ✅ Texto original fica no urlCode
                 updated_at: new Date()
               }, { where: { session, sessionkey } });
             })
             .then(() => {
-              customLogger.success(`📊 Device atualizado com QR Code - Sessão: ${session}`);
+              customLogger.success(`📊 Device atualizado com QR Code base64 - Sessão: ${session}`);
             })
             .catch(dbError => {
               customLogger.error(`❌ Erro ao atualizar device com QR Code: ${dbError.message}`);
@@ -160,9 +163,6 @@ module.exports = class WhatsappWebJS {
           qrTimeout = setTimeout(() => {
             customLogger.warning(`${session} - ⏰ QR Code expirou, mas mantendo sessão ativa...`);
           }, 120000); // 2 minutos
-          
-          // ✅ IMPORTANTE - Gerar QR Code IMEDIATAMENTE sem esperar banco
-          await HelperWhatsappWeb.generateQRHooksAndEmit({ qr, req, res, session });
         });
 
         client.on('ready', async () => {

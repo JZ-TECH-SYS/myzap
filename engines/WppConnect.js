@@ -95,7 +95,7 @@ module.exports = class Wppconnect {
       return res?.status(500)?.json({ result: 500, status: 'ERROR', response: err });
     }
 
-    // socket + webhook
+    // socket + webhook (primeiro estado)
     const socketFns = new fnSocket(req.io);
     socketFns.events(session, {
       message: 'Iniciando WhatsApp. Aguarde…',
@@ -104,6 +104,22 @@ module.exports = class Wppconnect {
       session, number
     });
     webhooks?.wh_connect(session, 'INITIALIZING', number, body, { message: 'Iniciando WhatsApp. Aguarde…' });
+
+  // Se já houver QR Code gerado em tentativa anterior (ex: restart rápido), devolver imediatamente
+    try {
+      const existing = await Device.findOne({ where: { session } });
+      if (existing && existing.status === 'qrCode' && existing.qrCode) {
+        return res?.status(200)?.json({
+          result: 200,
+            session,
+            status: 'qrCode',
+            state: 'QRCODE',
+            message: 'QR Code disponível',
+            qrCode: existing.qrCode,
+            urlCode: existing.urlCode
+        });
+      }
+    } catch (_) {}
 
     req.funcoesSocket = socketFns;
 
@@ -120,7 +136,70 @@ module.exports = class Wppconnect {
     }
 
     // cria sessão
+    // Inicia em background
     this.initSession(req, res);
+
+    // Aguarda até 12s pelo QR ou conexão antes de responder (WPPConnect pode demorar mais)
+    const startWait = Date.now();
+    const waitLimit = 12000; // ms
+    const sleep = (ms)=> new Promise(r=>setTimeout(r, ms));
+    while(!res.headersSent && Date.now() - startWait < waitLimit){
+      try {
+        // Primeiro: tentar cache em memória imediatamente
+        try {
+          const helper = require('./helper/wpp');
+          const cached = helper.getQrCache(session);
+          if(cached && cached.qrCode){
+            return res.status(200).json({
+              result: 200,
+              session,
+              status: 'qrCode',
+              state: 'QRCODE',
+              message: 'QR Code disponível (cache)',
+              qrCode: cached.qrCode,
+              urlCode: cached.urlCode
+            });
+          }
+        } catch(_ignoreCacheErr) {}
+
+        const dev = await Device.findOne({ where: { session } });
+        if(dev){
+          // QR disponível
+          if(dev.status === 'qrCode' && dev.qrCode){
+            return res.status(200).json({
+              result: 200,
+              session,
+              status: 'qrCode',
+              state: 'QRCODE',
+              message: 'QR Code disponível',
+              qrCode: dev.qrCode,
+              urlCode: dev.urlCode
+            });
+          }
+          // Conectado antes de gerar QR (casos raros)
+          if(['inChat','isLogged','CONNECTED'].includes(dev.status)){
+            return res.status(200).json({
+              result: 200,
+              session,
+              status: dev.status,
+              state: 'CONNECTED',
+              message: 'Sessão conectada'
+            });
+          }
+        }
+      } catch(_) {}
+      await sleep(400);
+    }
+
+    if(!res.headersSent){
+      return res.status(200).json({
+        result: 200,
+        session,
+        status: 'INITIALIZING',
+        state: 'STARTING',
+        message: 'Inicializando sessão...'
+      });
+    }
   }
 
   /**
@@ -130,6 +209,12 @@ module.exports = class Wppconnect {
     const session = req?.body?.session;
     const sessionkey = req.headers['sessionkey'];
     const io = req.io;
+    if (global.__wppInit && global.__wppInit[session]) {
+      customLogger.info(`[INIT SUPRESSED] ${session} - Já existe initSession em andamento`);
+      return;
+    }
+    global.__wppInit = global.__wppInit || {};
+    global.__wppInit[session] = Date.now();
     
     // ✅ VERIFICAR TOKENS EXISTENTES ANTES DE GERAR QR CODE
     const fs = require('fs');
@@ -155,7 +240,7 @@ module.exports = class Wppconnect {
     const options = WppHelper.buildOptions(session);
 
     try {
-      await wppconnect.create({
+  await wppconnect.create({
         session,
         catchQR: (qr, asciiQR, attempts, urlCode) =>
           WppHelper.handleCatchQR({
@@ -216,7 +301,7 @@ module.exports = class Wppconnect {
         logger.error('Erro ao criar sessão no browser', err);
         exec(`rm -rf instances/${session}`);
         return res?.status(500)?.json({ result: 500, status: 'ERROR', response: err });
-      });
+  }).finally(()=> { try { delete global.__wppInit[session]; } catch(_){} });
 
       wppconnect.defaultLogger.level = 'silly';
     } catch (err) {

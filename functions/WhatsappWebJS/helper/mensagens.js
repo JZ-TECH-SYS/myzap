@@ -246,6 +246,19 @@ module.exports = {
           status: status || 'INITIALIZING'
         };
 
+        // ✅ Se tem QR Code no banco, incluir na resposta
+        if (data.qrCode && data.status === 'qrCode') {
+          resposta.qrCode = data.qrCode;  // Base64 da imagem do QR Code  
+          resposta.urlCode = data.urlCode; // Como estava antes
+          resposta.state = 'QRCODE';
+          resposta.status = 'qrCode';
+          resposta.message = 'QR Code disponível para escaneamento';
+          
+          customLogger.info(`[START WITH QR] ${session} - Retornando QR Code existente`);
+          const http = require('../../../controllers/helper/http.js');
+          return http.json(res, 200, resposta);
+        }
+
         // ✅ RECONEXÃO CORRIGIDA - Verificar se client está REALMENTE ativo
         const currentSession = Sessions.getClient(session); // ✅ CORRIGIDO: getClient em vez de getSession
         const sessionHelper = require('../../../controllers/helper/sessions.js');

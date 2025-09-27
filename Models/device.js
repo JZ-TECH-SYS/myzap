@@ -23,9 +23,9 @@ module.exports = (sequelize) => {
         wh_status: DataTypes.STRING,
         status: DataTypes.STRING,
         state: DataTypes.STRING,
-        qrCode: DataTypes.STRING,
+    qrCode: DataTypes.TEXT, // Alterado para TEXT para suportar QR Codes longos
         attempts: DataTypes.INTEGER,
-        urlCode: DataTypes.STRING,
+    urlCode: DataTypes.TEXT, // Alterado para TEXT (alguns engines fornecem URL extensa)
         
         last_start: DataTypes.DATE,
         attempts_start: DataTypes.INTEGER,

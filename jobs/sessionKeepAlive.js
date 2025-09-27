@@ -23,7 +23,9 @@ function resolveBaseUrl() {
     return normalized.replace(/\/$/, '');
   }
 
-  return `http://127.0.0.1:${config.port}`;
+  // ✅ CORRIGIDO - Usar config.host do .env ao invés de hardcoded 127.0.0.1
+  const host = process.env.HOST || 'http://127.0.0.1';
+  return `${host}:${config.port}`;
 }
 
 function isEligible(device) {

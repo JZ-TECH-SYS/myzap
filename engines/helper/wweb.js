@@ -207,6 +207,9 @@ module.exports = {
       
       console.log(chalk.green(`📡 QR Code base64 enviado para interface web - Sessão: ${session}`));
       
+      // 🚀 RETORNAR A IMAGEM BASE64 PARA USO NO ENGINE
+      return qrCodeBase64;
+      
     } catch (error) {
       console.log(chalk.red(`❌ Erro ao gerar QR Code base64 - Sessão: ${session} - ${error.message}`));
       
@@ -222,6 +225,9 @@ module.exports = {
       
       req?.io?.emit('qrcode', payload);
       this.showTerminalQR(qr, session);
+      
+      // 🚀 RETORNAR QR ORIGINAL EM CASO DE ERRO
+      return qr;
     }
   },
 

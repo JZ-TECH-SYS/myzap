@@ -177,7 +177,7 @@ module.exports = {
         // 🚨 CONTROLE DE CONCORRÊNCIA VIA BANCO 🚨
         // Se já está inicializando, NÃO deixa entrar (evita sobrescrever)
         if (status === 'INITIALIZING' || state === 'STARTING') {
-          customLogger.info(`[IDEMPOTENT] ${session} - Já inicializando no banco, retornando estado atual`);
+          customLogger.debug(`[IDEMPOTENT] ${session} - Inicialização em andamento (status=${status}, state=${state})`);
           return http.json(res, 200, {
             result: 'success',
             session,
@@ -194,6 +194,18 @@ module.exports = {
           state: state || 'STARTING',
           status: status || 'INITIALIZING'
         };
+
+        // ✅ Se tem QR Code no banco, incluir na resposta
+        if (data.qrCode && data.status === 'qrCode') {
+          resposta.qrCode = data.qrCode;  // Base64 da imagem do QR Code
+          resposta.urlCode = data.urlCode; // Como estava antes
+          resposta.state = 'QRCODE';
+          resposta.status = 'qrCode';
+          resposta.message = 'QR Code disponível para escaneamento';
+          
+          customLogger.info(`[START WITH QR] ${session} - Retornando QR Code existente`);
+          return http.json(res, 200, resposta);
+        }
 
         // Verifica se há um client injetado na memória
         const injectedClient = helpSS.getInjectedClient(session);
@@ -243,27 +255,59 @@ module.exports = {
           }
         }
 
-        // ⚡ NOVA LÓGICA: /start só força QR novo se NÃO estiver inicializando
-        // Para qualquer outro estado (incluindo QR expirado), força nova inicialização
-        customLogger.info(`[FORCE NEW QR] ${session} - Status: ${status}, forçando nova inicialização`);
-        
-        // 🛡️ Marca como inicializando no banco ANTES de chamar engine
-        await Device.update({
-          state: 'STARTING',
-          status: 'INITIALIZING', 
-          qrCode: '',
-          urlCode: '',
-          attempts: 0,
-          updated_at: new Date()
-        }, { where: { session } });
-        
-        engine.start(req, res);
+        // ⛏️ Decisão de gerar novo QR
+        const needNewQRStatuses = [
+          'notLogged','desconnectedMobile','browserClose','serverClose','autocloseCalled','TIMEOUT','ERROR'
+        ];
+
+  const shouldForceNew = needNewQRStatuses.includes(status);
+
+        if (shouldForceNew) {
+          // Throttle simples para evitar múltiplos starts em sequência
+            global.__wppForceStart = global.__wppForceStart || {}; 
+            const last = global.__wppForceStart[session];
+            const now = Date.now();
+            if (last && now - last < 4000) {
+              customLogger.info(`[FORCE NEW QR THROTTLED] ${session} - aguardando (${status})`);
+              return http.json(res, 200, {
+                result: 'success',
+                session,
+                state: 'STARTING',
+                status: 'INITIALIZING',
+                message: 'Gerando QR (aguarde)...'
+              });
+            }
+            global.__wppForceStart[session] = now;
+
+          customLogger.info(`[FORCE NEW QR] ${session} - Status atual: ${status} -> reinicializando para gerar QR`);
+          await Device.update({
+            state: 'STARTING',
+            status: 'INITIALIZING',
+            qrCode: '',
+            urlCode: '',
+            attempts: 0,
+            updated_at: new Date()
+          }, { where: { session } });
+
+          // Dispara engine.start mas a resposta desta rota será controlada aqui
+          try { engine.start(req, res); } catch(_e) {}
+          return http.json(res, 200, {
+            result: 'success',
+            session,
+            state: 'STARTING',
+            status: 'INITIALIZING',
+            message: 'Gerando novo QR code...'
+          });
+        }
+
+        // Caso não precise forçar novo QR, apenas retornar estado atual
+  customLogger.debug(`[NO NEW QR] ${session} - Mantendo estado (status=${status})`);
         return http.json(res, 200, {
           result: 'success',
           session,
-          state: 'STARTING',
-          status: 'INITIALIZING',
-          message: 'Gerando novo QR code...'
+          state: state || 'STARTING',
+          status: status,
+          message: 'Aguardando eventos do engine...'
         });
       }
 

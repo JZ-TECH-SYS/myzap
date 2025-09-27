@@ -6,6 +6,8 @@ const UserModel = require("../Models/user");
 const CompanyModel = require("../Models/company");
 const config = require("../config");
 const customLogger = require("../util/customLogger");
+const SessionsHelper = require("./helper/sessions");
+const Cache = require("../util/cache");
 
 const User = UserModel(config.sequelize);
 const Company = CompanyModel(config.sequelize);
@@ -146,7 +148,17 @@ module.exports = {
     const version = require("../package.json").version || "";
 
     try {
-      req.session.destroy();
+      // Apenas destruir a session do usuário no Express
+      req.session.destroy((err) => {
+        if (err) {
+          customLogger.error(`[LOGOUT] Erro ao destruir session: ${err.message}`);
+        } else {
+          customLogger.info(`[LOGOUT] Session do usuário destruída com sucesso`);
+        }
+      });
+
+      customLogger.info(`[LOGOUT] Logout realizado com sucesso`);
+      
       res.render("pages/auth/login", {
         message: "Logout efetuado com sucesso",
         pageTitle: "Logout",
@@ -156,6 +168,7 @@ module.exports = {
         version,
       });
     } catch (error) {
+      customLogger.error(`[LOGOUT] Erro durante logout: ${error.message}`);
       console.error(error);
       res.redirect("/auth/login");
     }

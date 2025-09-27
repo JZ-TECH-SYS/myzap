@@ -1,7 +1,0 @@
-[2025-09-15T18:45:09.683Z] [SELECT] Executing (default): SELECT 1+1 AS result
-[2025-09-15T18:45:16.374Z] [SELECT] Executing (default): SELECT 1+1 AS result
-[2025-09-15T18:45:32.613Z] [SELECT] Executing (default): SELECT 1+1 AS result
-[2025-09-15T18:45:40.489Z] [SELECT] Executing (default): SELECT 1+1 AS result
-[2025-09-15T18:45:51.571Z] [SELECT] Executing (default): SELECT 1+1 AS result
-[2025-09-15T18:45:57.120Z] [SELECT] Executing (default): SELECT 1+1 AS result
-[2025-09-15T18:46:22.009Z] [SELECT] Executing (default): SELECT 1+1 AS result

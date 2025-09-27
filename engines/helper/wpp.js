@@ -4,6 +4,7 @@
  * Mantém toda a lógica de persistência e comunicação (banco, socket, webhooks).
  */
 const chalk     = require('chalk');
+const qrcodeBase64 = require('qrcode'); // 🚀 PARA CONVERTER QR CODE TEXTO EM IMAGEM BASE64
 const stealth   = require('./stealth'); // NOVO: Sistema anti-detecção
 const webhooks  = require('../../controllers/WebhooksController.js');
 const fnSocket  = require('../../controllers/FNSocketsController.js');
@@ -38,19 +39,50 @@ function exportQR(req, qrCode, urlCode, attempts, asciiQR, session) {
   req?.io?.emit('events',  { ...payload, message: 'Evento `events` será descontinuado; use `qrcode`.' });
 }
 
+// Cache em memória para disponibilizar QR imediatamente às rotas antes de persistência / polling
+const __qrCache = global.__wppQrCache || (global.__wppQrCache = new Map());
+
+function setQrCache(session, data){
+  __qrCache.set(session, { ...data, cachedAt: Date.now() });
+}
+
+function getQrCache(session){
+  const entry = __qrCache.get(session);
+  if(!entry) return null;
+  // Expira após 2 minutos
+  if(Date.now() - entry.cachedAt > 120000){
+    __qrCache.delete(session);
+    return null;
+  }
+  return entry;
+}
+
 async function handleCatchQR({ req, res, qrCode, asciiQR, attempts, urlCode, session, sessionkey }) {
+  // WPPConnect já fornece o conteúdo (string longa). Algumas versões novas geram códigos maiores
+  // que estouram a capacidade da lib 'qrcode' → então salvamos e emitimos o valor bruto.
+  const whereClause = sessionkey ? { sessionkey, session } : { session };
+
   exportQR(req, qrCode, urlCode, attempts, asciiQR, session);
+  req?.io?.emit('qrcode_raw', { session, qrRaw: qrCode, isBase64: false });
+  setQrCache(session, { qrCode, urlCode, attempts, asciiQR });
 
   await Device.update({
     state   : 'QRCODE',
     status  : 'qrCode',
-    qrCode,
+    qrCode,           // conteúdo bruto
     attempts,
     urlCode,
     updated_at: now()
-  }, { where: { sessionkey, session }});
+  }, { where: whereClause });
 
-  webhooks?.wh_qrcode(session, qrCode, attempts, urlCode);
+  // Também registra no SessionsController (memória), espelhando lógica do WebJS
+  try {
+    const Sessions = require('../../controllers/SessionsController.js');
+    await Sessions.addInfoSession(session, { status: 'qrCode', qrCode });
+  } catch(err){ /* ignore */ }
+
+  try { webhooks?.wh_qrcode(session, qrCode, attempts, urlCode, { isBase64: false }); } catch(_) {}
+  customLogger.info(`[WPPConnect] QR bruto salvo (len=${qrCode?.length}) - ${session}`);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -400,6 +432,8 @@ function logSessionStatus(session, statusSession) {
 module.exports = {
   exportQR,
   handleCatchQR,
+  getQrCache,
+  setQrCache,
   handleStatusFind,
   handleStateChange,
   handleInterfaceChange,

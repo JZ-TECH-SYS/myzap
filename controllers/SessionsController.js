@@ -13,6 +13,8 @@ class Sessions {
     }
   }
 
+
+
   static async createClient(session, req, wppconnect = {}) {
     const sessionkey = req.headers['sessionkey'];
     const device = await SessionsHelper.getDevice(session, sessionkey);
@@ -101,7 +103,22 @@ class Sessions {
   static async getConnectionStatus(req, res) {
     try {
       const session = req.body.session;
-      const device = await SessionsHelper.getDevice(req.body.session, req.headers['sessionkey']);
+      const sessionkey = req.headers['sessionkey'];
+      const device = await SessionsHelper.getDevice(session, sessionkey);
+
+      // ✅ DEBUG - Log detalhado do device encontrado
+      customLogger.info(`[GET STATUS] ${session} - Device encontrado:`, {
+        exists: !!device,
+        status: device?.status,
+        state: device?.state,
+        hasQrCode: !!device?.qrCode,
+        hasUrlCode: !!device?.urlCode,
+        qrCodeLength: device?.qrCode?.length || 0
+      });
+
+      if (!device) {
+        return http.notFound(res, 'Sessão não encontrada no banco de dados');
+      }
 
       // Status que indicam conexão ativa
       const connectedStatuses = ['inChat', 'CONNECTED', 'isLogged', 'isConnected'];
@@ -109,36 +126,96 @@ class Sessions {
       // Status que permitem reconexão automática (celular ainda conectado)
       const reconnectableStatuses = ['browserClose', 'serverClose', 'autocloseCalled'];
 
+      // ✅ SESSÃO CONECTADA
       if (connectedStatuses.includes(device?.status)) {
         return http.json(res, 200, {
           result: 200,
           status: device.status,
           state: 'CONNECTED',
+          message: 'Sessão conectada e ativa',
           data: device
         });
       }
 
-      if (device?.status === 'qrCode') {
-        // Mostrar QR Code no terminal para leitura com celular
-        if (device.qrCode) {
+      // ✅ SESSÃO INICIALIZANDO - Retorna estado atual sem QR ainda
+      if (device?.status === 'INITIALIZING' || device?.state === 'STARTING') {
+        return http.json(res, 200, {
+          result: 200,
+          status: device.status || 'INITIALIZING',
+          state: device.state || 'STARTING',
+          message: 'Sessão está sendo inicializada. Aguarde...',
+          data: device
+        });
+      }
+
+      // ✅ TEM QR CODE DISPONÍVEL - Verificar tanto por status quanto por presença do QR (ou cache para WPPConnect)
+      if ((device?.qrCode && device.qrCode !== '') || (device?.status === 'qrCode' || device?.state === 'QRCODE')) {
+        let qrToReturn = device.qrCode;
+        let urlToReturn = device.urlCode;
+        if(!qrToReturn){
+          try {
+            const config = require('../config');
+            if(config.engine === '2'){ // WPPConnect
+              const wppHelper = require('../engines/helper/wpp');
+              const cached = wppHelper.getQrCache(session);
+              if(cached){
+                qrToReturn = cached.qrCode;
+                urlToReturn = cached.urlCode;
+                customLogger.info(`[QR CACHE] ${session} - Usando QR em memória (fallback rota status)`);
+              }
+            }
+          } catch(_cacheErr) {}
+        }
+        customLogger.info(`[QR CODE FOUND] ${session} - Status: ${device.status}, State: ${device.state}, QR: ${!!qrToReturn}`);
+        
+        if (qrToReturn) {
+          // QR Code disponível - mostrar no terminal e retornar
           try {
             const qr = require('qrcode-terminal');
-            console.log(chalk.cyan(`\n📱 QR CODE para sessão: ${req.body.session}`));
+            console.log(chalk.cyan(`\n📱 QR CODE para sessão: ${session}`));
             console.log(chalk.yellow('═'.repeat(50)));
-            qr.generate(device.urlCode,{small: true});
+            // Se for base64 não tentar gerar ASCII novamente
+            if (qrToReturn.startsWith('data:image')) {
+              console.log(chalk.gray('[QR] Base64 armazenado - não exibido em ASCII')); 
+            } else {
+              qr.generate(urlToReturn || qrToReturn, { small: true });
+            }
             console.log(chalk.yellow('═'.repeat(50)));
             console.log(chalk.green('👆 Escaneie o QR Code acima com seu celular!'));
-            console.log(chalk.gray(`Sessão: ${req.body.session} | Status: ${device.status}\n`));
+            console.log(chalk.gray(`Sessão: ${session} | Status: ${device.status}\n`));
           } catch (err) {
             console.log(chalk.red(`❌ Erro ao exibir QR Code no terminal: ${err.message}`));
-            console.log(chalk.cyan(`QR Code disponível para sessão: ${req.body.session}`));
+            console.log(chalk.cyan(`QR Code disponível para sessão: ${session}`));
           }
+          
+          return http.json(res, 200, {
+            result: 200,
+            status: device.status || 'qrCode',
+            state: 'QRCODE',
+            message: 'QR Code disponível para escaneamento',
+            qrCode: qrToReturn,    // Base64 ou texto bruto
+            urlCode: urlToReturn,  // Como estava antes  
+            data: device
+          });
+        } else {
+          // Status indica QR mas ainda não foi gerado
+          return http.json(res, 200, {
+            result: 200,
+            status: device.status || 'qrCode',
+            state: 'GENERATING_QR',
+            message: 'Gerando QR Code. Aguarde alguns segundos...',
+            data: device
+          });
         }
-        
+      }
+
+      // ✅ QR CODE ESPERADO mas ainda não gerado
+      if (device?.status === 'qrCode' && !device?.qrCode) {
         return http.json(res, 200, {
           result: 200,
           status: device.status,
-          state: 'QRCODE',
+          state: 'GENERATING_QR',
+          message: 'Gerando QR Code. Aguarde alguns segundos...',
           data: device
         });
       }
@@ -197,11 +274,44 @@ class Sessions {
       const data = await Sessions.getClient(session);
       if (!data) return http.notFound(res, 'Sessão não encontrada!');
 
+      // 1. Fazer logout do WhatsApp client
       const { logout, close } = await SessionsHelper.fecharSessaoComLogout(data, session);
-      await SessionsHelper.deleteSessionAndCleanup(session);
+      customLogger.info(`[DELETE SESSION] ${session} - WhatsApp logout: ${logout}, close: ${close}`);
 
-      return http.success(res, { logout, close }, 'Sessão Fechada com sucesso');
+      // 2. Apagar session do banco de dados
+      await SessionsHelper.deleteSessionAndCleanup(session);
+      customLogger.info(`[DELETE SESSION] ${session} - Removida do banco de dados`);
+
+      // 3. Apagar session do cache
+      try {
+        const Cache = require('../util/cache');
+        await Cache.del(session);
+        customLogger.info(`[DELETE SESSION] ${session} - Cache removido`);
+      } catch (cacheError) {
+        customLogger.warn(`[DELETE SESSION] ${session} - Erro ao remover cache: ${cacheError.message}`);
+      }
+
+      // 4. Apagar pasta de instâncias físicas (tokens, sessão, etc.)
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const sessionPath = path.join('./instances', session);
+        
+        if (fs.existsSync(sessionPath)) {
+          // Remove pasta da sessão recursivamente (compatível com Windows)
+          fs.rmSync(sessionPath, { recursive: true, force: true });
+          customLogger.info(`[DELETE SESSION] ${session} - Pasta de instâncias removida: ${sessionPath}`);
+        } else {
+          customLogger.info(`[DELETE SESSION] ${session} - Nenhuma pasta de instâncias encontrada`);
+        }
+      } catch (instanceError) {
+        customLogger.warn(`[DELETE SESSION] ${session} - Erro ao remover pasta de instâncias: ${instanceError.message}`);
+      }
+
+      customLogger.success(`[DELETE SESSION] ${session} - Sessão completamente removida (banco + cache + instâncias)`);
+      return http.success(res, { logout, close }, 'Sessão fechada com sucesso');
     } catch (err) {
+      customLogger.error(`[DELETE SESSION ERROR] ${req.body.session} - ${err.message}`);
       return http.fail(res, err, 500, 'Erro ao deletar sessão!');
     }
   }
