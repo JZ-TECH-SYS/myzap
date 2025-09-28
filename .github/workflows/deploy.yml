@@ -7,52 +7,60 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout do código
-      uses: actions/checkout@v4
+      - name: Checkout do código
+        uses: actions/checkout@v4
 
-    - name: Deploy via SSH
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        port: 22022
-        script: |
-          set -e
-          cd /var/www/myzap
-          if [ -d .git ]; then
-            # Força estado exatamente igual ao remoto (descarta modificações locais e arquivos não rastreados)
-            git fetch --prune origin main
-            git reset --hard origin/main
-            git clean -fd
-          else
-            echo "[ERRO] /var/www/myzap não é um repositório git. Inicialize ou clone antes." >&2
-            exit 1
-          fi
-            echo "[INFO] Instalando dependências Node..."
-            if command -v npm >/dev/null 2>&1; then
-              echo "Node: $(node -v) / NPM: $(npm -v)"
+      - name: Deploy via SSH
+        # Recomendo usar pelo menos a última patch da v1.x
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22022
+          timeout: 2m            # tempo para CONECTAR via SSH (default 30s)
+          command_timeout: 40m   # tempo para rodar os comandos (default 10m)
+          # Se você quiser controlar updates (npm update) pelo Actions:
+          envs: NPM_UPDATE
+          script: |
+            set -e
+
+            cd /var/www/myzap
+            if [ -d .git ]; then
+              git fetch --prune origin main
+              git reset --hard origin/main
+              git clean -fd
             else
-              echo "[ERRO] npm não encontrado no PATH. Instale Node.js na VPS." >&2
+              echo "[ERRO] /var/www/myzap não é um repositório git. Inicialize ou clone antes." >&2
               exit 1
             fi
 
-            # Instalação determinística se existir package-lock.json
+            echo "[INFO] Instalando dependências Node..."
+            if ! command -v npm >/dev/null 2>&1; then
+              echo "[ERRO] npm não encontrado no PATH. Instale Node.js na VPS." >&2
+              exit 1
+            fi
+            echo "Node: $(node -v) / NPM: $(npm -v)"
+
+            # acelera e evita ruído
+            npm config set fund false
+            npm config set audit false
+            npm config set progress false
+
+            # Se já existir lockfile, instalação determinística
             if [ -f package-lock.json ]; then
-              npm ci --omit=dev
+              npm ci --omit=dev --no-audit --no-fund
             else
-              npm install --production
+              npm install --production --no-audit --no-fund
             fi
 
-            # (Opcional) Atualizar dependências para últimas versões compatíveis se variável setada
+            # (Opcional) atualizar compatíveis se NPM_UPDATE=1
             if [ "${NPM_UPDATE:-0}" = "1" ]; then
-              echo "[INFO] Executando npm update (--omit=dev)";
+              echo "[INFO] Executando npm update (--omit=dev)"
               npm update --omit=dev || true
             fi
 
-            # Remove pacotes sobrando conforme package.json
             npm prune --omit=dev
 
             echo "[INFO] Reiniciando aplicação via PM2"
