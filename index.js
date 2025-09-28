@@ -9,7 +9,7 @@ const path = require("path");
 const { yo } = require("yoo-hoo");
 const config = require("./config");
 const { startAllSessions } = require("./startup");
-const SessionsHelper = require("./controllers/helper/sessions.js");
+const SessionsHelper = require("./controllers/helper/core/sessions.js");
 const { startSessionKeepAliveJob } = require("./jobs/sessionKeepAlive");
 const logger = require("./util/logger"); // Para expressPinoLogger  
 const customLogger = require("./util/customLogger"); // ✅ Logger padronizado
@@ -246,14 +246,25 @@ function handleUncaughtException(err) {
   process.exit(1);
 }
 
-function handleUnhandledRejection(err, promise) {
-  customLogger.error(`🚨 Unhandled rejection: ${err.message}`);
-  customLogger.debug('Promise details:', promise);
-  
-  // ✅ MELHORADO - Não sair do processo imediatamente, apenas logar
-  // Em desenvolvimento, é melhor continuar rodando
+function handleUnhandledRejection(reason, promise) {
+  try {
+    const isError = reason instanceof Error;
+    const msg = isError ? reason.message : String(reason);
+    customLogger.error(`🚨 Unhandled rejection: ${msg}`);
+    customLogger.error(`[UNHANDLED META] typeof=${typeof reason} constructor=${reason && reason.constructor ? reason.constructor.name : 'n/a'}`);
+    if (isError && reason.stack) {
+      customLogger.error(reason.stack);
+    } else {
+      customLogger.error('[UNHANDLED RAW] ' + JSON.stringify(reason));
+    }
+    customLogger.debug('Promise details:', promise);
+    // Também jogar no console bruto para garantir stack quando existir
+    console.error('UNHANDLED REJECTION RAW:', reason);
+  } catch (logErr) {
+    console.error('Falha ao logar unhandledRejection', logErr);
+  }
   if (process.env.NODE_ENV === 'production') {
-    process.exit(1);
+    // Decidir política futura
   }
 }
 

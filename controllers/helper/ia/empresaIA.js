@@ -4,10 +4,10 @@ require('dotenv').config();
 
 const moment = require('moment');
 const OpenAI = require('openai');
-const config = require('../../config.js');
-const ChatHistoryHelper = require('./chatHistory');
+const config = require('../../../config.js');
+const ChatHistoryHelper = require('../events/chatHistory');
 
-const TokenUsageModel = require('../../Models/tokenUsage.js');
+const TokenUsageModel = require('../../../Models/tokenUsage.js');
 const TokenUsage = TokenUsageModel(config.sequelize);
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

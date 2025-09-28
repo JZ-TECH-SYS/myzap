@@ -1,5 +1,5 @@
 const Sessions = require('../../../controllers/SessionsController.js');
-const SessionsHelper = require('../../../controllers/helper/sessions.js');
+const SessionsHelper = require('../../../controllers/helper/core/sessions.js');
 
 module.exports = {
   async validarAcesso(req) {

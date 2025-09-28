@@ -233,7 +233,7 @@ module.exports = {
       
       if (data) {
         // ✅ IGUAL WPPConnect - Atualizar tentativas
-        const helpSS = require('../../../controllers/helper/sessions.js');
+        const helpSS = require('../../../controllers/helper/core/sessions.js');
         await helpSS.atualizarTentativasStart(session, data.attempts_start, new Date(data.last_start));
         
         const status = data.status;
@@ -255,13 +255,13 @@ module.exports = {
           resposta.message = 'QR Code disponível para escaneamento';
           
           customLogger.info(`[START WITH QR] ${session} - Retornando QR Code existente`);
-          const http = require('../../../controllers/helper/http.js');
+          const http = require('../../../controllers/helper/core/http.js');
           return http.json(res, 200, resposta);
         }
 
         // ✅ RECONEXÃO CORRIGIDA - Verificar se client está REALMENTE ativo
         const currentSession = Sessions.getClient(session); // ✅ CORRIGIDO: getClient em vez de getSession
-        const sessionHelper = require('../../../controllers/helper/sessions.js');
+        const sessionHelper = require('../../../controllers/helper/core/sessions.js');
         const injectedClient = sessionHelper.getInjectedClient(session);
         const isClientActive = injectedClient && injectedClient.info;
         
@@ -298,7 +298,7 @@ module.exports = {
           resposta.status = 'INITIALIZING';
         }
 
-        const http = require('../../../controllers/helper/http.js');
+        const http = require('../../../controllers/helper/core/http.js');
         return http.json(res, 200, resposta);
       }
 
@@ -307,7 +307,7 @@ module.exports = {
       const engine = require('../../../engines/WhatsappWebJS.js');
       engine.start(req, res, session); // ✅ Não bloquear com await
       
-      const http = require('../../../controllers/helper/http.js');
+      const http = require('../../../controllers/helper/core/http.js');
       return http.json(res, 200, {
         result: 'success',
         session,
@@ -317,7 +317,7 @@ module.exports = {
 
     } catch (err) {
       customLogger.info('error', err);
-      const http = require('../../../controllers/helper/http.js');
+      const http = require('../../../controllers/helper/core/http.js');
       return http.fail(res, err, 500, 'Erro ao iniciar sessão');
     }
   },

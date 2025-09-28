@@ -6,7 +6,7 @@ const UserModel = require("../Models/user");
 const CompanyModel = require("../Models/company");
 const config = require("../config");
 const customLogger = require("../util/customLogger");
-const SessionsHelper = require("./helper/sessions");
+const SessionsHelper = require("./helper/core/sessions");
 const Cache = require("../util/cache");
 
 const User = UserModel(config.sequelize);

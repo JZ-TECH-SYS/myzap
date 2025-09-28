@@ -1,5 +1,5 @@
 const Sessions = require('./SessionsController.js');
-const helper = require('./helper/webhooks.js');
+const helper = require('./helper/core/webhooks.js');
 
 module.exports = class Webhooks {
     static async sendWebhook(url, data, queue) {

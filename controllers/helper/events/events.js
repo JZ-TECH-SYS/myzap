@@ -1,5 +1,6 @@
 const moment = require('moment');
 moment.locale('pt-br');
+const MediaDecryptor = require('./mediaDecryptor');
 
 module.exports = {
   tiposPermitidos: [
@@ -39,28 +40,55 @@ module.exports = {
     return mapa[ack] || 'UNKNOWN';
   },
 
-  async baixarMidia(type, client, id) {
+  async baixarMidia(type, client, message) {
     const tipos = ['image', 'video', 'audio', 'ptt', 'document', 'sticker'];
-    if (tipos.includes(type)) {
-      // ✅ VERIFICAR SE downloadMedia EXISTE NO CLIENT
-      if (client && typeof client.downloadMedia === 'function') {
+    if (!tipos.includes(type) || !message) return null;
+
+    try {
+      // 1) whatsapp-web.js: método no objeto da mensagem
+      if (typeof message.downloadMedia === 'function') {
+        const media = await message.downloadMedia();
+        const base64 = media?.data || (typeof media === 'string' ? media : null);
+        if (base64) return base64;
+      } else if (client && typeof client.getMessageById === 'function') {
+        // Fallback para caso mensagem tenha sido serializada e perdeu métodos
         try {
-          return await client.downloadMedia(id);
-        } catch (error) {
-          console.log(`⚠️ Erro ao baixar mídia: ${error.message}`);
-          return null;
+          const id = message?.id?._serialized || message?.id;
+            if (id) {
+              const fullMsg = await client.getMessageById(id);
+              if (fullMsg && typeof fullMsg.downloadMedia === 'function') {
+                const media = await fullMsg.downloadMedia();
+                const base64 = media?.data || (typeof media === 'string' ? media : null);
+                if (base64) return base64;
+              }
+            }
+        } catch (e) {
+          console.log('[baixarMidia] Fallback getMessageById falhou:', e.message || e);
         }
-      } else {
-        console.log(`⚠️ client.downloadMedia não disponível para engine`);
-        return null;
       }
+
+      // 2) Engines que expõem decryptFile direto
+      if (client && typeof client.decryptFile === 'function') {
+        const buffer = await client.decryptFile(message);
+        if (buffer) return Buffer.isBuffer(buffer) ? buffer.toString('base64') : null;
+      }
+
+      // 3) Adapter genérico
+      if (MediaDecryptor && typeof MediaDecryptor.decryptFile === 'function') {
+        const buffer = await MediaDecryptor.decryptFile({ client, message });
+        if (buffer) return buffer.toString('base64');
+      }
+
+      return null;
+    } catch (error) {
+      console.log(`⚠️ Erro ao baixar mídia: ${error.message}`);
+      return null;
     }
-    return null;
   },
 
   async montarPayload(message, session, client) {
     const type = this.normalizarTipo(message);   // text, image, …
-    const base64 = await this.baixarMidia(type, client, message.id);
+  const base64 = await this.baixarMidia(type, client, message);
     const timestamp = this.formatarData(message.timestamp);
     const nome = message?.sender?.pushname
       || message?.sender?.verifiedName

@@ -40,7 +40,9 @@ Router.post("/admin/ia-manager/create", checkAuthMiddleware, IASimpleController.
 Router.put("/admin/ia-manager/update/:id", checkAuthMiddleware, IASimpleController.updateSession);
 Router.delete("/admin/ia-manager/delete/:id", checkAuthMiddleware, IASimpleController.deleteSession);
 Router.get("/admin/ia-manager/session/:id", checkAuthMiddleware, IASimpleController.getSessionData);
+
 // Atualização básica via API (empresa_nome, api_url, mensagem_padrao)
-Router.post("/admin/ia-manager/update-config", checkAuthMiddleware, IASimpleController.updateBasicConfig);
+// Tornada pública para chamadas externas. A validação é feita por session + sessionkey no controller.
+Router.post("/admin/ia-manager/update-config", IASimpleController.updateBasicConfig);
 
 module.exports = Router;

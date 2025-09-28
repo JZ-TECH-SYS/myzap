@@ -1,6 +1,6 @@
 const moment = require('moment');
-const TokenUsageModel = require('../../Models/tokenUsage.js');
-const config = require('../../config.js');
+const TokenUsageModel = require('../../../Models/tokenUsage.js');
+const config = require('../../../config.js');
 
 const TokenUsage = TokenUsageModel(config.sequelize);
 

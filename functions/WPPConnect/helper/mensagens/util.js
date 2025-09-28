@@ -1,7 +1,7 @@
 const Sessions = require('../../../../controllers/SessionsController');
 const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
 const engine = require('../../../../engines/WppConnect');
-const helpSS = require('../../../../controllers/helper/sessions');
+const helpSS = require('../../../../controllers/helper/core/sessions');
 const http = require('../../../../controllers/helper/http');
 const config = require('../../../../config.js');
 const Device = require('../../../../Models/device.js')(config.sequelize);

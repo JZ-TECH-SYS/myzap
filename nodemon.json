@@ -1,19 +1,20 @@
 {
+  "verbose": false,
+  "ignore": [
+    "public/*",
+    "temp/*",
+    "Logs/*",
+    "logs/*",
+    "**/instances/*",
+    "**/*.log"
+  ],
   "watch": [
     "index.js",
     "startup.js",
-    "controllers",
-    "engines",
-    "routers",
-    "Models",
-    "util"
-  ],
-  "ignore": [
-    "instances/**",
-    "logs/**",
-    "public/**",
-    "database/db.sqlite",
-    "*.log"
-  ],
-  "ext": "js,json"
+    "controllers/**/*.js",
+    "engines/**/*.js",
+    "routers/**/*.js",
+    "Models/**/*.js",
+    "util/**/*.js"
+  ]
 }

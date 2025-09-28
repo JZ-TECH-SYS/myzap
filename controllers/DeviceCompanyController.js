@@ -2,7 +2,7 @@ const { Op } = require('sequelize');
 
 const config = require('../config');
 const DeviceCompanyModel = require('../Models/deviceCompany.js');
-const http = require('./helper/http.js');
+const http = require('./helper/core/http.js');
 const customLogger = require('../util/customLogger.js');
 
 const DeviceCompany = DeviceCompanyModel(config.sequelize);

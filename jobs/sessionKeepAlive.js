@@ -1,5 +1,5 @@
 const axios = require('axios');
-const SessionsHelper = require('../controllers/helper/sessions.js');
+const SessionsHelper = require('../controllers/helper/core/sessions.js');
 const customLogger = require('../util/customLogger.js');
 const config = require('../config');
 

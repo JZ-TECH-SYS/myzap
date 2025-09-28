@@ -1,8 +1,8 @@
 const moment = require('moment');
 const { Op } = require('sequelize');
 
-const config = require('../../config.js');
-const ChatHistoryModel = require('../../Models/chatHistory.js');
+const config = require('../../../config.js');
+const ChatHistoryModel = require('../../../Models/chatHistory.js');
 
 const ChatHistory = ChatHistoryModel(config.sequelize);
 
@@ -253,15 +253,15 @@ module.exports = {
       }
     }
 
-    const startOfDay = moment().startOf('day').toDate();
+    const since = moment().subtract(1, 'hours').toDate();
     const record = await ChatHistory.findOne({
       where: {
-        session,
-        sessionkey,
-        numero_cliente: numero,
-        role: 'assistant',
-        message_type: 'mensagem_padrao',
-        created_at: { [Op.gte]: startOfDay },
+      session,
+      sessionkey,
+      numero_cliente: numero,
+      role: 'assistant',
+      message_type: 'mensagem_padrao',
+      created_at: { [Op.gte]: since },
       },
       order: [['created_at', 'DESC'], ['id', 'DESC']],
     });

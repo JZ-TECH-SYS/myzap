@@ -1,5 +1,5 @@
-const SessionsHelper = require('./helper/sessions.js');
-const http = require('./helper/http.js');
+const SessionsHelper = require('./helper/core/sessions.js');
+const http = require('./helper/core/http.js');
 const chalk = require('chalk');
 const customLogger = require('../util/customLogger.js'); // ✅ Logger padronizado
 const config = require('../config.js');

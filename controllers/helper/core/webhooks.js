@@ -1,6 +1,6 @@
 const axios = require('axios');
 const moment = require('moment');
-const logger = require('../../util/logger.js');
+const logger = require('../../../util/logger.js');
 
 moment.locale('pt-br');
 

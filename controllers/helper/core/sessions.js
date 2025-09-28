@@ -1,6 +1,6 @@
-const DeviceModel = require('../../Models/device.js');
-const config = require('../../config.js');
-const customLogger = require('../../util/customLogger.js'); // ✅ Logger padronizado
+const DeviceModel = require('../../../Models/device.js');
+const config = require('../../../config.js');
+const customLogger = require('../../../util/customLogger.js'); // ✅ Logger padronizado
 
 const Device = DeviceModel(config.sequelize);
 
