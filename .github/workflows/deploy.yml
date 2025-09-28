@@ -31,4 +31,35 @@ jobs:
             echo "[ERRO] /var/www/myzap não é um repositório git. Inicialize ou clone antes." >&2
             exit 1
           fi
-          pm2 restart myzap
+            echo "[INFO] Instalando dependências Node..."
+            if command -v npm >/dev/null 2>&1; then
+              echo "Node: $(node -v) / NPM: $(npm -v)"
+            else
+              echo "[ERRO] npm não encontrado no PATH. Instale Node.js na VPS." >&2
+              exit 1
+            fi
+
+            # Instalação determinística se existir package-lock.json
+            if [ -f package-lock.json ]; then
+              npm ci --omit=dev
+            else
+              npm install --production
+            fi
+
+            # (Opcional) Atualizar dependências para últimas versões compatíveis se variável setada
+            if [ "${NPM_UPDATE:-0}" = "1" ]; then
+              echo "[INFO] Executando npm update (--omit=dev)";
+              npm update --omit=dev || true
+            fi
+
+            # Remove pacotes sobrando conforme package.json
+            npm prune --omit=dev
+
+            echo "[INFO] Reiniciando aplicação via PM2"
+            if command -v pm2 >/dev/null 2>&1; then
+              pm2 reload myzap || pm2 restart myzap || pm2 start index.js --name myzap
+              pm2 save || true
+            else
+              echo "[ERRO] pm2 não encontrado. Instale com: npm install -g pm2" >&2
+              exit 1
+            fi
