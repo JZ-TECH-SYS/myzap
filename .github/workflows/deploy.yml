@@ -20,6 +20,15 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: 22022
         script: |
-          cd /var/www/myzap  
-          git pull origin main
+          set -e
+          cd /var/www/myzap
+          if [ -d .git ]; then
+            # Força estado exatamente igual ao remoto (descarta modificações locais e arquivos não rastreados)
+            git fetch --prune origin main
+            git reset --hard origin/main
+            git clean -fd
+          else
+            echo "[ERRO] /var/www/myzap não é um repositório git. Inicialize ou clone antes." >&2
+            exit 1
+          fi
           pm2 restart myzap

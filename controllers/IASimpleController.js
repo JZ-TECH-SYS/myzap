@@ -306,7 +306,7 @@ module.exports = class IASimpleController {
    */
   static async updateBasicConfig(req, res) {
     try {
-      const { session, sessionkey, empresa_nome, api_url, mensagem_padrao } = req.body || {};
+      const { session, sessionkey, empresa_nome, api_url, mensagem_padrao, ia_ativa } = req.body || {};
 
       if (!session || !sessionkey) {
         return res.status(400).json({ success: false, message: 'session e sessionkey obrigatórios' });
@@ -321,6 +321,7 @@ module.exports = class IASimpleController {
         empresa_nome: empresa_nome?.trim() || registro.empresa_nome,
         api_url: api_url?.trim() || registro.api_url,
         mensagem_padrao: mensagem_padrao?.trim() || registro.mensagem_padrao
+        //ia_ativa: ia_ativa ? 1 : 0 // Ativar IA automaticamente ao atualizar via API
       });
 
       return res.json({ success: true, message: 'Configuração atualizada', data: registro });

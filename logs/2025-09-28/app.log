@@ -1767,3 +1767,86 @@
 [2025-09-28T20:55:02.559Z] [INFO] ⚠️ [joaosn] funcoesSocket.ack não disponível
 [2025-09-28T20:55:06.433Z] [INFO] ⚠️ [joaosn] funcoesSocket.message não disponível
 [2025-09-28T20:55:06.441Z] [INFO] ⚠️ [joaosn] funcoesSocket.events não disponível
+[2025-09-28T20:57:28.403Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-28T20:57:28.463Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-28T20:57:28.464Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-28T20:57:28.465Z] [INFO] 🤫 Engine: WhatsApp-Web-JS
+[2025-09-28T20:57:28.466Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-28T20:57:28.488Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-28T20:57:28.527Z] [INFO] [DEBUG] startSession WhatsApp WebJS | Data: "joaosn"
+[2025-09-28T20:57:28.529Z] [INFO] [SESSION CHECK] joaosn - Pasta exists: true
+[2025-09-28T20:57:28.534Z] [INFO] [RECONNECT CHECK] joaosn - Pasta: true - Status: notLogged - Client ativo: false
+[2025-09-28T20:57:28.535Z] [INFO] [START NEW] joaosn - Status: notLogged - Iniciando engine
+[2025-09-28T20:57:28.542Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-28T20:57:28.543Z] [INFO] [SESSION KEEPALIVE] Job agendado. Intervalo: 300000ms | Delay inicial: 15000ms
+[2025-09-28T20:57:28.552Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-28T20:57:28.553Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-28T20:57:34.041Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-28T20:57:34.042Z] [INFO] [CLIENT INJECTED] joaosn - Cliente injetado com sucesso
+[2025-09-28T20:57:36.290Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-28T20:57:37.194Z] [SUCCESS] joaosn - 🚀 WhatsApp está pronto!
+[2025-09-28T20:57:37.205Z] [INFO] [STATUS MESSAGE] joaosn: CONNECTED
+[2025-09-28T20:57:37.208Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-28T20:57:37.212Z] [INFO] [STATUS UPDATE] joaosn - Status: CONNECTED
+[2025-09-28T20:57:39.285Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-28T20:57:39.354Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-28T20:57:39.354Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-28T20:57:39.355Z] [INFO] 🤫 Engine: WhatsApp-Web-JS
+[2025-09-28T20:57:39.355Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-28T20:57:39.380Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-28T20:57:39.420Z] [INFO] [DEBUG] startSession WhatsApp WebJS | Data: "joaosn"
+[2025-09-28T20:57:39.421Z] [INFO] [SESSION CHECK] joaosn - Pasta exists: true
+[2025-09-28T20:57:39.425Z] [INFO] [RECONNECT CHECK] joaosn - Pasta: true - Status: notLogged - Client ativo: false
+[2025-09-28T20:57:39.426Z] [INFO] [START NEW] joaosn - Status: notLogged - Iniciando engine
+[2025-09-28T20:57:39.435Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-28T20:57:39.436Z] [INFO] [SESSION KEEPALIVE] Job agendado. Intervalo: 300000ms | Delay inicial: 15000ms
+[2025-09-28T20:57:39.445Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-28T20:57:39.446Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-28T20:57:44.801Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-28T20:57:44.801Z] [INFO] [CLIENT INJECTED] joaosn - Cliente injetado com sucesso
+[2025-09-28T20:57:44.879Z] [SUCCESS] joaosn - 💾 Sessão carregada com sucesso (sem QR Code)
+[2025-09-28T20:57:46.891Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-28T20:57:49.320Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-28T20:57:49.373Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-28T20:57:49.373Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-28T20:57:49.374Z] [INFO] 🤫 Engine: WhatsApp-Web-JS
+[2025-09-28T20:57:49.375Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-28T20:57:49.394Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-28T20:57:49.426Z] [INFO] [DEBUG] startSession WhatsApp WebJS | Data: "joaosn"
+[2025-09-28T20:57:49.426Z] [INFO] [SESSION CHECK] joaosn - Pasta exists: true
+[2025-09-28T20:57:49.431Z] [INFO] [RECONNECT CHECK] joaosn - Pasta: true - Status: notLogged - Client ativo: false
+[2025-09-28T20:57:49.431Z] [INFO] [START NEW] joaosn - Status: notLogged - Iniciando engine
+[2025-09-28T20:57:49.439Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-28T20:57:49.440Z] [INFO] [SESSION KEEPALIVE] Job agendado. Intervalo: 300000ms | Delay inicial: 15000ms
+[2025-09-28T20:57:49.447Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-28T20:57:49.448Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
+[2025-09-28T20:57:54.287Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-28T20:57:54.288Z] [INFO] [CLIENT INJECTED] joaosn - Cliente injetado com sucesso
+[2025-09-28T20:57:56.312Z] [SUCCESS] joaosn - 🔐 Autenticação bem-sucedida!
+[2025-09-28T20:57:57.236Z] [SUCCESS] joaosn - 🚀 WhatsApp está pronto!
+[2025-09-28T20:57:57.244Z] [INFO] [STATUS MESSAGE] joaosn: CONNECTED
+[2025-09-28T20:57:57.246Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-28T20:57:57.246Z] [INFO] [STATUS UPDATE] joaosn - Status: CONNECTED
+[2025-09-28T20:58:10.684Z] [INFO] [SESSION KEEPALIVE] Executando ciclo para 1 sessao(oes)
+[2025-09-28T20:58:11.831Z] [INFO] [DEBUG] startSession WhatsApp WebJS | Data: "joaosn"
+[2025-09-28T20:58:11.832Z] [INFO] [SESSION CHECK] joaosn - Pasta exists: true
+[2025-09-28T20:58:11.839Z] [INFO] [RECONNECT CHECK] joaosn - Pasta: true - Status: CONNECTED - Client ativo: true
+[2025-09-28T20:58:11.839Z] [INFO] [ALREADY CONNECTED] joaosn - Sessão já ativa
+[2025-09-28T20:58:55.384Z] [SUCCESS] 🚀 Engine selecionada: WhatsApp-Web-JS
+[2025-09-28T20:58:55.445Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-28T20:58:55.445Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-28T20:58:55.446Z] [INFO] 🤫 Engine: WhatsApp-Web-JS
+[2025-09-28T20:58:55.447Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-28T20:58:55.475Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-28T20:58:55.525Z] [INFO] [DEBUG] startSession WhatsApp WebJS | Data: "joaosn"
+[2025-09-28T20:58:55.526Z] [INFO] [SESSION CHECK] joaosn - Pasta exists: true
+[2025-09-28T20:58:55.531Z] [INFO] [RECONNECT CHECK] joaosn - Pasta: true - Status: notLogged - Client ativo: false
+[2025-09-28T20:58:55.532Z] [INFO] [START NEW] joaosn - Status: notLogged - Iniciando engine
+[2025-09-28T20:58:55.542Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-28T20:58:55.542Z] [INFO] [SESSION KEEPALIVE] Job agendado. Intervalo: 300000ms | Delay inicial: 15000ms
+[2025-09-28T20:58:55.551Z] [SUCCESS] 💾 Device criado/atualizado para sessão: joaosn
+[2025-09-28T20:58:55.552Z] [SUCCESS] joaosn - ✅ Sessão existente encontrada, tentando carregar...
