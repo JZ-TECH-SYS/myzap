@@ -1,0 +1,4 @@
+[2025-09-28T00:07:07.979Z] [ERROR] 💥 Uncaught Exception: listen EADDRINUSE: address already in use :::3333
+[2025-09-28T00:08:17.051Z] [ERROR] 💥 Uncaught Exception: listen EADDRINUSE: address already in use :::3333
+[2025-09-28T00:59:37.354Z] [ERROR] 💥 Uncaught Exception: listen EADDRINUSE: address already in use :::3333
+[2025-09-28T01:00:18.567Z] [ERROR] [DELETE SESSION ERROR] joaosn - customLogger.warn is not a function

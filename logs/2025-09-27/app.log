@@ -1,0 +1,587 @@
+[2025-09-27T22:38:31.016Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T22:51:40.748Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T22:56:56.007Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T22:56:56.047Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T22:56:56.047Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T22:56:56.048Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T22:56:56.049Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T22:56:56.069Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T22:56:56.113Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T22:56:56.124Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T22:56:56.124Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T22:56:56.140Z] [INFO] 🆕 Primeira inicialização para joaosn, QR Code será necessário
+[2025-09-27T22:56:56.141Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T22:56:56.141Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T22:56:56.142Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T22:57:21.848Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T22:57:21.849Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T22:57:21.850Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T22:57:21.851Z] [INFO] [WPPConnect] QR bruto salvo (len=9062) - joaosn
+[2025-09-27T22:57:57.349Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T22:57:57.361Z] [INFO] Process exited with code: 1
+[2025-09-27T22:58:09.208Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T22:58:09.208Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T22:58:09.209Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T22:58:09.209Z] [INFO] [WPPConnect] QR bruto salvo (len=9022) - joaosn
+[2025-09-27T22:58:22.117Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T22:58:22.128Z] [INFO] Process exited with code: 1
+[2025-09-27T22:58:29.183Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T22:58:29.183Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T22:58:29.184Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T22:58:29.184Z] [INFO] [WPPConnect] QR bruto salvo (len=9302) - joaosn
+[2025-09-27T22:58:49.206Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T22:58:49.207Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T22:58:49.207Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T22:58:49.208Z] [INFO] [WPPConnect] QR bruto salvo (len=9030) - joaosn
+[2025-09-27T22:59:04.980Z] [INFO] ID: y8Vp6ndFV05CYdlDAAAB socket connected
+[2025-09-27T22:59:09.228Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T22:59:09.229Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T22:59:09.229Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T22:59:09.230Z] [INFO] [WPPConnect] QR bruto salvo (len=9246) - joaosn
+[2025-09-27T22:59:09.883Z] [INFO] ID: y8Vp6ndFV05CYdlDAAAB socket disconnected
+[2025-09-27T22:59:29.213Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T22:59:29.213Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T22:59:29.214Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T22:59:29.217Z] [INFO] [WPPConnect] QR bruto salvo (len=9114) - joaosn
+[2025-09-27T22:59:46.185Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T22:59:46.185Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T22:59:46.198Z] [INFO] Process exited with code: 1
+[2025-09-27T22:59:46.226Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T22:59:46.227Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T22:59:46.228Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T22:59:46.228Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T22:59:46.252Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T22:59:46.290Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T22:59:46.301Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T22:59:46.301Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T22:59:46.319Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T22:59:46.320Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T22:59:46.320Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T22:59:46.321Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T22:59:51.786Z] [INFO] ID: DxAeut8e114FCY_RAAAB socket connected
+[2025-09-27T22:59:58.338Z] [INFO] ID: DxAeut8e114FCY_RAAAB socket disconnected
+[2025-09-27T23:00:04.078Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:00:04.078Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:00:04.079Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:00:04.079Z] [INFO] [WPPConnect] QR bruto salvo (len=9166) - joaosn
+[2025-09-27T23:00:15.056Z] [INFO] ID: 9HXGpgr9KhLMof3BAAAD socket connected
+[2025-09-27T23:00:16.120Z] [INFO] ID: 9HXGpgr9KhLMof3BAAAD socket disconnected
+[2025-09-27T23:00:56.446Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:00:56.447Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:00:56.447Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:00:56.448Z] [INFO] [WPPConnect] QR bruto salvo (len=9258) - joaosn
+[2025-09-27T23:01:16.439Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:01:16.440Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:01:16.440Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:01:16.441Z] [INFO] [WPPConnect] QR bruto salvo (len=9278) - joaosn
+[2025-09-27T23:01:36.445Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:01:36.445Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:01:36.446Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:01:36.446Z] [INFO] [WPPConnect] QR bruto salvo (len=9178) - joaosn
+[2025-09-27T23:01:56.439Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:01:56.440Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:01:56.440Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:01:56.441Z] [INFO] [WPPConnect] QR bruto salvo (len=9246) - joaosn
+[2025-09-27T23:02:16.474Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:02:16.474Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:02:16.475Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:02:16.475Z] [INFO] [WPPConnect] QR bruto salvo (len=8970) - joaosn
+[2025-09-27T23:02:17.409Z] [INFO] ID: 0ln1dZeKoUEoEhfZAAAF socket connected
+[2025-09-27T23:02:18.833Z] [INFO] ID: 0ln1dZeKoUEoEhfZAAAF socket disconnected
+[2025-09-27T23:03:27.298Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:03:27.298Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:03:27.299Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:03:27.300Z] [INFO] [WPPConnect] QR bruto salvo (len=9254) - joaosn
+[2025-09-27T23:04:27.322Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:04:27.323Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:04:27.324Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:04:27.325Z] [INFO] [WPPConnect] QR bruto salvo (len=9122) - joaosn
+[2025-09-27T23:04:47.319Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:04:47.319Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:04:47.320Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:04:47.320Z] [INFO] [WPPConnect] QR bruto salvo (len=9202) - joaosn
+[2025-09-27T23:05:07.326Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:05:07.327Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:05:07.327Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:05:07.328Z] [INFO] [WPPConnect] QR bruto salvo (len=9002) - joaosn
+[2025-09-27T23:05:27.334Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:05:27.334Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:05:27.335Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:05:27.335Z] [INFO] [WPPConnect] QR bruto salvo (len=9130) - joaosn
+[2025-09-27T23:05:47.354Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:05:47.355Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:05:47.355Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:05:47.356Z] [INFO] [WPPConnect] QR bruto salvo (len=9154) - joaosn
+[2025-09-27T23:06:58.285Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:06:58.286Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:06:58.286Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:06:58.287Z] [INFO] [WPPConnect] QR bruto salvo (len=9006) - joaosn
+[2025-09-27T23:07:58.293Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:07:58.294Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:07:58.294Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:07:58.294Z] [INFO] [WPPConnect] QR bruto salvo (len=9198) - joaosn
+[2025-09-27T23:08:18.315Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:08:18.315Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:08:18.316Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:08:18.316Z] [INFO] [WPPConnect] QR bruto salvo (len=9078) - joaosn
+[2025-09-27T23:08:38.337Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:08:38.337Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:08:38.338Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:08:38.338Z] [INFO] [WPPConnect] QR bruto salvo (len=9162) - joaosn
+[2025-09-27T23:08:58.321Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:08:58.322Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:08:58.322Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:08:58.323Z] [INFO] [WPPConnect] QR bruto salvo (len=9054) - joaosn
+[2025-09-27T23:09:18.322Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:09:18.323Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:09:18.323Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:09:18.324Z] [INFO] [WPPConnect] QR bruto salvo (len=9130) - joaosn
+[2025-09-27T23:10:29.338Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:10:29.338Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:10:29.338Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:10:29.339Z] [INFO] [WPPConnect] QR bruto salvo (len=9162) - joaosn
+[2025-09-27T23:11:29.391Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:11:29.392Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:11:29.392Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:11:29.393Z] [INFO] [WPPConnect] QR bruto salvo (len=9126) - joaosn
+[2025-09-27T23:11:49.385Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:11:49.386Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:11:49.386Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:11:49.387Z] [INFO] [WPPConnect] QR bruto salvo (len=8982) - joaosn
+[2025-09-27T23:12:09.382Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:12:09.383Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:12:09.383Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:12:09.384Z] [INFO] [WPPConnect] QR bruto salvo (len=9158) - joaosn
+[2025-09-27T23:12:29.395Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:12:29.395Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:12:29.396Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:12:29.396Z] [INFO] [WPPConnect] QR bruto salvo (len=9050) - joaosn
+[2025-09-27T23:12:49.411Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:12:49.412Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:12:49.412Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:12:49.413Z] [INFO] [WPPConnect] QR bruto salvo (len=9178) - joaosn
+[2025-09-27T23:14:00.160Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:14:00.161Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:14:00.161Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:14:00.161Z] [INFO] [WPPConnect] QR bruto salvo (len=9210) - joaosn
+[2025-09-27T23:14:24.223Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:14:24.223Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:14:24.224Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:14:24.225Z] [INFO] [WPPConnect] QR bruto salvo (len=9054) - joaosn
+[2025-09-27T23:15:24.218Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:15:24.219Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:15:24.219Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:15:24.220Z] [INFO] [WPPConnect] QR bruto salvo (len=8962) - joaosn
+[2025-09-27T23:15:44.231Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:15:44.231Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:15:44.232Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:15:44.232Z] [INFO] [WPPConnect] QR bruto salvo (len=9274) - joaosn
+[2025-09-27T23:20:19.177Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:20:19.240Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:20:19.240Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:20:19.241Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:20:19.241Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:20:19.263Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:20:19.302Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:20:19.316Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:20:19.317Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:20:19.333Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:20:19.334Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:20:19.334Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:20:19.335Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:20:26.212Z] [INFO] ID: ND9nhcoBeYYqOBmCAAAB socket connected
+[2025-09-27T23:20:35.129Z] [INFO] ID: ND9nhcoBeYYqOBmCAAAB socket disconnected
+[2025-09-27T23:20:40.185Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:20:40.186Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:20:40.186Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:20:40.187Z] [INFO] [WPPConnect] QR bruto salvo (len=9014) - joaosn
+[2025-09-27T23:21:30.699Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:21:30.700Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:21:30.700Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:21:30.700Z] [INFO] [WPPConnect] QR bruto salvo (len=9174) - joaosn
+[2025-09-27T23:21:50.699Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:21:50.700Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:21:50.700Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:21:50.701Z] [INFO] [WPPConnect] QR bruto salvo (len=9166) - joaosn
+[2025-09-27T23:21:55.852Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-27T23:21:55.853Z] [INFO] Server closed. Exiting process...
+[2025-09-27T23:21:55.856Z] [INFO] Process exited with code: 0
+[2025-09-27T23:23:08.289Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:23:08.340Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:23:08.340Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:23:08.341Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:23:08.342Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:23:08.364Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:23:08.401Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:23:08.412Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:23:08.412Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:23:08.428Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:23:08.429Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:23:08.429Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:23:08.430Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:23:13.861Z] [INFO] ID: kAHxKooH0C4AkLmyAAAB socket connected
+[2025-09-27T23:23:17.228Z] [INFO] ID: kAHxKooH0C4AkLmyAAAB socket disconnected
+[2025-09-27T23:23:19.218Z] [INFO] ID: AIodJT-cXZAdDI1cAAAD socket connected
+[2025-09-27T23:23:22.699Z] [INFO] ID: AIodJT-cXZAdDI1cAAAD socket disconnected
+[2025-09-27T23:23:35.475Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:23:35.527Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:23:35.528Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:23:35.529Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:23:35.530Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:23:35.554Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:23:35.594Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:23:35.607Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:23:35.607Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:23:35.628Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:23:35.629Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:23:35.630Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:23:35.630Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:23:52.087Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-27T23:24:52.657Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:24:52.697Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:24:52.697Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:24:52.698Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:24:52.698Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:24:52.726Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:24:52.764Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:24:52.777Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:24:52.778Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:24:52.799Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:24:52.799Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:24:52.800Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:24:52.800Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:24:55.669Z] [INFO] Process exited with code: 0
+[2025-09-27T23:25:10.353Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:25:10.402Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:25:10.403Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:25:10.404Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:25:10.404Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:25:10.431Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:25:10.477Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:25:10.491Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:25:10.492Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:25:10.508Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:25:10.509Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:25:10.510Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:25:10.510Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:25:20.117Z] [INFO] ID: zbf-WE4JqWf1tXBNAAAB socket connected
+[2025-09-27T23:25:27.218Z] [INFO] ID: zbf-WE4JqWf1tXBNAAAB socket disconnected
+[2025-09-27T23:25:28.406Z] [INFO] ID: jNtkrPub3EpZ5gSBAAAD socket connected
+[2025-09-27T23:25:29.577Z] [INFO] ID: jNtkrPub3EpZ5gSBAAAD socket disconnected
+[2025-09-27T23:25:39.379Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:25:39.379Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:25:39.380Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:25:39.380Z] [INFO] [WPPConnect] QR bruto salvo (len=9062) - joaosn
+[2025-09-27T23:25:49.815Z] [INFO] ID: iTIEavkIUzp-s0qpAAAF socket connected
+[2025-09-27T23:25:53.623Z] [INFO] ID: iTIEavkIUzp-s0qpAAAF socket disconnected
+[2025-09-27T23:25:53.735Z] [INFO] ID: aUe2QdIiKzsmSLH1AAAH socket connected
+[2025-09-27T23:25:54.194Z] [INFO] ID: aUe2QdIiKzsmSLH1AAAH socket disconnected
+[2025-09-27T23:26:24.458Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:26:24.458Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:26:24.459Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:26:24.460Z] [INFO] [WPPConnect] QR bruto salvo (len=9282) - joaosn
+[2025-09-27T23:26:44.479Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:26:44.479Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:26:44.479Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:26:44.480Z] [INFO] [WPPConnect] QR bruto salvo (len=8850) - joaosn
+[2025-09-27T23:27:04.490Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:27:04.491Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:27:04.492Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:27:04.492Z] [INFO] [WPPConnect] QR bruto salvo (len=9098) - joaosn
+[2025-09-27T23:27:24.476Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:27:24.476Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:27:24.477Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:27:24.477Z] [INFO] [WPPConnect] QR bruto salvo (len=9218) - joaosn
+[2025-09-27T23:27:41.130Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:27:41.183Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:27:41.184Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:27:41.185Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:27:41.185Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:27:41.208Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:27:41.245Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:27:41.255Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:27:41.256Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:27:41.272Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:27:41.273Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:27:41.273Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:27:41.274Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:27:49.546Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:27:49.598Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:27:49.598Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:27:49.599Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:27:49.599Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:27:49.622Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:27:49.659Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:27:49.671Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:27:49.672Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:27:49.687Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:27:49.688Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:27:49.688Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:27:49.689Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:28:04.477Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:28:04.477Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:28:04.478Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:28:04.478Z] [INFO] [WPPConnect] QR bruto salvo (len=8998) - joaosn
+[2025-09-27T23:28:22.684Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-27T23:32:18.947Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:32:19.007Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:32:19.008Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:32:19.008Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:32:19.009Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:32:19.031Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:32:19.072Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:32:19.086Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:32:19.086Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:32:19.105Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:32:19.106Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:32:19.106Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:32:19.107Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:32:23.921Z] [INFO] ID: RcTPXcBnic-L4XHTAAAB socket connected
+[2025-09-27T23:32:25.132Z] [INFO] ID: RcTPXcBnic-L4XHTAAAB socket disconnected
+[2025-09-27T23:32:37.439Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:32:37.439Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:32:37.440Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:32:37.441Z] [INFO] [WPPConnect] QR bruto salvo (len=9002) - joaosn
+[2025-09-27T23:33:29.815Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:33:29.815Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:33:29.816Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:33:29.816Z] [INFO] [WPPConnect] QR bruto salvo (len=9034) - joaosn
+[2025-09-27T23:33:49.828Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:33:49.828Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:33:49.829Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:33:49.829Z] [INFO] [WPPConnect] QR bruto salvo (len=9054) - joaosn
+[2025-09-27T23:34:09.853Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:34:09.853Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:34:09.854Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:34:09.854Z] [INFO] [WPPConnect] QR bruto salvo (len=8922) - joaosn
+[2025-09-27T23:34:24.897Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:34:24.966Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:34:24.966Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:34:24.968Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:34:24.968Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:34:24.992Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:34:25.033Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:34:25.047Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:34:25.047Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:34:25.068Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:34:25.069Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:34:25.070Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:34:25.071Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:34:32.517Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:34:32.568Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:34:32.569Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:34:32.570Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:34:32.570Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:34:32.590Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:34:32.625Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:34:32.635Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:34:32.635Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:34:32.651Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:34:32.652Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:34:32.653Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:34:32.653Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:35:01.391Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:35:01.391Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:35:01.392Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:35:01.392Z] [INFO] [WPPConnect] QR bruto salvo (len=9270) - joaosn
+[2025-09-27T23:35:46.727Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:35:46.728Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:35:46.728Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:35:46.729Z] [INFO] [WPPConnect] QR bruto salvo (len=9250) - joaosn
+[2025-09-27T23:36:06.739Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:36:06.739Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:36:06.739Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:36:06.740Z] [INFO] [WPPConnect] QR bruto salvo (len=9246) - joaosn
+[2025-09-27T23:36:07.633Z] [INFO] ID: iIDsjzzg83fMP6shAAAB socket connected
+[2025-09-27T23:36:09.129Z] [INFO] ID: iIDsjzzg83fMP6shAAAB socket disconnected
+[2025-09-27T23:36:26.729Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:36:26.729Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:36:26.729Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:36:26.730Z] [INFO] [WPPConnect] QR bruto salvo (len=8982) - joaosn
+[2025-09-27T23:36:46.748Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:36:46.749Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:36:46.749Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:36:46.750Z] [INFO] [WPPConnect] QR bruto salvo (len=9274) - joaosn
+[2025-09-27T23:37:06.755Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:37:06.756Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:37:06.756Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:37:06.757Z] [INFO] [WPPConnect] QR bruto salvo (len=9114) - joaosn
+[2025-09-27T23:38:17.659Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:38:17.660Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:38:17.660Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:38:17.661Z] [INFO] [WPPConnect] QR bruto salvo (len=9078) - joaosn
+[2025-09-27T23:39:17.653Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:39:17.654Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:39:17.654Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:39:17.655Z] [INFO] [WPPConnect] QR bruto salvo (len=9102) - joaosn
+[2025-09-27T23:39:37.671Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:39:37.672Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:39:37.672Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:39:37.673Z] [INFO] [WPPConnect] QR bruto salvo (len=9062) - joaosn
+[2025-09-27T23:39:46.006Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:39:46.066Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:39:46.067Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:39:46.068Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:39:46.068Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:39:46.091Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:39:46.130Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:39:46.141Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:39:46.141Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:39:46.157Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:39:46.157Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:39:46.158Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:39:46.159Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:40:05.924Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:40:05.924Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:40:05.925Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:40:05.926Z] [INFO] [WPPConnect] QR bruto salvo (len=9118) - joaosn
+[2025-09-27T23:40:57.371Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:40:57.371Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:40:57.372Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:40:57.372Z] [INFO] [WPPConnect] QR bruto salvo (len=9318) - joaosn
+[2025-09-27T23:41:17.376Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:41:17.376Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:41:17.377Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:41:17.378Z] [INFO] [WPPConnect] QR bruto salvo (len=9106) - joaosn
+[2025-09-27T23:41:37.408Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:41:37.408Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:41:37.409Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:41:37.409Z] [INFO] [WPPConnect] QR bruto salvo (len=9274) - joaosn
+[2025-09-27T23:41:57.411Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:41:57.413Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:41:57.415Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:41:57.418Z] [INFO] [WPPConnect] QR bruto salvo (len=9078) - joaosn
+[2025-09-27T23:42:17.456Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:42:17.456Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:42:17.456Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:42:17.457Z] [INFO] [WPPConnect] QR bruto salvo (len=9242) - joaosn
+[2025-09-27T23:43:27.991Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:43:27.991Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:43:27.991Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:43:27.992Z] [INFO] [WPPConnect] QR bruto salvo (len=9162) - joaosn
+[2025-09-27T23:44:28.042Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:44:28.043Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:44:28.043Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:44:28.044Z] [INFO] [WPPConnect] QR bruto salvo (len=8910) - joaosn
+[2025-09-27T23:44:48.015Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:44:48.016Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:44:48.017Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:44:48.018Z] [INFO] [WPPConnect] QR bruto salvo (len=9094) - joaosn
+[2025-09-27T23:45:08.048Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:45:08.049Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:45:08.050Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:45:08.051Z] [INFO] [WPPConnect] QR bruto salvo (len=9130) - joaosn
+[2025-09-27T23:45:28.050Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:45:28.051Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:45:28.051Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:45:28.052Z] [INFO] [WPPConnect] QR bruto salvo (len=8986) - joaosn
+[2025-09-27T23:45:48.084Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:45:48.084Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:45:48.085Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:45:48.085Z] [INFO] [WPPConnect] QR bruto salvo (len=8898) - joaosn
+[2025-09-27T23:46:07.156Z] [INFO] Received SIGINT. Starting graceful shutdown...
+[2025-09-27T23:52:30.447Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:52:30.494Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:52:30.495Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:52:30.496Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:52:30.496Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:52:30.520Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:52:30.557Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:52:30.568Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:52:30.569Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:52:30.586Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:52:30.586Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:52:30.587Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:52:30.587Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:52:59.242Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:52:59.243Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:52:59.243Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:52:59.244Z] [INFO] [WPPConnect] QR bruto salvo (len=9122) - joaosn
+[2025-09-27T23:53:19.182Z] [INFO] ID: cOh9B0eSqP6KKafjAAAB socket connected
+[2025-09-27T23:53:23.474Z] [INFO] ID: cOh9B0eSqP6KKafjAAAB socket disconnected
+[2025-09-27T23:53:44.948Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:53:44.948Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:53:44.949Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:53:44.949Z] [INFO] [WPPConnect] QR bruto salvo (len=8954) - joaosn
+[2025-09-27T23:54:04.981Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:54:04.981Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:54:04.982Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:54:04.982Z] [INFO] [WPPConnect] QR bruto salvo (len=9062) - joaosn
+[2025-09-27T23:54:24.979Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:54:24.980Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:54:24.980Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:54:24.981Z] [INFO] [WPPConnect] QR bruto salvo (len=8918) - joaosn
+[2025-09-27T23:54:45.000Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:54:45.001Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:54:45.001Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:54:45.002Z] [INFO] [WPPConnect] QR bruto salvo (len=9318) - joaosn
+[2025-09-27T23:55:04.991Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:55:04.992Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:55:04.992Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:55:04.993Z] [INFO] [WPPConnect] QR bruto salvo (len=9206) - joaosn
+[2025-09-27T23:56:15.532Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:56:15.533Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:56:15.534Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:56:15.535Z] [INFO] [WPPConnect] QR bruto salvo (len=9190) - joaosn
+[2025-09-27T23:57:15.541Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:57:15.542Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:57:15.542Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:57:15.543Z] [INFO] [WPPConnect] QR bruto salvo (len=9230) - joaosn
+[2025-09-27T23:57:35.182Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:57:35.224Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:57:35.224Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:57:35.225Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:57:35.225Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:57:35.246Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:57:35.281Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:57:35.294Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:57:35.295Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:57:35.311Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:57:35.312Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:57:35.312Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:57:35.313Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO
+[2025-09-27T23:57:50.884Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:57:50.884Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:57:50.884Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:57:50.885Z] [INFO] [WPPConnect] QR bruto salvo (len=9066) - joaosn
+[2025-09-27T23:58:44.931Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:58:44.932Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:58:44.932Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:58:44.933Z] [INFO] [WPPConnect] QR bruto salvo (len=9014) - joaosn
+[2025-09-27T23:59:04.937Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:59:04.937Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:59:04.938Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:59:04.938Z] [INFO] [WPPConnect] QR bruto salvo (len=8970) - joaosn
+[2025-09-27T23:59:24.932Z] [INFO] [ADD INFO SESSION] joaosn - Adicionando informações da sessão
+[2025-09-27T23:59:24.932Z] [INFO] [STATUS UPDATE] joaosn - Status: qrCode
+[2025-09-27T23:59:24.933Z] [INFO] [QR CODE] joaosn - QR Code atualizado
+[2025-09-27T23:59:24.933Z] [INFO] [WPPConnect] QR bruto salvo (len=9074) - joaosn
+[2025-09-27T23:59:41.971Z] [SUCCESS] 🚀 Engine selecionada: WPPConnect
+[2025-09-27T23:59:42.021Z] [SUCCESS] 
+🚀 Server running on http://127.0.0.1:3333
+[2025-09-27T23:59:42.022Z] [INFO] 📚 Access http://127.0.0.1:3333/doc to view API documentation
+[2025-09-27T23:59:42.024Z] [INFO] 🤫 Engine: WPPConnect
+[2025-09-27T23:59:42.024Z] [INFO] 🔄 Iniciando todas as sessões...
+[2025-09-27T23:59:42.043Z] [SUCCESS] 🗄️ Database connection established successfully
+[2025-09-27T23:59:42.078Z] [INFO] [FORCE NEW QR] joaosn - Status atual: notLogged -> reinicializando para gerar QR
+[2025-09-27T23:59:42.089Z] [SUCCESS] ✅ Todas as sessões iniciadas com sucesso
+[2025-09-27T23:59:42.089Z] [INFO] [SESSION KEEPALIVE] Job desabilitado nas configuracoes
+[2025-09-27T23:59:42.104Z] [INFO] 🔑 Tokens encontrados para joaosn, tentando reconectar automaticamente
+[2025-09-27T23:59:42.105Z] [INFO] [STEALTH] Configurando sessão joaosn com modo anti-detecção
+[2025-09-27T23:59:42.106Z] [INFO] [STEALTH] getStealthConfig -> session=joaosn headless=true useChrome=false
+[2025-09-27T23:59:42.106Z] [INFO] [STEALTH] Sessão joaosn configurada - Timeout: INFINITO, Headless: FALSE, SlowMo: ATIVO

@@ -16,6 +16,16 @@ const eventsHelper = require('./helper/events.js');
 const TriggersHelper = require('./helper/triggers.js');
 const EmpresaIA = require('./helper/empresaIA.js');
 const transcribe = require('./helper/audioTranscriber.js');
+const HumanDetector = require('./helper/humanDetector.js');
+const { 
+  IA_COOLDOWN_SECONDS, 
+  HUMAN_PAUSE_MINUTES, 
+  TEMPO_MENSAGEM_PADRAO_DEFAULT,
+  ACEITAR_AUDIO,
+  MAX_AUDIO_SIZE,
+  MAX_AUDIO_DURATION,
+  LOG_PREFIX 
+} = require('./helper/iaConfig.js');
 
 moment.locale('pt-br');
 
@@ -98,22 +108,29 @@ module.exports = class Events {
 
     /* ----- Áudio / ptt ----- */
     if (message.type === 'audio' || message.type === 'ptt') {
+      // Verificar se aceita áudio (sempre true por enquanto, mas preparado para configuração)
+      if (!ACEITAR_AUDIO) {
+        await client.sendText(numero, 'Desculpe, não estou processando áudios no momento. Pode digitar sua mensagem? 😊');
+        await responseDefault(payload);
+        return;
+      }
+
       await client.sendText(
         numero,
         'Recebi seu áudio. Só um instante enquanto o escuto, já te respondo! 😊🚀'
       );
-      if (message.duration && message.duration > 90) {
+      
+      if (message.duration && message.duration > MAX_AUDIO_DURATION) {
         await client.sendText(
           numero,
-          'Recebemos seu áudio, mas ele passa de 1 min 30 s. Pode enviar um resumo rapidinho? 😊'
+          `Recebemos seu áudio, mas ele passa de ${MAX_AUDIO_DURATION}s. Pode enviar um resumo rapidinho? 😊`
         );
         await responseDefault(payload);
         return;
       }
 
       const mediaBuffer = await client.decryptFile(message);
-      const MAX_SIZE = 25 * 1024 * 1024;
-      if (mediaBuffer.byteLength > MAX_SIZE) {
+      if (mediaBuffer.byteLength > MAX_AUDIO_SIZE) {
         await client.sendText(numero, 'O áudio ficou grande demais. Poderia enviar algo mais curto? 😉');
         await responseDefault(payload);
         return;
@@ -141,9 +158,38 @@ module.exports = class Events {
       await ChatHistoryHelper.registerUserMessage({ session, sessionkey, numero, text: plainBody });
     }
 
+    // 🤖 DETECÇÃO INTELIGENTE: Cliente quer falar com humano?
+    if (plainBody && HumanDetector.detectarPedidoHumano(plainBody)) {
+      customLogger.info(`${LOG_PREFIX} Cliente solicitou atendimento humano`, { 
+        session, 
+        numero,
+        message: plainBody,
+        debug: HumanDetector.debugDeteccao(plainBody)
+      });
+      
+      // Marcar que cliente pediu humano (pausa IA por 60 minutos)
+      await ChatHistoryHelper.marcarPedidoHumano({ session, sessionkey, numero });
+      
+      // Enviar mensagem de transferência
+      const mensagemTransferencia = HumanDetector.getMensagemTransferencia();
+      await client.sendText(numero, mensagemTransferencia);
+      
+      // Registrar a mensagem de transferência
+      await ChatHistoryHelper.registerAssistantMessage({
+        session,
+        sessionkey,
+        numero,
+        text: mensagemTransferencia,
+        messageType: 'transferencia_humano',
+      });
+      
+      await responseDefault(payload);
+      return;
+    }
+
     const iaAtiva = empresa.ia_ativa !== false;
     const mensagemPadrao = typeof empresa.mensagem_padrao === 'string' ? empresa.mensagem_padrao.trim() : '';
-    const cooldownPadrao = Number.isInteger(empresa.tempo_mensagem_padrao) ? empresa.tempo_mensagem_padrao : 0;
+    const cooldownPadrao = Number.isInteger(empresa.tempo_mensagem_padrao) ? empresa.tempo_mensagem_padrao : TEMPO_MENSAGEM_PADRAO_DEFAULT;
 
     const enviarMensagemPadrao = async (motivo) => {
       if (!mensagemPadrao) {
@@ -195,6 +241,19 @@ module.exports = class Events {
       return;
     }
 
+    // Verificar se cliente pediu atendimento humano (pausa IA por 60min)
+    const clientePediuHumano = await ChatHistoryHelper.clientePediuHumano({
+      session,
+      sessionkey, 
+      numero,
+      minutos: 60
+    });
+    if (clientePediuHumano) {
+      await enviarMensagemPadrao('aguardando_humano');
+      await responseDefault(payload);
+      return;
+    }
+
     const iaEmCooldown = await ChatHistoryHelper.emCooldownDeIA({
       session,
       sessionkey,
@@ -215,6 +274,9 @@ module.exports = class Events {
     }
 
     try {
+      // Mostrar "digitando..." para melhor UX
+      await client.startTyping(numero);
+      
       const respostaIA = await EmpresaIA.processarMensagem({
         session,
         sessionkey,
@@ -224,6 +286,8 @@ module.exports = class Events {
       });
 
       if (respostaIA) {
+        // Parar "digitando" antes de enviar
+        await client.stopTyping(numero);
         await client.sendText(numero, respostaIA);
         await ChatHistoryHelper.registerAssistantMessage({
           session,
@@ -234,10 +298,12 @@ module.exports = class Events {
         });
         customLogger.info(`${LOG_PREFIX} Resposta IA enviada`, { session, numero });
       } else {
+        await client.stopTyping(numero);
         await enviarMensagemPadrao('ia_sem_resposta');
       }
     } catch (error) {
       customLogger.error(`${LOG_PREFIX} Erro ao processar IA`, error?.message || error);
+      await client.stopTyping(numero);
       await enviarMensagemPadrao('erro_ia');
     }
 

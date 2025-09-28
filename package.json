@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "swagger-autogen": "node swagger.js",
     "start": "node index.js",
-  "dev": "nodemon --config nodemon.json index.js",
+    "dev": "nodemon --config nodemon.json index.js",
     "release": "release-it"
   },
   "repository": {
@@ -56,6 +56,7 @@
     "express-fileupload": "^*",
     "express-pino-logger": "^*",
     "express-session": "^*",
+    "express-validator": "^7.2.1",
     "ffmpeg": "^*",
     "file-type": "16.5.4",
     "fluent-ffmpeg": "^*",

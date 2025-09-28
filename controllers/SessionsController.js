@@ -2,6 +2,12 @@ const SessionsHelper = require('./helper/sessions.js');
 const http = require('./helper/http.js');
 const chalk = require('chalk');
 const customLogger = require('../util/customLogger.js'); // ✅ Logger padronizado
+const config = require('../config.js');
+// Models para auto-provisionamento de configuração simplificada da IA
+const DeviceCompanyModel = require('../Models/deviceCompany.js');
+const DeviceCompany = DeviceCompanyModel(config.sequelize);
+const DeviceModel = require('../Models/device.js');
+const Device = DeviceModel(config.sequelize);
 
 class Sessions {
   static async instances(req, res) {
@@ -55,6 +61,33 @@ class Sessions {
 
       if (data.qrCode) {
         customLogger.info(`[QR CODE] ${session} - QR Code atualizado`);
+      }
+
+      // 🔄 Auto provisionar configuração simplificada em DeviceCompanies (se não existir)
+      try {
+        const existente = await DeviceCompany.findOne({ where: { session } });
+        if (!existente) {
+          // Obter sessionkey a partir da tabela Devices se possível
+          let sessionkey = null;
+            try {
+              const deviceRow = await Device.findOne({ where: { session } });
+              sessionkey = deviceRow?.sessionkey || null;
+            } catch(_) {}
+
+          await DeviceCompany.create({
+            session,
+            sessionkey: sessionkey || (data.sessionkey || null),
+            empresa_nome: `Empresa ${session}`,
+            api_url: null,
+            mensagem_padrao: 'Olá! Como posso ajudar?',
+            idprompt: null,
+            vector_name: null,
+            ia_ativa: false
+          });
+          customLogger.info(`[ADD INFO SESSION] ${session} - DeviceCompany criado automaticamente`);
+        }
+      } catch (autoErr) {
+        customLogger.error(`[ADD INFO SESSION] ${session} - Falha ao auto-criar DeviceCompany: ${autoErr.message}`);
       }
 
       return true;

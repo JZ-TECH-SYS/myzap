@@ -326,5 +326,54 @@ module.exports = {
       }
     }
   },
+
+  /**
+   * Marca que cliente solicitou atendimento humano
+   * Funciona como humanoFalouRecentemente, mas para pedidos de humano
+   */
+  async marcarPedidoHumano({ session, sessionkey, numero }) {
+    const key = buildKey(session, sessionkey, numero);
+    remember(lastAgentMessages, key, { pedidoHumano: true });
+    
+    // Registra no banco também para persistência
+    return appendEntry({ 
+      session, 
+      sessionkey, 
+      numero, 
+      role: 'agent', 
+      msg: '[PEDIDO_ATENDIMENTO_HUMANO]', 
+      messageType: 'pedido_humano' 
+    });
+  },
+
+  /**
+   * Verifica se cliente pediu atendimento humano recentemente
+   */
+  async clientePediuHumano({ session, sessionkey, numero, minutos = 60 }) {
+    const key = buildKey(session, sessionkey, numero);
+    const cached = recall(lastAgentMessages, key, minutos * 60 * 1000);
+    if (cached && cached.pedidoHumano) {
+      return true;
+    }
+
+    const since = moment().subtract(minutos, 'minutes').toDate();
+    const record = await ChatHistory.findOne({
+      where: {
+        session,
+        sessionkey,
+        numero_cliente: numero,
+        message_type: 'pedido_humano',
+        created_at: { [Op.gte]: since },
+      },
+      order: [['created_at', 'DESC'], ['id', 'DESC']],
+    });
+
+    if (record) {
+      remember(lastAgentMessages, key, { pedidoHumano: true, at: new Date(record.created_at).getTime() });
+      return true;
+    }
+
+    return false;
+  }
 };
 
