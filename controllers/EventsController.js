@@ -36,7 +36,7 @@ module.exports = class Events {
    */
   static async processMessage(message, session, client, req) {
     // Gerenciador de comunicação socket/webhook
-    console.log(`[IA] processMessage chamada para sessão ${session}`);
+    customLogger.debug(`[IA] processMessage chamada para sessão ${session}`);
     const socketManager = new SocketWebhookManager(req, session);
 
     // Construir contexto da mensagem (usar payload mutável)
@@ -83,7 +83,7 @@ module.exports = class Events {
     }
 
 
-    console.log(`[IA] Mensagem de ${numero}: ${plainBody}`);
+    customLogger.debug(`[IA] Mensagem de ${numero}: ${plainBody}`);
     // 6. Engine de decisão IA
     await DecisionEngine.process({
       message,

@@ -25,7 +25,7 @@ async function process({
   const mensagemPadrao = typeof empresa?.mensagem_padrao === 'string' ? empresa.mensagem_padrao.trim() : '';
   const cooldownPadrao = Number.isInteger(empresa?.tempo_mensagem_padrao) ? empresa.tempo_mensagem_padrao : TEMPO_MENSAGEM_PADRAO_DEFAULT;
 
-  console.log(`${LOG_PREFIX} Iniciando Decision Engine para ${numero}`);    
+  customLogger.debug(`${LOG_PREFIX} Iniciando Decision Engine para ${numero}`);    
   // Helper para enviar mensagem padrão
   const enviarPadrao = (motivo, force = false) => sendDefault({
     client,
@@ -70,9 +70,9 @@ async function process({
           return true; // processado
         }
 
-        // sempre manda msg padrão
-        await enviarPadrao(result.reason);
-        
+        // sempre manda msg padrão se 
+        if (result.reason != 'grupo') await enviarPadrao(result.reason);
+
         await responseDefault(payload);
         return true; // processado (bloqueado por guard)
       }
