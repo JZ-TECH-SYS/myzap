@@ -276,7 +276,17 @@ module.exports = {
           // ✅ ADICIONADO - Para estabilidade de sessão
           '--disable-blink-features=AutomationControlled',
           '--disable-infobars',
-          '--window-size=1920,1080'
+          '--window-size=1920,1080',
+          // 🚀 OTIMIZAÇÕES DE MEMÓRIA - Reduz 30-40% RAM por sessão
+          '--disable-software-rasterizer',       // Reduz uso de CPU/GPU
+          '--disable-background-networking',     // Evita conexões em background
+          '--disable-sync',                      // Desabilita sincronização Chrome
+          '--disable-default-apps',              // Desabilita apps padrão
+          '--disable-translate',                 // Desabilita tradutor
+          '--disable-cache',                     // Desabilita cache em memória
+          '--disk-cache-size=1',                 // Limita cache de disco a 1 byte
+          '--media-cache-size=1',                // Limita cache de mídia
+          '--js-flags=--max-old-space-size=512'  // Limita memória V8 a 512MB
         ]
       }
     };

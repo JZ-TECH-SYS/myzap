@@ -2,6 +2,7 @@ const request = require('request-promise');
 const axios = require('axios');
 const config = require('./config');
 const logger = require('./util/logger');
+const customLogger = require('./util/customLogger');
 
 const { exec } = require('child_process');
 
@@ -9,6 +10,14 @@ const chalk = require('chalk');
 
 const DeviceModel = require('./Models/device');
 const Device = DeviceModel(config.sequelize);
+
+// 🚀 JOBS DE LIMPEZA AUTOMÁTICA
+const { startCacheCleanupJob } = require('./jobs/cacheCleanup');
+const { startChatHistoryCleanupJob } = require('./jobs/chatHistoryCleanup');
+const { startInstancesCleanupJob } = require('./jobs/instancesCleanup');
+const { startDatabaseCleanupJob } = require('./jobs/databaseCleanup');
+const { startLogsCleanupJob } = require('./jobs/logsCleanup');
+const { startMemoryMonitorJob } = require('./jobs/memoryMonitor');
 
 async function startAllSessions() {
 
@@ -87,4 +96,23 @@ async function startAllSessions() {
 	}
 }
 
+// 🚀 Iniciar jobs de limpeza automática
+function startCleanupJobs() {
+	try {
+		customLogger.info('🚀 Iniciando jobs de limpeza automática...');
+		
+		startCacheCleanupJob();
+		startChatHistoryCleanupJob();
+		startInstancesCleanupJob();
+		startDatabaseCleanupJob();
+		startLogsCleanupJob();
+		startMemoryMonitorJob();
+		
+		customLogger.success('✅ Todos os jobs de limpeza foram iniciados com sucesso!');
+	} catch (err) {
+		customLogger.error(`❌ Erro ao iniciar jobs de limpeza: ${err.message}`);
+	}
+}
+
 module.exports.startAllSessions = startAllSessions;
+module.exports.startCleanupJobs = startCleanupJobs;

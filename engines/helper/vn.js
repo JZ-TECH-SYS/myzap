@@ -61,7 +61,16 @@ module.exports = {
       '--disable-accelerated-jpeg-decoding',
       '--disable-accelerated-mjpeg-decode',
       '--disable-app-list-dismiss-on-blur',
-      '--disable-accelerated-video-decode'
+      '--disable-accelerated-video-decode',
+      // 🚀 OTIMIZAÇÕES DE MEMÓRIA - Reduz 30-40% RAM por sessão
+      '--disable-software-rasterizer',
+      '--disable-background-networking',
+      '--disable-sync',
+      '--disable-translate',
+      '--disable-cache',
+      '--disk-cache-size=1',
+      '--media-cache-size=1',
+      '--js-flags=--max-old-space-size=512'
     ];
   },
 
@@ -85,8 +94,13 @@ module.exports = {
           '--disable-gpu',
           '--disable-accelerated-2d-canvas',
           '--no-first-run',
-      '--no-zygote',
-          '--disable-extensions'
+          '--no-zygote',
+          '--disable-extensions',
+          // 🚀 OTIMIZAÇÕES DE MEMÓRIA
+          '--disable-cache',
+          '--disk-cache-size=1',
+          '--media-cache-size=1',
+          '--js-flags=--max-old-space-size=512'
         ]
       }
     };

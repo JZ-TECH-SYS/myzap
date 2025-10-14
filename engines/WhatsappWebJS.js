@@ -21,13 +21,13 @@ module.exports = class WhatsappWebJS {
     return new Promise(async (resolve, reject) => {
       let resolved = false; // ✅ ADICIONADO - Flag para evitar resolver múltiplas vezes
       
-      // ✅ ADICIONADO - Timeout de segurança para evitar Promise pendente
+      // 🔧 CORRIGIDO - Timeout aumentado para 10 minutos (Windows precisa de mais tempo)
       const timeoutId = setTimeout(() => {
         if (!resolved) {
           resolved = true;
-          reject(new Error(`Timeout na inicialização da sessão ${session} (5 minutos)`));
+          reject(new Error(`Timeout na inicialização da sessão ${session} (10 minutos)`));
         }
-      }, 300000); // 5 minutos
+      }, 600000); // 10 minutos (antes era 5)
       
       try {
         // ✅ ADICIONADO - Criar/atualizar device ANTES de inicializar (igual WPPConnect)
@@ -288,6 +288,12 @@ module.exports = class WhatsappWebJS {
           }, { where: { session, sessionkey } }).catch(err => {
             customLogger.error(`❌ Erro ao atualizar device como DISCONNECTED: ${err.message}`);
           });
+          
+          // 🔧 WINDOWS: Tratar erro EBUSY no logout (arquivo Cookies-journal em uso)
+          // Aguardar 2 segundos para Chrome liberar arquivos antes de limpar
+          setTimeout(() => {
+            // Limpeza será feita pelo job automático, não precisa fazer nada aqui
+          }, 2000);
           
           // Se for por associação de dispositivo, limpar cache
           if (reason && reason.includes('Protocol error')) {

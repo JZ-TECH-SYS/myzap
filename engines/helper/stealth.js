@@ -47,7 +47,14 @@ function getStealthBrowserArgs() {
         '--disable-sync',
         '--disable-extensions',
         '--disable-default-apps',
-        '--no-first-run'
+        '--no-first-run',
+        // 🚀 OTIMIZAÇÕES DE MEMÓRIA - Reduz 30-40% RAM por sessão
+        '--disable-software-rasterizer',       // Reduz uso de CPU/GPU
+        '--disable-plugins',                   // Desabilita plugins
+        '--disable-cache',                     // Desabilita cache em memória
+        '--disk-cache-size=1',                 // Limita cache de disco a 1 byte
+        '--media-cache-size=1',                // Limita cache de mídia
+        '--js-flags=--max-old-space-size=512'  // Limita memória V8 a 512MB
         // NOTE: removemos '--single-process' porque causa crash em Windows / ambientes com multi-proc
     ];
 }

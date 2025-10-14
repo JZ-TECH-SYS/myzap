@@ -374,6 +374,21 @@ module.exports = {
     }
 
     return false;
+  },
+
+  // 🚀 OTIMIZAÇÃO - Método para limpar mensagens antigas automaticamente
+  async cleanupOldMessages({ diasRetencao = 30 }) {
+    const moment = require('moment');
+    const cutoffDate = moment().subtract(diasRetencao, 'days').toDate();
+    
+    const deleted = await ChatHistory.destroy({
+      where: {
+        created_at: { [Op.lt]: cutoffDate }
+      }
+    });
+    
+    const customLogger = require('../../../util/customLogger');
+    customLogger.info(`[CHAT HISTORY] ${deleted} mensagens antigas removidas (>${diasRetencao} dias)`);
+    return deleted;
   }
 };
-

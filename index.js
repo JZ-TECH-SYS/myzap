@@ -8,7 +8,7 @@ const cors = require("cors");
 const path = require("path");
 const { yo } = require("yoo-hoo");
 const config = require("./config");
-const { startAllSessions } = require("./startup");
+const { startAllSessions, startCleanupJobs } = require("./startup");
 const SessionsHelper = require("./controllers/helper/core/sessions.js");
 const { startSessionKeepAliveJob } = require("./jobs/sessionKeepAlive");
 const logger = require("./util/logger"); // Para expressPinoLogger  
@@ -216,6 +216,9 @@ server.listen(config.port, async (error) => {
         customLogger.error("❌ Error starting all sessions:", error);
       }
     }
+
+    // 🚀 Iniciar jobs de limpeza automática
+    startCleanupJobs();
 
     startSessionKeepAliveJob();
   }
