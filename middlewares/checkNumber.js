@@ -29,13 +29,16 @@ async function checkNumber(req, res, next) {
       });
     }
 
-    const cachedValue = await Cache.get(number);
+    // ✅ CORRIGIDO - Limpar número ANTES de buscar no cache
+    const cleanedNumber = cleanNumber(number);
+    const cachedValue = await Cache.get(cleanedNumber);
 
     if (cachedValue === null) {
       await handleNumberVerification(device?.client, number, res);
     }
 
-    req.body.number = number;
+    // ✅ CORRIGIDO - Usar número limpo no req.body
+    req.body.number = cleanedNumber;
     next();
   } catch (error) {
     logger.error(`[CHECKNUMBER] ${(error.message, error.stack)}`);
@@ -71,12 +74,23 @@ function cleanNumber(number) {
     throw new Error(`O número não foi informado.`);
   }
 
-  // ✅ LIMPEZA MAIS CUIDADOSA - preservar todos os dígitos
-  number = number.toString().replace(/\s/g, ""); // Remove espaços
-  number = number.replace(/[^0-9]/g, ""); // Remove tudo exceto números
+  // ✅ LIMPEZA - Remove tudo exceto números
+  let cleaned = number.toString().replace(/[^0-9]/g, "");
   
-  console.log(`[CLEAN NUMBER] Original: ${arguments[0]} → Limpo: ${number}`);
-  return number;
+  // ✅ CORRIGIR FORMATO BRASILEIRO - Adicionar código do país (55) se necessário
+  if (cleaned.length === 10 || cleaned.length === 11) {
+    // DDD (2 dígitos) + Número (8 ou 9 dígitos) = 10 ou 11 dígitos
+    // Falta o código do país! Adicionar 55
+    cleaned = '55' + cleaned;
+    console.log(`[CLEAN NUMBER] Adicionado código BR: ${number} → ${cleaned}`);
+  } else if (cleaned.length === 12 || cleaned.length === 13) {
+    // Já tem o código do país (55)
+    console.log(`[CLEAN NUMBER] Número completo: ${number} → ${cleaned}`);
+  } else {
+    console.log(`[CLEAN NUMBER] Formato incomum: ${number} → ${cleaned}`);
+  }
+  
+  return cleaned;
 }
 
 function isValidNumber(number) {

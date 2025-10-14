@@ -32,6 +32,21 @@ async function buildNumber(req) {
   }
 }
 
+// ✅ NOVO - Formatar qualquer número sem precisar de req
+async function formatNumber(rawNumber) {
+  if (!rawNumber) return null;
+  
+  // Limpar número (remover tudo exceto dígitos)
+  let cleaned = rawNumber.toString().replace(/[^0-9]/g, "");
+  
+  // Adicionar código BR (55) se necessário
+  if (cleaned.length === 10 || cleaned.length === 11) {
+    cleaned = '55' + cleaned;
+  }
+  
+  return cleaned + "@c.us";
+}
+
 module.exports = {
   async sendText(req, res) {
     const data = Sessions.getSession(req.body.session);
@@ -86,7 +101,7 @@ module.exports = {
 
   async sendLocation(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = req.body.number + "@c.us";
+    const number = await buildNumber(req); // ✅ CORRIGIDO - Usar buildNumber()
     const { lat, log, title, description } = req.body;
 
     if (!lat || !log || !title || !description) {
@@ -113,7 +128,7 @@ module.exports = {
 
   async sendContact(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = req.body.number + "@c.us";
+    const number = await buildNumber(req); // ✅ CORRIGIDO - Usar buildNumber()
 
     if (!req.body.contact || !req.body.name) {
       return res
@@ -122,9 +137,10 @@ module.exports = {
     }
 
     try {
+      const contactNumber = await formatNumber(req.body.contact); // ✅ CORRIGIDO
       const response = await data.client.sendMessage(
         number,
-        req.body.contact + "@c.us",
+        contactNumber,
         { parseVCards: true }
       );
       return res.status(200).json({
@@ -172,7 +188,7 @@ module.exports = {
 
   async sendMedia(req, res, type) {
     const data = Sessions.getSession(req.body.session);
-    const number = req.body.number + "@c.us";
+    const number = await buildNumber(req); // ✅ CORRIGIDO - Usar buildNumber()
     const filePath = req.body.path;
     const isURL = await urlExists(filePath);
     const name = filePath?.split(/[\/]/).pop();
