@@ -28,13 +28,16 @@ cp -r myzap myzap_backup_$(date +%Y%m%d_%H%M)
 echo "✅ Backup criado"
 ```
 
-### 3️⃣ Atualizar Código
+### 3️⃣ Atualizar Código e Dependências
 ```bash
 cd /var/www/myzap
 
 git pull origin main
 
-echo "✅ Código atualizado"
+# ✅ IMPORTANTE: Instalar/atualizar dependências
+npm install
+
+echo "✅ Código e dependências atualizados"
 ```
 
 ### 4️⃣ Adicionar Variáveis ao .env (Opcional)

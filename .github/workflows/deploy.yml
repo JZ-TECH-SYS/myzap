@@ -43,6 +43,11 @@ jobs:
             fi
             echo "Node: $(node -v) / NPM: $(npm -v)"
 
+            # ✅ LIMPEZA FORÇADA - Remove node_modules e cache corrompidos
+            echo "[INFO] Limpando instalação anterior..."
+            rm -rf node_modules
+            npm cache clean --force
+
             # acelera e evita ruído
             npm config set fund false
             npm config set audit false
@@ -50,18 +55,18 @@ jobs:
 
             # Se já existir lockfile, instalação determinística
             if [ -f package-lock.json ]; then
-              npm ci --omit=dev --no-audit --no-fund
+              npm ci --no-audit --no-fund
             else
-              npm install --production --no-audit --no-fund
+              npm install --no-audit --no-fund
             fi
 
             # (Opcional) atualizar compatíveis se NPM_UPDATE=1
             if [ "${NPM_UPDATE:-0}" = "1" ]; then
-              echo "[INFO] Executando npm update (--omit=dev)"
-              npm update --omit=dev || true
+              echo "[INFO] Executando npm update"
+              npm update || true
             fi
 
-            npm prune --omit=dev
+            npm prune
 
             echo "[INFO] Reiniciando aplicação via PM2"
             if command -v pm2 >/dev/null 2>&1; then
