@@ -9,7 +9,15 @@ const { IA_COOLDOWN_SECONDS, HUMAN_PAUSE_MINUTES } = require('./iaConfig');
  */
 
 async function checkGroupMessage({ message }) {
-  if (message.isGroupMsg) {
+  // Verifica se é grupo por múltiplos métodos:
+  // 1. Propriedade isGroupMsg (WPPConnect/Venom)
+  // 2. Sufixo @g.us no campo 'from' (whatsapp-web.js)
+  const isGroup = message.isGroupMsg || (message.from && message.from.endsWith('@g.us'));
+  
+  console.log('[GUARD] checkGroupMessage - isGroupMsg:', message.isGroupMsg, 'from:', message.from, 'isGroup:', isGroup);
+  
+  if (isGroup) {
+    console.log('🚫 [GUARD] Bloqueando mensagem de grupo!');
     return { shouldBlock: true, reason: 'grupo' };
   }
   return { shouldBlock: false };

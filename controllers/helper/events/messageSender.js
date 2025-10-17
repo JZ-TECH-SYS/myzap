@@ -13,6 +13,61 @@ async function detectEngine(client) {
   return 'generico';
 }
 
+/**
+ * Verifica se um número está registrado no WhatsApp
+ * @param {Object} client - Cliente do WhatsApp
+ * @param {string} number - Número limpo (apenas dígitos)
+ * @returns {Promise<Object|null>} Retorna o ID do WhatsApp ou null se não existir
+ */
+async function verifyNumber(client, number) {
+  if (!client || !number) return null;
+  const engine = await detectEngine(client);
+  
+  try {
+    switch (engine) {
+      case 'webjs':
+        // whatsapp-web.js usa getNumberId()
+        if (typeof client.getNumberId === 'function') {
+          let numberId = await client.getNumberId(number);
+          
+          // Tenta sem o 9º dígito se o número tiver 13 dígitos (55 + DDD + 9 dígitos)
+          if (!numberId && number.length === 13 && number.startsWith('55')) {
+            const numberWithout9 = number.slice(0, 4) + number.slice(5);
+            customLogger.info(`[MessageSender] Tentando sem o 9º dígito: ${numberWithout9}`);
+            numberId = await client.getNumberId(numberWithout9);
+          }
+          
+          // Tenta com o 9º dígito se o número tiver 12 dígitos (55 + DDD + 8 dígitos)
+          if (!numberId && number.length === 12 && number.startsWith('55')) {
+            const numberWith9 = number.slice(0, 4) + '9' + number.slice(4);
+            customLogger.info(`[MessageSender] Tentando com o 9º dígito: ${numberWith9}`);
+            numberId = await client.getNumberId(numberWith9);
+          }
+          
+          return numberId; // Retorna objeto com _serialized ou null
+        }
+        break;
+      case 'wppconnect':
+      case 'venom':
+        // WPPConnect/Venom usam checkNumberStatus()
+        if (typeof client.checkNumberStatus === 'function') {
+          const status = await client.checkNumberStatus(number);
+          if (status?.numberExists) {
+            return status?.id || { _serialized: `${number}@c.us` };
+          }
+          return null;
+        }
+        break;
+      default:
+        // Fallback - assume que existe
+        return { _serialized: `${number}@c.us` };
+    }
+  } catch (err) {
+    customLogger.error(`[MessageSender] Erro ao verificar número (${engine}): ${err.message}`);
+  }
+  return null;
+}
+
 async function sendText({ client, to, text }) {
   if (!client || !to || !text) return false;
   const engine = await detectEngine(client);
@@ -92,4 +147,4 @@ async function stopTyping({ client, to }) {
   }
 }
 
-module.exports = { sendText, startTyping, stopTyping, detectEngine };
+module.exports = { sendText, startTyping, stopTyping, detectEngine, verifyNumber };

@@ -56,6 +56,7 @@ async function process({
       const result = await guard();
       console.log(`${LOG_PREFIX} Guard result: ${JSON.stringify(result)}`);
       if (result.shouldBlock) {
+        console.log(`${LOG_PREFIX} ⛔ Guard bloqueou! Motivo: ${result.reason}`);
         // Caso especial: pedido de humano (envia mensagem específica)
         if (result.reason === 'pedido_humano' && result.transferMessage) {
           await MessageSender.sendText({ client, to: numero, text: result.transferMessage });

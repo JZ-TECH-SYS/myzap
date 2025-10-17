@@ -37,6 +37,8 @@ module.exports = class Events {
   static async processMessage(message, session, client, req) {
     // Gerenciador de comunicação socket/webhook
     customLogger.debug(`[IA] processMessage chamada para sessão ${session}`);
+    console.log(`[DEBUG] Message isGroupMsg: ${message.isGroupMsg}, from: ${message.from}, type: ${message.type}`);
+    
     const socketManager = new SocketWebhookManager(req, session);
 
     // Construir contexto da mensagem (usar payload mutável)

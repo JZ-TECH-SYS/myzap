@@ -34,11 +34,14 @@ async function checkNumber(req, res, next) {
     const cachedValue = await Cache.get(cleanedNumber);
 
     if (cachedValue === null) {
-      await handleNumberVerification(device?.client, number, res);
+      await handleNumberVerification(device?.client, number, res, req);
     }
 
-    // ✅ CORRIGIDO - Usar número limpo no req.body
-    req.body.number = cleanedNumber;
+    // ✅ CORRIGIDO - O número já foi ajustado em handleNumberVerification se necessário
+    // Não sobrescrever aqui! Apenas garante que está limpo se veio do cache
+    if (!req.body.number || req.body.number === number) {
+      req.body.number = cleanedNumber;
+    }
     next();
   } catch (error) {
     logger.error(`[CHECKNUMBER] ${(error.message, error.stack)}`);
@@ -103,7 +106,7 @@ function isGroupNumber(number) {
   return condition;
 }
 
-async function handleNumberVerification(client, number, res) {
+async function handleNumberVerification(client, number, res, req) {
   try {
     const cleanedNumber = cleanNumber(number);
     console.log(`[NUMBER VERIFICATION] Verificando: ${cleanedNumber}`);
@@ -112,9 +115,71 @@ async function handleNumberVerification(client, number, res) {
       console.log(`[GROUP NUMBER] ${cleanedNumber} → ${cleanedNumber}@g.us`);
       await Cache.set(cleanedNumber, `${cleanedNumber}@g.us`);
     } else {
-      // ✅ VERIFICAR SE CLIENT TEM O MÉTODO
-      if (client && typeof client.checkNumberStatus === 'function') {
-        console.log(`[DEBUG] Verificando número ${cleanedNumber} no WhatsApp...`);
+      // ✅ WHATSAPP-WEB.JS - Usar getNumberId() (método correto)
+      if (client && typeof client.getNumberId === 'function') {
+        console.log(`[WEBJS] Verificando número ${cleanedNumber} com getNumberId()...`);
+        
+        let numberId = null;
+        let validNumber = null; // Número que realmente funcionou
+        
+        // 1️⃣ Tenta com o número original
+        numberId = await client.getNumberId(cleanedNumber);
+        if (numberId) {
+          validNumber = cleanedNumber;
+          console.log(`[SUCCESS] Número encontrado no formato original: ${cleanedNumber}`);
+        }
+        
+        // 2️⃣ Se não encontrou e tem 13 dígitos (55 + DDD + 9 dígitos) → Tenta SEM o 9
+        if (!numberId && cleanedNumber.length === 13 && cleanedNumber.startsWith('55')) {
+          const numberWithout9 = cleanedNumber.slice(0, 4) + cleanedNumber.slice(5);
+          console.log(`[WEBJS] Tentando sem o 9º dígito: ${numberWithout9}`);
+          numberId = await client.getNumberId(numberWithout9);
+          
+          if (numberId) {
+            validNumber = numberWithout9;
+            console.log(`[SUCCESS] Número encontrado sem o 9º dígito: ${numberWithout9}`);
+          }
+        }
+        
+        // 3️⃣ Se não encontrou e tem 12 dígitos (55 + DDD + 8 dígitos) → Tenta COM o 9
+        if (!numberId && cleanedNumber.length === 12 && cleanedNumber.startsWith('55')) {
+          const numberWith9 = cleanedNumber.slice(0, 4) + '9' + cleanedNumber.slice(4);
+          console.log(`[WEBJS] Tentando com o 9º dígito: ${numberWith9}`);
+          numberId = await client.getNumberId(numberWith9);
+          
+          if (numberId) {
+            validNumber = numberWith9;
+            console.log(`[SUCCESS] Número encontrado com o 9º dígito: ${numberWith9}`);
+          }
+        }
+        
+        // ❌ Se nenhum formato funcionou
+        if (!numberId || !validNumber) {
+          console.log(`[ERROR] Número ${cleanedNumber} NÃO EXISTE no WhatsApp em nenhum formato`);
+          return res.status(404).json({
+            response: false,
+            status: "error",
+            message: `O telefone informado não está registrado no WhatsApp.`,
+          });
+        }
+
+        // ✅ Salvar no cache usando o NÚMERO QUE FUNCIONOU
+        const whatsappId = numberId._serialized || `${validNumber}@c.us`;
+        console.log(`[NUMBER VERIFIED] ${validNumber} → ${whatsappId}`);
+        
+        // Salva DOIS registros no cache para evitar reprocessamento:
+        await Cache.set(validNumber, whatsappId); // Número correto
+        if (validNumber !== cleanedNumber) {
+          await Cache.set(cleanedNumber, whatsappId); // Número original também
+          console.log(`[CACHE] Salvos ambos: ${cleanedNumber} e ${validNumber}`);
+        }
+        
+        // ✅ CRITICAL: Atualizar req.body.number com o número VÁLIDO
+        req.body.number = validNumber;
+      } 
+      // ✅ WPPCONNECT/VENOM - Usar checkNumberStatus()
+      else if (client && typeof client.checkNumberStatus === 'function') {
+        console.log(`[WPPCONNECT/VENOM] Verificando número ${cleanedNumber} com checkNumberStatus()...`);
         const profile = await client.checkNumberStatus(cleanedNumber);
         console.log(`[DEBUG] Resultado checkNumberStatus:`, JSON.stringify(profile, null, 2));
 
@@ -131,10 +196,11 @@ async function handleNumberVerification(client, number, res) {
         const whatsappId = profile?.id?._serialized || `${cleanedNumber}@c.us`;
         console.log(`[NUMBER VERIFIED] ${cleanedNumber} → ${whatsappId}`);
         await Cache.set(cleanedNumber, whatsappId);
-      } else {
-        // ✅ FALLBACK - Se client não tem o método, assumir formato padrão
+      } 
+      else {
+        // ⚠️ FALLBACK - Se client não tem nenhum método de verificação
         const fallbackId = `${cleanedNumber}@c.us`;
-        console.log(`⚠️ [FALLBACK] ${cleanedNumber} → ${fallbackId} (método checkNumberStatus não disponível)`);
+        console.log(`⚠️ [FALLBACK] ${cleanedNumber} → ${fallbackId} (nenhum método de verificação disponível)`);
         await Cache.set(cleanedNumber, fallbackId);
       }
     }

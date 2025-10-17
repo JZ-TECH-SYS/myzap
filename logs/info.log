@@ -59,3 +59,18 @@
 {"level":30,"time":1760403569474,"pid":23072,"hostname":"joao","msg":"Iniciando 1 sessões..."}
 {"level":30,"time":1760403660687,"pid":27248,"hostname":"joao","msg":"Iniciando 1 sessões..."}
 {"level":30,"time":1760403731268,"pid":10328,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1760716590912,"pid":16412,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1760716629652,"pid":8216,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1760717235296,"pid":19036,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1760717244192,"pid":17212,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1760717253006,"pid":20252,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1760717329959,"pid":17960,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":30,"time":1760717374593,"pid":19260,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":50,"time":1760717387690,"pid":19260,"hostname":"joao","msg":"[HANDLE NUMBER VERIFICATION] req is not defined"}
+{"level":50,"time":1760717387690,"pid":19260,"hostname":"joao","msg":"[CHECKNUMBER] Error: Erro ao verificar o número: req is not defined\n    at handleNumberVerification (C:\\laragon\\www\\myzap\\middlewares\\checkNumber.js:210:11)\n    at async checkNumber (C:\\laragon\\www\\myzap\\middlewares\\checkNumber.js:37:7)"}
+{"level":50,"time":1760717490262,"pid":19260,"hostname":"joao","msg":"[HANDLE NUMBER VERIFICATION] req is not defined"}
+{"level":50,"time":1760717490262,"pid":19260,"hostname":"joao","msg":"[CHECKNUMBER] Error: Erro ao verificar o número: req is not defined\n    at handleNumberVerification (C:\\laragon\\www\\myzap\\middlewares\\checkNumber.js:210:11)\n    at async checkNumber (C:\\laragon\\www\\myzap\\middlewares\\checkNumber.js:37:7)"}
+{"level":50,"time":1760717531103,"pid":19260,"hostname":"joao","msg":"[HANDLE NUMBER VERIFICATION] req is not defined"}
+{"level":50,"time":1760717531103,"pid":19260,"hostname":"joao","msg":"[CHECKNUMBER] Error: Erro ao verificar o número: req is not defined\n    at handleNumberVerification (C:\\laragon\\www\\myzap\\middlewares\\checkNumber.js:210:11)\n    at async checkNumber (C:\\laragon\\www\\myzap\\middlewares\\checkNumber.js:37:7)"}
+{"level":30,"time":1760717578761,"pid":1724,"hostname":"joao","msg":"Iniciando 1 sessões..."}
+{"level":50,"time":1760717581383,"pid":1724,"hostname":"joao","msg":"[CHECKNUMBER] Dispositivo não conectado - Sessão: joaosn"}
