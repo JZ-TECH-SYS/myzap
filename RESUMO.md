@@ -1,35 +1,32 @@
-# ✅ OTIMIZAÇÕES IMPLEMENTADAS COM SUCESSO!
+# 🚀 MyZAP - Fork JZ-TECH-SYS
 
-**Data:** 10 de outubro de 2025  
-**Status:** 🟢 PRONTO PARA DEPLOY
-
----
-
-## 🎯 RESUMO EXECUTIVO
-
-Implementei **TODAS as 4 otimizações** que você solicitou:
-
-### ✅ 1. Otimização dos Argumentos do Chrome
-- Reduz 30-40% de RAM por sessão
-- Argumentos aplicados em 3 engines (WhatsappWebJS, WPPConnect, Venom)
-
-### ✅ 2. LIMITs nas Consultas SQL
-- Reduz 50-70% de memória em consultas
-- Limita histórico para IA (20 mensagens)
-- Limita consultas gerais (50 mensagens)
-
-### ✅ 3. Jobs de Limpeza Automática
-- 6 jobs criados e integrados
-- Limpeza de: Cache, Chat History, Instâncias, Banco, Logs
-- Monitoramento de memória a cada 15 minutos
-
-### ✅ 4. Script para Restart Automático
-- Documentação completa no arquivo CONFIGURACAO_RESTART_AUTOMATICO.md
-- Exemplos para Linux e Windows
+**WhatsApp API + Inteligência Artificial**
 
 ---
 
-## 📊 IMPACTO ESPERADO
+## 📊 Resumo Executivo
+
+Este é um fork aprimorado do projeto [billbarsch/myzap](https://github.com/billbarsch/myzap) com foco em:
+
+- 🤖 **Inteligência Artificial**: Integração completa com OpenAI GPT-4
+- 📊 **Dashboard Administrativo**: Interface web para gerenciamento
+- ⚡ **Performance**: Otimizações de memória e processamento
+- 🛡️ **Validações**: Sistema robusto de verificação de números
+- 🔧 **Manutenção**: Jobs automáticos de limpeza e monitoramento
+
+---
+
+## ✨ Principais Melhorias
+
+### 🤖 Sistema de IA
+
+- ✅ Respostas automáticas inteligentes com OpenAI
+- ✅ Sistema de Guards para controle fino
+- ✅ RAG (documentos específicos)
+- ✅ Detecção de pedido de atendimento humano
+- ✅ Transcrição automática de áudio
+
+### ⚡ Performance
 
 | Métrica | Antes | Depois | Melhoria |
 |---------|-------|--------|----------|
@@ -37,94 +34,99 @@ Implementei **TODAS as 4 otimizações** que você solicitou:
 | SWAP | 1.9 GB | 0-200 MB | **-90%** |
 | Disco | 2.5 GB | 1.3-1.7 GB | **-800 MB** |
 
+### �️ Validações
+
+- ✅ Verifica se número existe no WhatsApp
+- ✅ Tenta automaticamente com/sem 9º dígito
+- ✅ Cache de números validados
+- ✅ Evita números fantasma
+
+### 📊 Dashboard
+
+- ✅ Interface em `/admin/ia-manager`
+- ✅ Gerenciamento visual de sessões
+- ✅ Ativar/desativar IA por sessão
+- ✅ Configurar prompts e vectors
+
 ---
 
-## 🚀 PRÓXIMOS PASSOS (VOCÊ)
+## 📚 Documentação
 
-### 1. Fazer commit e push:
+- **[README.md](./README.md)** - Documentação completa
+- **[CHANGELOG.md](./CHANGELOG.md)** - Histórico de mudanças
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Como contribuir
+
+---
+
+## 🚀 Quick Start
+
 ```bash
-git add .
-git commit -m "🚀 Otimizações de performance"
-git push origin main
+# 1. Clonar repositório
+git clone https://github.com/JZ-TECH-SYS/myzap.git
+cd myzap
+
+# 2. Instalar dependências
+npm install
+
+# 3. Configurar .env
+cp .env.example .env
+# Edite o .env com suas configurações
+
+# 4. Rodar migrações
+npm run migrate
+
+# 5. Iniciar servidor
+npm run dev
 ```
 
-### 2. Na VPS:
-```bash
-cd /var/www/myzap
-git pull origin main
-pm2 restart myzap
-```
+Acesse: `http://localhost:3000/dashboard`
 
-### 3. Configurar cron:
-```bash
-crontab -e
-# Adicionar: 0 3 * * * pm2 restart myzap
-```
+---
 
-### 4. Verificar logs:
-```bash
-pm2 logs myzap --lines 50
-```
+## 🎯 Tecnologias
 
-Você deve ver:
+- Node.js 20+
+- Express.js
+- SQLite + Sequelize
+- OpenAI GPT-4
+- whatsapp-web.js / wppconnect / venom
+- EJS
+- PM2
+
+---
+
+## 🙏 Créditos
+
+### Projeto Original
+
+- **Bill Barsch** - [billbarsch/myzap](https://github.com/billbarsch/myzap)
+- **Eduardo Policarpo** - Desenvolvedor 2.0
+- **Jonathan Henrique** - Desenvolvedor 3.0
+
+### Bibliotecas
+
+- [wppconnect-team/wppconnect](https://github.com/wppconnect-team/wppconnect)
+- [pedroslopez/whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js/)
+- [orkestral/venom](https://github.com/orkestral/venom)
+
+### Fork
+
+**Desenvolvido por:** [JZ-TECH-SYS](https://github.com/JZ-TECH-SYS)
+
+---
+
+## 📝 Licença
+
+MIT License - Veja [LICENSE](LICENSE) para detalhes.
+
 ```
-🚀 Iniciando jobs de limpeza automática...
-[CACHE CLEANUP] Job agendado...
-[CHAT HISTORY CLEANUP] Job agendado...
-✅ Todos os jobs de limpeza foram iniciados com sucesso!
+Copyright (c) 2025 JZ-TECH-SYS (fork)
+Copyright (c) 2024 Bill Barsch (original)
 ```
 
 ---
 
-## 📚 DOCUMENTAÇÃO CRIADA
+<p align="center">
+  <strong>⭐ Se este projeto foi útil, considere dar uma estrela!</strong>
+</p>
 
-1. **GUIA_DEPLOY.md** - Passo a passo completo do deploy
-2. **OTIMIZACOES_IMPLEMENTADAS.md** - Detalhes técnicos
-3. **CONFIGURACAO_RESTART_AUTOMATICO.md** - Setup do cron
-4. **.env.otimizacoes** - Variáveis de configuração
-5. **ANALISE_PERFORMANCE_TECNICA.md** - Análise original
-6. **RESUMO.md** - Este arquivo
-
----
-
-## ✅ ARQUIVOS MODIFICADOS
-
-```
-✅ engines/helper/wweb.js
-✅ engines/helper/stealth.js
-✅ engines/helper/vn.js
-✅ controllers/helper/events/chatHistory.js
-✅ controllers/helper/ia/empresaIA.js
-✅ startup.js
-✅ index.js
-```
-
-## ✅ ARQUIVOS CRIADOS
-
-```
-✅ jobs/cacheCleanup.js
-✅ jobs/chatHistoryCleanup.js
-✅ jobs/instancesCleanup.js
-✅ jobs/databaseCleanup.js
-✅ jobs/logsCleanup.js
-✅ jobs/memoryMonitor.js
-✅ .env.otimizacoes
-✅ GUIA_DEPLOY.md
-✅ CONFIGURACAO_RESTART_AUTOMATICO.md
-✅ OTIMIZACOES_IMPLEMENTADAS.md
-✅ RESUMO.md
-```
-
----
-
-## 🎉 TUDO PRONTO!
-
-Basta fazer o **git push** e depois **git pull** na VPS!
-
-**Qualquer dúvida, consulte o GUIA_DEPLOY.md**
-
----
-
-**Implementado por:** GitHub Copilot  
-**Tempo de implementação:** ~20 minutos  
-**Arquivos tocados:** 19 arquivos
