@@ -20,14 +20,40 @@ module.exports = class WhatsappWebJS {
   static async start(req, res, session) {
     return new Promise(async (resolve, reject) => {
       let resolved = false; // ✅ ADICIONADO - Flag para evitar resolver múltiplas vezes
+      let client = null; // ✅ MOVIDO PARA CIMA - Para poder destruir no timeout
+      let timeoutId = null; // ✅ Referência do timeout
       
-      // 🔧 CORRIGIDO - Timeout aumentado para 10 minutos (Windows precisa de mais tempo)
-      const timeoutId = setTimeout(() => {
+      // ✅ FUNÇÃO AUXILIAR - Limpar client no timeout
+      const cleanupOnTimeout = async () => {
+        if (client) {
+          try {
+            customLogger.warning(`${session} - ⏰ Timeout: Destruindo client...`);
+            await client.destroy();
+            customLogger.info(`${session} - 🧹 Client destruído por timeout`);
+          } catch (destroyErr) {
+            customLogger.debug(`${session} - Erro ao destruir client: ${destroyErr.message}`);
+          }
+        }
+        // Atualizar status no banco
+        try {
+          await Device.update({
+            state: 'TIMEOUT',
+            status: 'TIMEOUT',
+            updated_at: new Date()
+          }, { where: { session } });
+        } catch (dbErr) {
+          customLogger.debug(`${session} - Erro ao atualizar status timeout: ${dbErr.message}`);
+        }
+      };
+      
+      // 🔧 CORRIGIDO - Timeout aumentado para 10 minutos com cleanup adequado
+      timeoutId = setTimeout(async () => {
         if (!resolved) {
           resolved = true;
+          await cleanupOnTimeout();
           reject(new Error(`Timeout na inicialização da sessão ${session} (10 minutos)`));
         }
-      }, 600000); // 10 minutos (antes era 5)
+      }, 600000); // 10 minutos
       
       try {
         // ✅ ADICIONADO - Criar/atualizar device ANTES de inicializar (igual WPPConnect)
@@ -87,7 +113,7 @@ module.exports = class WhatsappWebJS {
         const useHere = config.useHere !== 'true';
 
         customLogger.whatsapp(`${session} - useHere: ${useHere}`);
-        let client;
+        // ✅ client já foi declarado no início da Promise
 
         // ✅ REMOVIDO Firebase - agora usa pasta local instances/
         customLogger.whatsapp(`${session} - Usando tokens da pasta instances/`);
@@ -184,13 +210,15 @@ module.exports = class WhatsappWebJS {
             const info = await client.info;
             const state = await client.getState();
             
-            // ✅ ADICIONADO - Atualizar com informações completas no banco
+            // ✅ CORRIGIDO - NÃO resetar attempts_start imediatamente
+            // O reset será feito após 30 segundos de conexão estável
+            // Isso evita loop infinito quando LOGOUT vem logo após CONNECTED
             await Device.update({
               state: 'CONNECTED',
               status: 'CONNECTED',
               qrCode: '',
               attempts: 0,
-              attempts_start: 0, // ✅ RESETAR tentativas quando conectar com sucesso
+              // ✅ REMOVIDO: attempts_start: 0 - Não resetar aqui!
               urlCode: '',
               last_connect: new Date(),
               number: info?.wid?.user || info?.me?.user || null,
@@ -203,13 +231,28 @@ module.exports = class WhatsappWebJS {
             }, { where: { session } });
             
             customLogger.database(`${session} - 📱 Informações completas do dispositivo atualizadas no banco`);
+            
+            // ✅ NOVO - Resetar attempts_start após 30 segundos de conexão estável
+            setTimeout(async () => {
+              try {
+                const currentDevice = await Device.findOne({ where: { session } });
+                // Só reseta se ainda estiver conectado após 30 segundos
+                if (currentDevice && ['CONNECTED', 'inChat'].includes(currentDevice.status)) {
+                  await Device.update({ attempts_start: 0 }, { where: { session } });
+                  customLogger.success(`${session} - ✅ attempts_start resetado (conexão estável por 30s)`);
+                }
+              } catch (resetErr) {
+                customLogger.debug(`${session} - Reset attempts_start falhou: ${resetErr.message}`);
+              }
+            }, 30000); // 30 segundos
+            
           } catch (error) {
             customLogger.error(`${session} - ❌ Erro ao atualizar informações do dispositivo: ${error.message}`);
-            // ✅ Fallback update básico
+            // ✅ Fallback update básico - também NÃO reseta attempts_start
             Device.update({
               state: 'CONNECTED',
               status: 'CONNECTED',
-              attempts_start: 0, // ✅ RESETAR tentativas quando conectar
+              // ✅ REMOVIDO: attempts_start: 0
               updated_at: new Date(),
               last_connect: new Date()
             }, { where: { session } }).catch(err => {
@@ -289,8 +332,22 @@ module.exports = class WhatsappWebJS {
 
         // ✅ REMOVIDO - Eventos duplicados removidos, mantendo apenas os primeiros
 
-        client.on('disconnected', (reason) => {
+        client.on('disconnected', async (reason) => {
           customLogger.warning(`${session} - 🔌 Desconectado: ${reason}`);
+          
+          // ✅ NOVO - Log detalhado para diagnóstico de LOGOUT imediato
+          const now = new Date();
+          const device = await Device.findOne({ where: { session } }).catch(() => null);
+          const lastConnect = device?.last_connect ? new Date(device.last_connect) : null;
+          const connectionDuration = lastConnect ? Math.round((now - lastConnect) / 1000) : 'N/A';
+          
+          customLogger.info(`[DISCONNECT ANALYSIS] ${session} - Reason: ${reason} | Duration: ${connectionDuration}s | attempts_start: ${device?.attempts_start || 0}`);
+          
+          // ✅ NOVO - Detectar LOGOUT imediato (< 10 segundos após conectar)
+          if (reason === 'LOGOUT' && typeof connectionDuration === 'number' && connectionDuration < 10) {
+            customLogger.error(`[⚠️ LOGOUT IMEDIATO] ${session} - Sessão caiu ${connectionDuration}s após conectar!`);
+            customLogger.error(`[⚠️ DIAGNÓSTICO] ${session} - Possíveis causas: 1) Dispositivo removido no celular 2) Conflito de sessão 3) Cache corrompido`);
+          }
           
           // ✅ ADICIONADO - Atualizar device no banco quando desconectado (seguindo padrão WPPConnect)
           Device.update({

@@ -248,9 +248,8 @@ module.exports = {
       customLogger.info(`[SESSION CHECK] ${session} - Pasta exists: ${sessionExists}`);
       
       if (data) {
-        // ✅ IGUAL WPPConnect - Atualizar tentativas
-        const helpSS = require('../../../controllers/helper/core/sessions.js');
-        await helpSS.atualizarTentativasStart(session, data.attempts_start, new Date(data.last_start));
+        // ✅ REMOVIDO: O incremento de attempts_start agora é feito APENAS no engine (WhatsappWebJS.js)
+        // Isso evita incremento duplo que fazia atingir o limite de 3 muito rápido
         
         const status = data.status;
         const state = data.state;
