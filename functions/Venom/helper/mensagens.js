@@ -226,6 +226,15 @@ module.exports = {
     const data = Sessions.getSession(req.body.session);
 
     try {
+      // ✅ CORRIGIDO - Verificar se método existe antes de chamar
+      if (!data?.client || typeof data.client.getOrderbyMsg !== 'function') {
+        return res.status(400).json({
+          result: 400,
+          status: "FAIL",
+          error: "Método getOrderbyMsg não disponível nesta engine/versão"
+        });
+      }
+      
       const response = await data.client.getOrderbyMsg(messageid);
       return res.status(200).json({
         result: 200,
@@ -234,7 +243,7 @@ module.exports = {
         data: response,
       });
     } catch (error) {
-      return res.status(400).json({ result: 400, status: "FAIL", error });
+      return res.status(400).json({ result: 400, status: "FAIL", error: error.message || error });
     }
   },
 

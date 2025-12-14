@@ -14,6 +14,7 @@ const { startSessionKeepAliveJob } = require("./jobs/sessionKeepAlive");
 const logger = require("./util/logger"); // Para expressPinoLogger  
 const customLogger = require("./util/customLogger"); // ✅ Logger padronizado
 const expressPinoLogger = require("express-pino-logger");
+const emailAlertService = require("./services/emailAlertService"); // 📧 Alertas por email
 const authApi = require("./routers/Auth");
 const chatRouter = require("./routers/Chat");
 
@@ -138,11 +139,27 @@ app.use(chatRouter);
 const toPlainDevice = (device) => (device?.get ? device.get({ plain: true }) : device);
 
 app.get('/health', async (req, res) => {
+  const memoryUsage = process.memoryUsage();
+  const os = require('os');
+  
   const response = {
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     engine: config.engine,
+    // 📊 Métricas de memória para monitoramento
+    memory: {
+      heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024),  // MB
+      heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024), // MB
+      heapPercent: ((memoryUsage.heapUsed / memoryUsage.heapTotal) * 100).toFixed(2),
+      rss: Math.round(memoryUsage.rss / 1024 / 1024), // MB
+      external: Math.round(memoryUsage.external / 1024 / 1024), // MB
+    },
+    system: {
+      totalMemory: Math.round(os.totalmem() / 1024 / 1024), // MB
+      freeMemory: Math.round(os.freemem() / 1024 / 1024), // MB
+      usedPercent: (((os.totalmem() - os.freemem()) / os.totalmem()) * 100).toFixed(2),
+    }
   };
 
   try {
@@ -188,6 +205,42 @@ app.get('/health/sessions', async (req, res) => {
   } catch (error) {
     customLogger.error('[HEALTH] Falha ao listar sessoes', error?.message || error);
     return res.status(500).json({ status: 'fail', reason: 'Erro ao listar sessoes' });
+  }
+});
+
+// 📊 Endpoint de métricas por instância
+app.get('/api/metrics', async (req, res) => {
+  try {
+    const { getLatestMetrics } = require('./jobs/instanceMetrics');
+    const metrics = await getLatestMetrics();
+    
+    if (!metrics) {
+      return res.status(500).json({ status: 'error', message: 'Erro ao coletar métricas' });
+    }
+    
+    return res.json({ status: 'ok', data: metrics });
+  } catch (error) {
+    customLogger.error('[METRICS] Erro ao obter métricas', error?.message || error);
+    return res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+// 📊 Endpoint de histórico de métricas
+app.get('/api/metrics/history', async (req, res) => {
+  try {
+    const { getMetricsHistory } = require('./jobs/instanceMetrics');
+    const date = req.query.date || null; // ?date=2025-12-14
+    const history = getMetricsHistory(date);
+    
+    return res.json({ 
+      status: 'ok', 
+      date: date || new Date().toISOString().split('T')[0],
+      count: history.length,
+      data: history 
+    });
+  } catch (error) {
+    customLogger.error('[METRICS] Erro ao obter histórico', error?.message || error);
+    return res.status(500).json({ status: 'error', message: error.message });
   }
 });
 
@@ -246,6 +299,15 @@ function handleProcessExit(code) {
 
 function handleUncaughtException(err) {
   customLogger.error(`💥 Uncaught Exception: ${err.message}`);
+  
+  // 📧 Enviar alerta por email (não aguardar, pois vamos encerrar)
+  emailAlertService.send('SYSTEM_ERROR', {
+    type: 'UncaughtException',
+    error: err.message,
+    stack: err.stack,
+    uptime: process.uptime()
+  }).catch(() => {}); // Ignorar erro de email neste ponto
+  
   process.exit(1);
 }
 
@@ -263,6 +325,15 @@ function handleUnhandledRejection(reason, promise) {
     customLogger.debug('Promise details:', promise);
     // Também jogar no console bruto para garantir stack quando existir
     console.error('UNHANDLED REJECTION RAW:', reason);
+    
+    // 📧 Enviar alerta por email
+    emailAlertService.send('UNHANDLED_REJECTION', {
+      error: msg,
+      stack: isError ? reason.stack : null,
+      type: reason && reason.constructor ? reason.constructor.name : typeof reason,
+      uptime: process.uptime()
+    }).catch(() => {}); // Não deixar erro de email causar mais problemas
+    
   } catch (logErr) {
     console.error('Falha ao logar unhandledRejection', logErr);
   }

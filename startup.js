@@ -18,6 +18,7 @@ const { startInstancesCleanupJob } = require('./jobs/instancesCleanup');
 const { startDatabaseCleanupJob } = require('./jobs/databaseCleanup');
 const { startLogsCleanupJob } = require('./jobs/logsCleanup');
 const { startMemoryMonitorJob } = require('./jobs/memoryMonitor');
+const { startInstanceMetricsJob } = require('./jobs/instanceMetrics'); // 📊 Métricas por instância
 
 async function startAllSessions() {
 
@@ -107,6 +108,7 @@ function startCleanupJobs() {
 		startDatabaseCleanupJob();
 		startLogsCleanupJob();
 		startMemoryMonitorJob();
+		startInstanceMetricsJob(); // 📊 Métricas por instância
 		
 		customLogger.success('✅ Todos os jobs de limpeza foram iniciados com sucesso!');
 	} catch (err) {

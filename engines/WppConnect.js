@@ -75,11 +75,20 @@ module.exports = class Wppconnect {
       // cria / atualiza device
       const { empresa_nome, api_url } = body;
       const sysUser = await User.findOne({ where: { email: process.env.EMAIL } });
+      
+      // ✅ USAR existingDevice já buscado acima para incrementar attempts_start
+      const currentAttemptsStart = existingDevice?.attempts_start || 0;
+      
       const payload = WppHelper.getPayloadCreateDevice({
         userId: sysUser?.id,
         session, sessionkey, number,
         wh_connect, wh_status, wh_message, wh_qrcode
       });
+      
+      // ✅ INCREMENTAR tentativas de start
+      payload.attempts_start = currentAttemptsStart + 1;
+      customLogger.info(`📊 Sessão ${session} - tentativa de start #${currentAttemptsStart + 1}`);
+      
       await Device.upsert(payload, { conflictFields: ['session'] });
       if (empresa_nome && api_url) {
         await DeviceCompany.upsert({

@@ -6,6 +6,13 @@ const config = require('../config');
 const CONNECTED_STATUSES = new Set(['CONNECTED', 'inChat', 'isLogged', 'isConnected']);
 const CONNECTED_STATES = new Set(['CONNECTED', 'inChat', 'isLogged', 'isConnected']);
 
+// ✅ Status que indicam que a sessão está aguardando QR Code (NÃO tentar reiniciar)
+const WAITING_QR_STATUSES = new Set(['qrCode', 'QRCODE', 'WAITING_QR', 'INITIALIZING', 'STARTING']);
+
+// ✅ Configurações de controle de tentativas
+const MAX_START_ATTEMPTS = 3; // Máximo de tentativas antes de parar
+const QR_COOLDOWN_MINUTES = 10; // Minutos de espera entre tentativas quando tem QR
+
 let intervalHandle = null;
 let timeoutHandle = null;
 let running = false;
@@ -38,12 +45,35 @@ function isEligible(device) {
     return false;
   }
 
+  // ✅ NOVO - Verificar se está aguardando QR Code (NÃO tentar reiniciar)
+  const status = device.status || '';
+  const state = device.state || '';
+  
+  if (WAITING_QR_STATUSES.has(status) || WAITING_QR_STATUSES.has(state)) {
+    // Verificar se já passou tempo suficiente desde a última tentativa
+    const lastStart = device.last_start ? new Date(device.last_start) : null;
+    const now = new Date();
+    
+    if (lastStart) {
+      const minutesSinceLastStart = (now - lastStart) / (1000 * 60);
+      
+      if (minutesSinceLastStart < QR_COOLDOWN_MINUTES) {
+        customLogger.debug(`[SESSION KEEPALIVE] ${device.session} aguardando QR (${minutesSinceLastStart.toFixed(1)} min) - pulando`);
+        return false;
+      }
+    }
+  }
+  
+  // ✅ NOVO - Verificar limite de tentativas
+  const attemptsStart = device.attempts_start || 0;
+  if (attemptsStart >= MAX_START_ATTEMPTS) {
+    customLogger.debug(`[SESSION KEEPALIVE] ${device.session} atingiu limite de ${MAX_START_ATTEMPTS} tentativas - pulando`);
+    return false;
+  }
+
   if (!config.session_keepalive_only_connected) {
     return true;
   }
-
-  const status = device.status || '';
-  const state = device.state || '';
 
   return CONNECTED_STATUSES.has(status) || CONNECTED_STATES.has(state);
 }

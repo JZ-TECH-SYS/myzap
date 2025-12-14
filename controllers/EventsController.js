@@ -26,6 +26,7 @@ module.exports = class Events {
     } else if (typeof client?.on === 'function') {
       // WhatsApp Web.js
       client.on('message', async (message) => {
+        if (message.from === 'status@broadcast') return;
         await this.processMessage(message, session, client, req);
       });
     }

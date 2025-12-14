@@ -107,6 +107,7 @@ async function handleStatusFind(session, statusSession, { sessionkey, io }) {
         state        : 'CONNECTED',
         status       : 'inChat',
         qrCode       : '', attempts: 0, urlCode: '',
+        attempts_start: 0, // ✅ RESETAR tentativas quando conectar com sucesso
         last_connect : now(), updated_at: now()
       }, { where });
 

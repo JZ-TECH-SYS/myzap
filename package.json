@@ -97,6 +97,7 @@
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
     "github-latest-release": "^0.1.1",
+    "nodemon": "^3.1.11",
     "prettier": "^2.6.1",
     "release-it": "^19.0.1",
     "shx": "^0.3.3"

@@ -22,6 +22,10 @@ module.exports = class Venom {
 
       customLogger.whatsapp(`🚀 Starting Venom - Session: ${session}`);
 
+      // ✅ BUSCAR device existente para incrementar attempts_start
+      const existingDevice = await Device.findOne({ where: { session } });
+      const currentAttemptsStart = existingDevice?.attempts_start || 0;
+
       // ✅ Payload completo seguindo padrão WPPConnect
       const sysUser = await User.findOne({ where: { email: process.env.EMAIL } });
       const payload = {
@@ -31,7 +35,7 @@ module.exports = class Venom {
         qrCode: '',
         attempts: 0,
         urlCode: '',
-        attempts_start: 0,
+        attempts_start: currentAttemptsStart + 1, // ✅ INCREMENTAR tentativas de start
         last_start: new Date(),
         state: 'STARTING',
         status: 'notLogged',
@@ -45,7 +49,7 @@ module.exports = class Venom {
       };
       
       await Device.upsert(payload, { conflictFields: ['session'] });
-      customLogger.database(`${session} - 📱 Dispositivo Venom criado/atualizado no banco`);
+      customLogger.database(`${session} - 📱 Dispositivo Venom criado/atualizado no banco (tentativa ${currentAttemptsStart + 1})`);
     } catch (error) {
       customLogger.error(`${session} - Erro ao criar dispositivo no banco: ${error.message}`);
     }
@@ -94,6 +98,7 @@ module.exports = class Venom {
             updateData.last_connect = new Date();
             updateData.qrCode = '';
             updateData.attempts = 0;
+            updateData.attempts_start = 0; // ✅ RESETAR tentativas quando conectar
             updateData.urlCode = '';
           } else if (offlineStatuses.includes(statusSession)) {
             updateData.state = 'DISCONNECTED';
@@ -139,6 +144,7 @@ module.exports = class Venom {
           status: 'CONNECTED',
           qrCode: '',
           attempts: 0,
+          attempts_start: 0, // ✅ RESETAR tentativas quando conectar com sucesso
           urlCode: '',
           last_connect: new Date(),
           number: info?.wid?.user || null,

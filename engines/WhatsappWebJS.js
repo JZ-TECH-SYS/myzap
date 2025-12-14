@@ -47,6 +47,10 @@ module.exports = class WhatsappWebJS {
           const { empresa_nome, api_url } = body;
           const sysUser = await User.findOne({ where: { email: process.env.EMAIL } });
           
+          // ✅ BUSCAR device existente para incrementar attempts_start
+          const existingDevice = await Device.findOne({ where: { session } });
+          const currentAttemptsStart = existingDevice?.attempts_start || 0;
+          
           const devicePayload = {
             user_id: sysUser?.id,
             session,
@@ -54,7 +58,7 @@ module.exports = class WhatsappWebJS {
             qrCode: '',
             attempts: 0,
             urlCode: '',
-            attempts_start: 0,
+            attempts_start: currentAttemptsStart + 1, // ✅ INCREMENTAR tentativas de start
             last_start: new Date(),
             state: 'STARTING',
             status: 'INITIALIZING',
@@ -68,7 +72,7 @@ module.exports = class WhatsappWebJS {
           };
           
           await Device.upsert(devicePayload, { conflictFields: ['session'] });
-          customLogger.success(`💾 Device criado/atualizado para sessão: ${session}`);
+          customLogger.success(`💾 Device criado/atualizado para sessão: ${session} (tentativa ${currentAttemptsStart + 1})`);
           
         } catch (deviceError) {
           customLogger.error('❌ Erro ao criar/atualizar device:', deviceError);
@@ -169,6 +173,12 @@ module.exports = class WhatsappWebJS {
           customLogger.success(`${session} - 🚀 WhatsApp está pronto!`);
           req.io.emit('whatsapp-status', true);
           
+          // ✅ ADICIONADO - Limpar qrTimeout quando conectar
+          if (qrTimeout) {
+            clearTimeout(qrTimeout);
+            qrTimeout = null;
+          }
+          
           try {
             // ✅ ADICIONADO - Buscar informações completas do dispositivo (seguindo WPPConnect)
             const info = await client.info;
@@ -180,6 +190,7 @@ module.exports = class WhatsappWebJS {
               status: 'CONNECTED',
               qrCode: '',
               attempts: 0,
+              attempts_start: 0, // ✅ RESETAR tentativas quando conectar com sucesso
               urlCode: '',
               last_connect: new Date(),
               number: info?.wid?.user || info?.me?.user || null,
@@ -198,6 +209,7 @@ module.exports = class WhatsappWebJS {
             Device.update({
               state: 'CONNECTED',
               status: 'CONNECTED',
+              attempts_start: 0, // ✅ RESETAR tentativas quando conectar
               updated_at: new Date(),
               last_connect: new Date()
             }, { where: { session } }).catch(err => {
@@ -259,7 +271,8 @@ module.exports = class WhatsappWebJS {
           // ✅ ADICIONADO - Rejeitar Promise em caso de falha de auth
           if (!resolved) {
             resolved = true;
-            clearTimeout(timeoutId); // ✅ ADICIONADO - Limpar timeout
+            clearTimeout(timeoutId); // ✅ Limpar timeout principal
+            if (qrTimeout) clearTimeout(qrTimeout); // ✅ Limpar qrTimeout
             reject(new Error(`Falha na autenticação: ${msg}`));
           }
         });

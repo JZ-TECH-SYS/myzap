@@ -169,10 +169,21 @@ module.exports = {
 
       case 'order':
         try {
-          const orderInfo = await client.getOrderbyMsg(message.id);
-          extras = { content: '', order: orderInfo };
+          // ✅ CORRIGIDO - Verificar se método existe antes de chamar
+          if (typeof client.getOrderbyMsg === 'function') {
+            const orderInfo = await client.getOrderbyMsg(message.id);
+            extras = { content: '', order: orderInfo };
+          } else {
+            // Fallback: retornar dados básicos do pedido se disponíveis
+            extras = { 
+              content: '', 
+              order: message.order || message._data?.order || null,
+              warning: 'getOrderbyMsg não disponível nesta engine'
+            };
+          }
         } catch (err) {
           console.error('[PAYLOAD] erro getOrderbyMsg:', err);
+          extras = { content: '', order: null, error: err.message };
         }
         break;
 

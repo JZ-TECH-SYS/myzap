@@ -1,5 +1,6 @@
 const os = require('os');
 const customLogger = require('../util/customLogger');
+const emailAlertService = require('../services/emailAlertService');
 
 let intervalHandle = null;
 
@@ -43,12 +44,31 @@ function reportarUsoMemoria() {
     // Alertar se memória crítica
     if (usedPercent > 85) {
       customLogger.warning(`⚠️ [MEMORY] Uso crítico de memória do sistema: ${usedPercent}%`);
+      
+      // 📧 Enviar alerta por email
+      emailAlertService.send('MEMORY_CRITICAL', { 
+        memoryPercent: parseFloat(usedPercent),
+        totalMemory: formatBytes(totalMem),
+        usedMemory: formatBytes(usedMem),
+        freeMemory: formatBytes(freeMem),
+        uptime: process.uptime()
+      });
     }
     
     // Alertar se heap do processo está alto
     const heapPercent = (processMemory.heapUsed / processMemory.heapTotal) * 100;
     if (heapPercent > 90) {
       customLogger.warning(`⚠️ [MEMORY] Uso crítico de heap do processo: ${heapPercent.toFixed(2)}%`);
+      
+      // 📧 Enviar alerta por email
+      emailAlertService.send('HEAP_CRITICAL', { 
+        heapPercent: heapPercent,
+        heapUsed: formatBytes(processMemory.heapUsed),
+        heapTotal: formatBytes(processMemory.heapTotal),
+        rss: formatBytes(processMemory.rss),
+        external: formatBytes(processMemory.external),
+        uptime: process.uptime()
+      });
     }
     
   } catch (err) {
