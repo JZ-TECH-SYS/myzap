@@ -202,13 +202,19 @@ class DailyReportJob {
      */
     getMemoryStatus() {
         const used = process.memoryUsage();
+        const v8 = require('v8');
         const os = require('os');
+        const heapStats = v8.getHeapStatistics();
+        
+        // heap_size_limit é o limite REAL configurado (--max-old-space-size)
+        const heapLimit = Math.round(heapStats.heap_size_limit / 1024 / 1024);
+        const heapUsed = Math.round(used.heapUsed / 1024 / 1024);
         
         return {
             heap: {
-                used: Math.round(used.heapUsed / 1024 / 1024),
-                total: Math.round(used.heapTotal / 1024 / 1024),
-                percent: Math.round((used.heapUsed / used.heapTotal) * 100)
+                used: heapUsed,
+                total: heapLimit,  // Agora mostra o limite real (1GB)
+                percent: Math.round((heapUsed / heapLimit) * 100)
             },
             rss: Math.round(used.rss / 1024 / 1024),
             system: {
