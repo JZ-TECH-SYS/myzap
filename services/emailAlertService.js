@@ -26,6 +26,7 @@ class EmailAlertService {
         this.apiToken = process.env.EMAIL_TOKEN || '';
         this.destinatario = process.env.EMAIL_DESTINATION || '';
         this.cc = process.env.EMAIL_CC || '';
+        this.nomeRemetente = process.env.EMAIL_SENDER_NAME || 'MyZap Monitor';
         this.timeout = 30000; // 30 segundos
         this.lastError = null;
         this.lastResponse = null;
@@ -134,7 +135,8 @@ class EmailAlertService {
             const payload = {
                 destinatario: this.destinatario,
                 assunto: assunto,
-                corpo_html: corpoHtml
+                corpo_html: corpoHtml,
+                nome_remetente: this.nomeRemetente
             };
             
             // Adicionar CC se configurado
@@ -175,6 +177,7 @@ class EmailAlertService {
             corpo_html: corpoHtml
         };
         
+        // Só adiciona corpo_texto se explicitamente solicitado
         if (options.corpoTexto) {
             payload.corpo_texto = options.corpoTexto;
         }
@@ -187,11 +190,56 @@ class EmailAlertService {
             payload.bcc = Array.isArray(options.bcc) ? options.bcc.join(',') : options.bcc;
         }
         
-        if (options.nomeRemetente) {
-            payload.nome_remetente = options.nomeRemetente;
-        }
+        // Sempre enviar nome do remetente (usa padrão se não especificado)
+        payload.nome_remetente = options.nomeRemetente || this.nomeRemetente;
         
         return this._sendRequest('sendEmail', payload);
+    }
+
+    /**
+     * Converte HTML para texto puro
+     * @param {string} html - Conteúdo HTML
+     * @returns {string} - Texto puro
+     */
+    _htmlToText(html) {
+        if (!html) return '';
+        
+        return html
+            // Remover scripts e styles
+            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+            .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+            // Converter quebras de linha
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<\/p>/gi, '\n\n')
+            .replace(/<\/div>/gi, '\n')
+            .replace(/<\/tr>/gi, '\n')
+            .replace(/<\/li>/gi, '\n')
+            .replace(/<\/h[1-6]>/gi, '\n\n')
+            // Converter listas
+            .replace(/<li[^>]*>/gi, '• ')
+            // Converter tabelas (td/th)
+            .replace(/<\/t[dh]>/gi, ' | ')
+            // Remover todas as outras tags
+            .replace(/<[^>]+>/g, '')
+            // Decodificar entidades HTML comuns
+            .replace(/&nbsp;/gi, ' ')
+            .replace(/&amp;/gi, '&')
+            .replace(/&lt;/gi, '<')
+            .replace(/&gt;/gi, '>')
+            .replace(/&quot;/gi, '"')
+            .replace(/&#39;/gi, "'")
+            .replace(/&rsquo;/gi, "'")
+            .replace(/&lsquo;/gi, "'")
+            .replace(/&rdquo;/gi, '"')
+            .replace(/&ldquo;/gi, '"')
+            .replace(/&mdash;/gi, '—')
+            .replace(/&ndash;/gi, '–')
+            // Limpar espaços extras
+            .replace(/[ \t]+/g, ' ')
+            .replace(/\n[ \t]+/g, '\n')
+            .replace(/[ \t]+\n/g, '\n')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
     }
 
     /**

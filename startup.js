@@ -19,6 +19,7 @@ const { startDatabaseCleanupJob } = require('./jobs/databaseCleanup');
 const { startLogsCleanupJob } = require('./jobs/logsCleanup');
 const { startMemoryMonitorJob } = require('./jobs/memoryMonitor');
 const { startInstanceMetricsJob } = require('./jobs/instanceMetrics'); // 📊 Métricas por instância
+const dailyReportJob = require('./jobs/dailyReport'); // 📧 Relatório diário por email
 
 async function startAllSessions() {
 
@@ -109,6 +110,7 @@ function startCleanupJobs() {
 		startLogsCleanupJob();
 		startMemoryMonitorJob();
 		startInstanceMetricsJob(); // 📊 Métricas por instância
+		dailyReportJob.start(); // 📧 Relatório diário por email
 		
 		customLogger.success('✅ Todos os jobs de limpeza foram iniciados com sucesso!');
 	} catch (err) {
