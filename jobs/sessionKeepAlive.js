@@ -10,8 +10,8 @@ const CONNECTED_STATES = new Set(['CONNECTED', 'inChat', 'isLogged', 'isConnecte
 const WAITING_QR_STATUSES = new Set(['qrCode', 'QRCODE', 'WAITING_QR', 'INITIALIZING', 'STARTING']);
 
 // ✅ Configurações de controle de tentativas
-const MAX_START_ATTEMPTS = 3; // Máximo de tentativas antes de parar
-const QR_COOLDOWN_MINUTES = 10; // Minutos de espera entre tentativas quando tem QR
+const MAX_START_ATTEMPTS = 10; // ✅ AUMENTADO: Máximo de tentativas antes de parar
+const QR_COOLDOWN_MINUTES = 5; // ✅ REDUZIDO: Minutos de espera entre tentativas quando tem QR
 
 let intervalHandle = null;
 let timeoutHandle = null;
@@ -71,11 +71,25 @@ function isEligible(device) {
     return false;
   }
 
+  // ✅ CORRIGIDO - Também reconectar sessões que caíram (DISCONNECTED, TIMEOUT, notLogged)
+  const RECONNECT_STATUSES = new Set(['DISCONNECTED', 'TIMEOUT', 'notLogged', 'disconnected']);
+  
   if (!config.session_keepalive_only_connected) {
     return true;
   }
 
-  return CONNECTED_STATUSES.has(status) || CONNECTED_STATES.has(state);
+  // ✅ Se está conectado OU se caiu e precisa reconectar
+  if (CONNECTED_STATUSES.has(status) || CONNECTED_STATES.has(state)) {
+    return true;
+  }
+  
+  // ✅ NOVO - Também reconectar sessões que caíram
+  if (RECONNECT_STATUSES.has(status) || RECONNECT_STATUSES.has(state)) {
+    customLogger.info(`[SESSION KEEPALIVE] ${device.session} caiu (${status}/${state}) - tentando reconectar`);
+    return true;
+  }
+  
+  return false;
 }
 
 async function triggerStart(device, baseURL) {

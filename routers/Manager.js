@@ -16,6 +16,11 @@ Router.get("/instances", checkAuthMiddleware, (req, res) => res.redirect("/dashb
 Router.get("/dashboard", checkAuthMiddleware, DashboardController.renderDashboard);
 Router.get("/connection", checkAuthMiddleware, DashboardController.renderConnection);
 
+// 📊 API de Métricas
+Router.get("/api/metrics", checkAuthMiddleware, DashboardController.getMetrics);
+Router.get("/api/metrics/session/:session", checkAuthMiddleware, DashboardController.getSessionMetrics);
+Router.get("/api/metrics/history", checkAuthMiddleware, DashboardController.getMetricsHistory);
+
 // Auth
 Router.get("/auth/login", AuthController.renderLoginPage);
 Router.post("/auth/login", AuthController.login);

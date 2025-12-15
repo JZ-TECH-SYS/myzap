@@ -197,6 +197,15 @@ module.exports = class WhatsappWebJS {
 
         client.on('ready', async () => {
           customLogger.success(`${session} - 🚀 WhatsApp está pronto!`);
+          
+          // ✅ CRÍTICO - Cancelar timeout IMEDIATAMENTE quando conectar
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+            customLogger.info(`${session} - ⏰ Timeout cancelado (sessão conectou)`);
+          }
+          resolved = true; // Marcar como resolvido para evitar timeout posterior
+          
           req.io.emit('whatsapp-status', true);
           
           // ✅ ADICIONADO - Limpar qrTimeout quando conectar
