@@ -45,10 +45,11 @@ function isEligible(device) {
     return false;
   }
 
-  // ✅ NOVO - Verificar se está aguardando QR Code (NÃO tentar reiniciar)
+  // ✅ NOVO - Verificar se está aguardando QR Code ou inicializando (NÃO tentar reiniciar)
   const status = device.status || '';
   const state = device.state || '';
   
+  // ✅ CRÍTICO - Nunca interferir enquanto está inicializando
   if (WAITING_QR_STATUSES.has(status) || WAITING_QR_STATUSES.has(state)) {
     // Verificar se já passou tempo suficiente desde a última tentativa
     const lastStart = device.last_start ? new Date(device.last_start) : null;
@@ -57,10 +58,15 @@ function isEligible(device) {
     if (lastStart) {
       const minutesSinceLastStart = (now - lastStart) / (1000 * 60);
       
-      if (minutesSinceLastStart < QR_COOLDOWN_MINUTES) {
-        customLogger.debug(`[SESSION KEEPALIVE] ${device.session} aguardando QR (${minutesSinceLastStart.toFixed(1)} min) - pulando`);
+      // ✅ AUMENTADO: Aguardar pelo menos 10 minutos antes de tentar novamente
+      if (minutesSinceLastStart < 10) {
+        customLogger.debug(`[SESSION KEEPALIVE] ${device.session} inicializando (${minutesSinceLastStart.toFixed(1)} min) - aguardando timeout de 10min`);
         return false;
       }
+    } else {
+      // Se não tem last_start, pular por segurança
+      customLogger.debug(`[SESSION KEEPALIVE] ${device.session} status ${status} sem last_start - pulando`);
+      return false;
     }
   }
   

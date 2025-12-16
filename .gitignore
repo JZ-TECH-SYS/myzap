@@ -6,4 +6,7 @@ teste.js
 instances/
 database/
 logs/
+logs
 promp_capucho.txt
+.wwebjs_cache
+.wwebjs_cache/

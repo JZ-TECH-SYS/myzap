@@ -16,6 +16,19 @@ const User = UserModel(config.sequelize);
 
 let chromeLauncher = Launcher.Launcher.getInstallations()[0];
 
+// ✅ NOVO - Mapa global de timeouts por sessão para evitar timeouts órfãos
+const sessionTimeouts = new Map();
+
+// ✅ NOVO - Função para limpar timeout anterior da sessão
+function clearSessionTimeout(session) {
+  if (sessionTimeouts.has(session)) {
+    const oldTimeout = sessionTimeouts.get(session);
+    clearTimeout(oldTimeout);
+    sessionTimeouts.delete(session);
+    customLogger.debug(`${session} - ⏰ Timeout anterior cancelado`);
+  }
+}
+
 module.exports = class WhatsappWebJS {
   static async start(req, res, session) {
     return new Promise(async (resolve, reject) => {
@@ -23,8 +36,14 @@ module.exports = class WhatsappWebJS {
       let client = null; // ✅ MOVIDO PARA CIMA - Para poder destruir no timeout
       let timeoutId = null; // ✅ Referência do timeout
       
+      // ✅ CRÍTICO - Limpar timeout anterior desta sessão (evita timeouts órfãos)
+      clearSessionTimeout(session);
+      
       // ✅ FUNÇÃO AUXILIAR - Limpar client no timeout
       const cleanupOnTimeout = async () => {
+        // Remover do mapa global
+        sessionTimeouts.delete(session);
+        
         if (client) {
           try {
             customLogger.warning(`${session} - ⏰ Timeout: Destruindo client...`);
@@ -46,6 +65,19 @@ module.exports = class WhatsappWebJS {
         }
       };
       
+      // ✅ FUNÇÃO AUXILIAR - Limpar timeout quando conectar
+      const clearCurrentTimeout = () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);  // <-- Aqui TEM que ser clearTimeout nativo!
+          timeoutId = null;
+        }
+        if (sessionTimeouts.has(session)) {
+          clearTimeout(sessionTimeouts.get(session));  // <-- Limpa do mapa global também
+          sessionTimeouts.delete(session);
+          customLogger.debug(`${session} - ⏰ Timeout cancelado (sessão conectou)`);
+        }
+      };
+      
       // 🔧 CORRIGIDO - Timeout aumentado para 10 minutos com cleanup adequado
       timeoutId = setTimeout(async () => {
         if (!resolved) {
@@ -54,6 +86,9 @@ module.exports = class WhatsappWebJS {
           reject(new Error(`Timeout na inicialização da sessão ${session} (10 minutos)`));
         }
       }, 600000); // 10 minutos
+      
+      // ✅ CRÍTICO - Guardar referência no mapa global
+      sessionTimeouts.set(session, timeoutId);
       
       try {
         // ✅ ADICIONADO - Criar/atualizar device ANTES de inicializar (igual WPPConnect)
@@ -104,7 +139,7 @@ module.exports = class WhatsappWebJS {
           customLogger.error('❌ Erro ao criar/atualizar device:', deviceError);
           if (!resolved) {
             resolved = true;
-            clearTimeout(timeoutId);
+            clearCurrentTimeout();
             reject(new Error(`Erro ao criar device: ${deviceError.message}`));
           }
           return;
@@ -199,11 +234,7 @@ module.exports = class WhatsappWebJS {
           customLogger.success(`${session} - 🚀 WhatsApp está pronto!`);
           
           // ✅ CRÍTICO - Cancelar timeout IMEDIATAMENTE quando conectar
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-            customLogger.info(`${session} - ⏰ Timeout cancelado (sessão conectou)`);
-          }
+          clearCurrentTimeout();
           resolved = true; // Marcar como resolvido para evitar timeout posterior
           
           req.io.emit('whatsapp-status', true);
@@ -280,15 +311,26 @@ module.exports = class WhatsappWebJS {
           // ✅ ADICIONADO - Resolver Promise quando estiver realmente pronto
           if (!resolved) {
             resolved = true;
-            clearTimeout(timeoutId); // ✅ ADICIONADO - Limpar timeout
+            clearCurrentTimeout(); // ✅ ADICIONADO - Limpar timeout
             resolve({ status: 'CONNECTED', session });
           }
         });
 
         client.on('authenticated', (sessionData) => {
           customLogger.success(`${session} - 🔐 Autenticação bem-sucedida!`);
-          // ✅ REMOVIDO - Não resolver aqui, apenas no 'ready'
-          // resolve(sessionData);
+          
+          // ✅ CRÍTICO - Injetar client IMEDIATAMENTE após autenticação
+          // Isso garante que o client esteja disponível antes do evento 'ready'
+          const sessionHelper = require('../controllers/helper/core/sessions.js');
+          sessionHelper.injectClient(session, client);
+          customLogger.info(`${session} - 💉 Client injetado após autenticação`);
+          
+          // ✅ Atualizar status no banco para indicar que está carregando
+          Device.update({
+            status: 'LOADING',
+            state: 'AUTHENTICATED',
+            updated_at: new Date()
+          }, { where: { session } }).catch(() => {});
         });
 
         // ✅ ADICIONADO - Evento para sessão carregada de arquivo (sem QR Code)
@@ -323,7 +365,7 @@ module.exports = class WhatsappWebJS {
           // ✅ ADICIONADO - Rejeitar Promise em caso de falha de auth
           if (!resolved) {
             resolved = true;
-            clearTimeout(timeoutId); // ✅ Limpar timeout principal
+            clearCurrentTimeout(); // ✅ Limpar timeout principal
             if (qrTimeout) clearTimeout(qrTimeout); // ✅ Limpar qrTimeout
             reject(new Error(`Falha na autenticação: ${msg}`));
           }
@@ -400,7 +442,7 @@ module.exports = class WhatsappWebJS {
           customLogger.error(`${session} - ❌ Erro na inicialização: ${initError.message}`);
           if (!resolved) {
             resolved = true;
-            clearTimeout(timeoutId); // ✅ ADICIONADO - Limpar timeout
+            clearCurrentTimeout(); // ✅ ADICIONADO - Limpar timeout
             reject(new Error(`Erro na inicialização: ${initError.message}`));
           }
           return;
@@ -442,7 +484,7 @@ module.exports = class WhatsappWebJS {
         // ✅ MELHORADO - Só rejeitar se ainda não foi resolvido
         if (!resolved) {
           resolved = true;
-          clearTimeout(timeoutId); // ✅ ADICIONADO - Limpar timeout
+          clearCurrentTimeout(); // ✅ ADICIONADO - Limpar timeout
           reject(error);
         }
       }

@@ -282,6 +282,24 @@ module.exports = {
         
         customLogger.info(`[RECONNECT CHECK] ${session} - Pasta: ${sessionExists} - Status: ${status} - Client ativo: ${!!isClientActive}`);
         
+        // ✅ CRÍTICO - SE JÁ ESTÁ INICIALIZANDO, NÃO INICIAR NOVAMENTE (evita conflito)
+        if (['INITIALIZING', 'STARTING', 'RECONNECTING'].includes(status) || ['STARTING', 'INITIALIZING'].includes(state)) {
+          // Verificar quanto tempo está inicializando
+          const lastStart = data.last_start ? new Date(data.last_start) : null;
+          const now = new Date();
+          const minutesSinceStart = lastStart ? (now - lastStart) / (1000 * 60) : 999;
+          
+          // Só permitir nova tentativa se passou mais de 10 minutos (timeout)
+          if (minutesSinceStart < 10) {
+            customLogger.info(`[SKIP INIT] ${session} - Já inicializando há ${minutesSinceStart.toFixed(1)} min, aguardando...`);
+            resposta.state = state || 'STARTING';
+            resposta.status = status || 'INITIALIZING';
+            const http = require('../../../controllers/helper/core/http.js');
+            return http.json(res, 200, resposta);
+          }
+          customLogger.warning(`${session} - Inicialização travada há ${minutesSinceStart.toFixed(1)} min, reiniciando...`);
+        }
+        
         // ✅ SÓ RETORNAR CONECTADO SE: pasta existe + status conectado + CLIENT ATIVO
         if (sessionExists && ['CONNECTED', 'inChat', 'isLogged', 'isConnected'].includes(status) && isClientActive) {
           customLogger.info(`[ALREADY CONNECTED] ${session} - Sessão já ativa`);

@@ -22,6 +22,8 @@ Router.post('/forceReconnect', checkParams, Sessions.forceReconnect);
 Router.post('/repairSession', checkParams, Sessions.repairSession);
 Router.post('/reconnect', checkParams, Sessions.forceReconnect);
 Router.post('/deleteSession', Sessions.deleteSession);
+// ✅ ADICIONADO - Verificar status REAL da sessão no Puppeteer/Chrome
+Router.post('/verifyRealStatus', checkParams, Sessions.verifyRealStatus);
 
 // Mensagens
 // #swagger.tags = ['Messages']

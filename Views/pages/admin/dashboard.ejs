@@ -1,131 +1,314 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <%- include('../head.ejs', { pageTitle: pageTitle }) %>
 
-<%- include('../head.ejs', { pageTitle: pageTitle }) %>
-
-<body>
-  <!--  Body Wrapper -->
-  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
-    data-sidebar-position="fixed" data-header-position="fixed">
-    <!-- Sidebar Start -->
-    <aside class="left-sidebar">
-      <!-- Sidebar scroll-->
-      <div>
-
-        <div class="brand-logo d-flex align-items-center justify-content-between">
-          <a href="/dashboard" class="text-nowrap logo-img">
-            <img src="<%= logo ? logo : 'https://upload.wikimedia.org/wikipedia/commons/f/f7/WhatsApp_logo.svg' %>" alt="logo" class="img-fluid" />
-          </a>
-          <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
-            <i class="ti ti-x fs-8"></i>
+  <body>
+    <!--  Body Wrapper -->
+    <div
+      class="page-wrapper"
+      id="main-wrapper"
+      data-layout="vertical"
+      data-navbarbg="skin6"
+      data-sidebartype="full"
+      data-sidebar-position="fixed"
+      data-header-position="fixed">
+      <!-- Sidebar Start -->
+      <aside class="left-sidebar">
+        <!-- Sidebar scroll-->
+        <div>
+          <div
+            class="brand-logo d-flex align-items-center justify-content-between">
+            <a href="/dashboard" class="text-nowrap logo-img">
+              <img
+                src="<%= logo ? logo : 'https://upload.wikimedia.org/wikipedia/commons/f/f7/WhatsApp_logo.svg' %>"
+                alt="logo"
+                class="img-fluid" />
+            </a>
+            <div
+              class="close-btn d-xl-none d-block sidebartoggler cursor-pointer"
+              id="sidebarCollapse">
+              <i class="ti ti-x fs-8"></i>
+            </div>
           </div>
+
+          <!-- Sidebar navigation-->
+          <%- include('../sidebar.ejs', { token: token , company: companyData })
+          %>
+          <!-- End Sidebar navigation -->
         </div>
+        <!-- End Sidebar scroll-->
+      </aside>
+      <!--  Sidebar End -->
+      <!--  Main wrapper -->
+      <div class="body-wrapper">
+        <!--  Header Start -->
 
-        <!-- Sidebar navigation-->
-        <%- include('../sidebar.ejs', { token: token , company: companyData }) %>
-        <!-- End Sidebar navigation -->
-      </div>
-      <!-- End Sidebar scroll-->
-    </aside>
-    <!--  Sidebar End -->
-    <!--  Main wrapper -->
-    <div class="body-wrapper">
-      <!--  Header Start -->
-      
-      <%- include('../header.ejs') %>
+        <%- include('../header.ejs') %>
 
-      <!--  Header End -->
-      <div class="container-fluid">
+        <!--  Header End -->
+        <div class="container-fluid">
+          <!-- 🔄 Tabs de Navegação -->
+          <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="metrics-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#metrics-content"
+                type="button"
+                role="tab"
+                aria-controls="metrics-content"
+                aria-selected="true">
+                <i class="ti ti-chart-bar me-1"></i> Métricas
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="connections-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#connections-content"
+                type="button"
+                role="tab"
+                aria-controls="connections-content"
+                aria-selected="false">
+                <i class="ti ti-device-mobile me-1"></i> Conexões Ativas
+                <span class="badge bg-success ms-1" id="badgeConnections"
+                  >0</span
+                >
+              </button>
+            </li>
+          </ul>
 
-        <!-- 🔄 Tabs de Navegação -->
-        <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="metrics-tab" data-bs-toggle="tab" data-bs-target="#metrics-content" type="button" role="tab" aria-controls="metrics-content" aria-selected="true">
-              <i class="ti ti-chart-bar me-1"></i> Métricas
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="connections-tab" data-bs-toggle="tab" data-bs-target="#connections-content" type="button" role="tab" aria-controls="connections-content" aria-selected="false">
-              <i class="ti ti-device-mobile me-1"></i> Conexões Ativas <span class="badge bg-success ms-1" id="badgeConnections">0</span>
-            </button>
-          </li>
-        </ul>
-
-        <!-- 📊 Conteúdo das Tabs -->
-        <div class="tab-content" id="dashboardTabsContent">
-          
-          <!-- ====== TAB 1: MÉTRICAS ====== -->
-          <div class="tab-pane fade show active" id="metrics-content" role="tabpanel" aria-labelledby="metrics-tab">
-            
-            <!-- Cards de Resumo -->
-            <div class="row mb-4" id="metricsCards">
-              <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card overflow-hidden h-100">
-                  <div class="card-body p-4">
-                    <h5 class="card-title mb-9 fw-semibold">Sessões Totais</h5>
-                    <div class="d-flex align-items-center">
-                      <div class="me-4">
-                        <span class="round-48 d-flex align-items-center justify-content-center rounded bg-primary-subtle">
-                          <i class="ti ti-device-mobile text-primary fs-6"></i>
-                        </span>
+          <!-- 📊 Conteúdo das Tabs -->
+          <div class="tab-content" id="dashboardTabsContent">
+            <!-- ====== TAB 1: MÉTRICAS ====== -->
+            <div
+              class="tab-pane fade show active"
+              id="metrics-content"
+              role="tabpanel"
+              aria-labelledby="metrics-tab">
+              <!-- Cards de Resumo -->
+              <div class="row mb-4" id="metricsCards">
+                <div class="col-lg-3 col-md-6 mb-3">
+                  <div class="card overflow-hidden h-100">
+                    <div class="card-body p-4">
+                      <h5 class="card-title mb-9 fw-semibold">
+                        Sessões Totais
+                      </h5>
+                      <div class="d-flex align-items-center">
+                        <div class="me-4">
+                          <span
+                            class="round-48 d-flex align-items-center justify-content-center rounded bg-primary-subtle">
+                            <i
+                              class="ti ti-device-mobile text-primary fs-6"></i>
+                          </span>
+                        </div>
+                        <div>
+                          <h3 class="mb-0" id="metricTotal">-</h3>
+                          <span class="text-muted fs-3">instâncias</span>
+                        </div>
                       </div>
-                      <div>
-                        <h3 class="mb-0" id="metricTotal">-</h3>
-                        <span class="text-muted fs-3">instâncias</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                  <div class="card overflow-hidden h-100">
+                    <div class="card-body p-4">
+                      <h5 class="card-title mb-9 fw-semibold">Conectadas</h5>
+                      <div class="d-flex align-items-center">
+                        <div class="me-4">
+                          <span
+                            class="round-48 d-flex align-items-center justify-content-center rounded bg-success-subtle">
+                            <i class="ti ti-check text-success fs-6"></i>
+                          </span>
+                        </div>
+                        <div>
+                          <h3 class="mb-0 text-success" id="metricConnected">
+                            -
+                          </h3>
+                          <span class="text-muted fs-3">online</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                  <div class="card overflow-hidden h-100">
+                    <div class="card-body p-4">
+                      <h5 class="card-title mb-9 fw-semibold">Aguardando QR</h5>
+                      <div class="d-flex align-items-center">
+                        <div class="me-4">
+                          <span
+                            class="round-48 d-flex align-items-center justify-content-center rounded bg-warning-subtle">
+                            <i class="ti ti-qrcode text-warning fs-6"></i>
+                          </span>
+                        </div>
+                        <div>
+                          <h3 class="mb-0 text-warning" id="metricWaitingQR">
+                            -
+                          </h3>
+                          <span class="text-muted fs-3">pendentes</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                  <div class="card overflow-hidden h-100">
+                    <div class="card-body p-4">
+                      <h5 class="card-title mb-9 fw-semibold">Desconectadas</h5>
+                      <div class="d-flex align-items-center">
+                        <div class="me-4">
+                          <span
+                            class="round-48 d-flex align-items-center justify-content-center rounded bg-danger-subtle">
+                            <i class="ti ti-plug-off text-danger fs-6"></i>
+                          </span>
+                        </div>
+                        <div>
+                          <h3 class="mb-0 text-danger" id="metricDisconnected">
+                            -
+                          </h3>
+                          <span class="text-muted fs-3">offline</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card overflow-hidden h-100">
-                  <div class="card-body p-4">
-                    <h5 class="card-title mb-9 fw-semibold">Conectadas</h5>
-                    <div class="d-flex align-items-center">
-                      <div class="me-4">
-                        <span class="round-48 d-flex align-items-center justify-content-center rounded bg-success-subtle">
-                          <i class="ti ti-check text-success fs-6"></i>
-                        </span>
+
+              <!-- Cards de Sistema -->
+              <div class="row mb-4">
+                <div class="col-lg-4 col-md-6 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h5 class="card-title fw-semibold mb-3">
+                        <i class="ti ti-cpu me-2"></i>Memória do Processo
+                      </h5>
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Heap Usado</span>
+                        <strong id="metricHeapUsed">- MB</strong>
                       </div>
-                      <div>
-                        <h3 class="mb-0 text-success" id="metricConnected">-</h3>
-                        <span class="text-muted fs-3">online</span>
+                      <div class="progress mb-3" style="height: 10px">
+                        <div
+                          class="progress-bar bg-info"
+                          id="progressHeap"
+                          role="progressbar"
+                          style="width: 0%"></div>
+                      </div>
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-2">
+                        <span>RSS Total</span>
+                        <strong id="metricRSS">- MB</strong>
+                      </div>
+                      <div
+                        class="d-flex justify-content-between align-items-center">
+                        <span>RAM por Sessão</span>
+                        <strong id="metricRAMPerSession">- MB</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h5 class="card-title fw-semibold mb-3">
+                        <i class="ti ti-server me-2"></i>Sistema
+                      </h5>
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-2">
+                        <span>RAM Total</span>
+                        <strong id="metricSystemRAM">- GB</strong>
+                      </div>
+                      <div class="progress mb-3" style="height: 10px">
+                        <div
+                          class="progress-bar bg-primary"
+                          id="progressSystemRAM"
+                          role="progressbar"
+                          style="width: 0%"></div>
+                      </div>
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-2">
+                        <span>RAM Livre</span>
+                        <strong id="metricSystemFree">- GB</strong>
+                      </div>
+                      <div
+                        class="d-flex justify-content-between align-items-center">
+                        <span>CPUs</span>
+                        <strong id="metricCPUs">-</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body">
+                      <h5 class="card-title fw-semibold mb-3">
+                        <i class="ti ti-database me-2"></i>Armazenamento
+                      </h5>
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Cache Total</span>
+                        <strong id="metricDiskTotal">- MB</strong>
+                      </div>
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Uptime Sistema</span>
+                        <strong id="metricUptime">-</strong>
+                      </div>
+                      <div
+                        class="d-flex justify-content-between align-items-center">
+                        <span>Última Atualização</span>
+                        <strong id="metricLastUpdate">-</strong>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card overflow-hidden h-100">
-                  <div class="card-body p-4">
-                    <h5 class="card-title mb-9 fw-semibold">Aguardando QR</h5>
-                    <div class="d-flex align-items-center">
-                      <div class="me-4">
-                        <span class="round-48 d-flex align-items-center justify-content-center rounded bg-warning-subtle">
-                          <i class="ti ti-qrcode text-warning fs-6"></i>
-                        </span>
+
+              <!-- Tabela de Sessões com Métricas -->
+              <div class="row">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-body">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title fw-semibold mb-0">
+                          <i class="ti ti-list me-2"></i>Métricas por Sessão
+                        </h5>
+                        <button
+                          class="btn btn-sm btn-outline-primary"
+                          onclick="loadGeneralMetrics()">
+                          <i class="ti ti-refresh"></i> Atualizar
+                        </button>
                       </div>
-                      <div>
-                        <h3 class="mb-0 text-warning" id="metricWaitingQR">-</h3>
-                        <span class="text-muted fs-3">pendentes</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card overflow-hidden h-100">
-                  <div class="card-body p-4">
-                    <h5 class="card-title mb-9 fw-semibold">Desconectadas</h5>
-                    <div class="d-flex align-items-center">
-                      <div class="me-4">
-                        <span class="round-48 d-flex align-items-center justify-content-center rounded bg-danger-subtle">
-                          <i class="ti ti-plug-off text-danger fs-6"></i>
-                        </span>
-                      </div>
-                      <div>
-                        <h3 class="mb-0 text-danger" id="metricDisconnected">-</h3>
-                        <span class="text-muted fs-3">offline</span>
+                      <div class="table-responsive">
+                        <table class="table table-hover" id="metricsTable">
+                          <thead>
+                            <tr>
+                              <th>Sessão</th>
+                              <th>Número</th>
+                              <th>Status</th>
+                              <th>Uptime</th>
+                              <th>Cache</th>
+                              <th>Tentativas</th>
+                              <th>Última Conexão</th>
+                            </tr>
+                          </thead>
+                          <tbody id="metricsTableBody">
+                            <tr>
+                              <td
+                                colspan="7"
+                                class="text-center text-muted py-4">
+                                <div
+                                  class="spinner-border spinner-border-sm me-2"
+                                  role="status"></div>
+                                Carregando métricas...
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
@@ -133,151 +316,52 @@
               </div>
             </div>
 
-            <!-- Cards de Sistema -->
-            <div class="row mb-4">
-              <div class="col-lg-4 col-md-6 mb-3">
-                <div class="card h-100">
-                  <div class="card-body">
-                    <h5 class="card-title fw-semibold mb-3"><i class="ti ti-cpu me-2"></i>Memória do Processo</h5>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span>Heap Usado</span>
-                      <strong id="metricHeapUsed">- MB</strong>
-                    </div>
-                    <div class="progress mb-3" style="height: 10px;">
-                      <div class="progress-bar bg-info" id="progressHeap" role="progressbar" style="width: 0%"></div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span>RSS Total</span>
-                      <strong id="metricRSS">- MB</strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span>RAM por Sessão</span>
-                      <strong id="metricRAMPerSession">- MB</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4 col-md-6 mb-3">
-                <div class="card h-100">
-                  <div class="card-body">
-                    <h5 class="card-title fw-semibold mb-3"><i class="ti ti-server me-2"></i>Sistema</h5>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span>RAM Total</span>
-                      <strong id="metricSystemRAM">- GB</strong>
-                    </div>
-                    <div class="progress mb-3" style="height: 10px;">
-                      <div class="progress-bar bg-primary" id="progressSystemRAM" role="progressbar" style="width: 0%"></div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span>RAM Livre</span>
-                      <strong id="metricSystemFree">- GB</strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span>CPUs</span>
-                      <strong id="metricCPUs">-</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4 col-md-6 mb-3">
-                <div class="card h-100">
-                  <div class="card-body">
-                    <h5 class="card-title fw-semibold mb-3"><i class="ti ti-database me-2"></i>Armazenamento</h5>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span>Cache Total</span>
-                      <strong id="metricDiskTotal">- MB</strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <span>Uptime Sistema</span>
-                      <strong id="metricUptime">-</strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span>Última Atualização</span>
-                      <strong id="metricLastUpdate">-</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tabela de Sessões com Métricas -->
-            <div class="row">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <h5 class="card-title fw-semibold mb-0"><i class="ti ti-list me-2"></i>Métricas por Sessão</h5>
-                      <button class="btn btn-sm btn-outline-primary" onclick="loadGeneralMetrics()">
-                        <i class="ti ti-refresh"></i> Atualizar
-                      </button>
-                    </div>
-                    <div class="table-responsive">
-                      <table class="table table-hover" id="metricsTable">
-                        <thead>
-                          <tr>
-                            <th>Sessão</th>
-                            <th>Número</th>
-                            <th>Status</th>
-                            <th>Uptime</th>
-                            <th>Cache</th>
-                            <th>Tentativas</th>
-                            <th>Última Conexão</th>
-                          </tr>
-                        </thead>
-                        <tbody id="metricsTableBody">
-                          <tr>
-                            <td colspan="7" class="text-center text-muted py-4">
-                              <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                              Carregando métricas...
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- ====== TAB 2: CONEXÕES ATIVAS ====== -->
-          <div class="tab-pane fade" id="connections-content" role="tabpanel" aria-labelledby="connections-tab">
-            <div class="row">
-              <div class="col-lg-12 d-flex align-items-stretch">
-                <div class="card w-100">
-                  <div class="card-body p-4">
-                    <h5 class="card-title fw-semibold mb-4">Conexões ativas</h5>
-                    <div class="table-responsive">
-                      <table class="table text-nowrap mb-0 align-items-strecht table-hover" id="connectionsTable" style="width: 100%">
-                        <thead class="text-dark fs-4">
-                          <tr>
-                            <th class="border-bottom-0">
+            <!-- ====== TAB 2: CONEXÕES ATIVAS ====== -->
+            <div
+              class="tab-pane fade"
+              id="connections-content"
+              role="tabpanel"
+              aria-labelledby="connections-tab">
+              <div class="row">
+                <div class="col-lg-12 d-flex align-items-stretch">
+                  <div class="card w-100">
+                    <div class="card-body p-4">
+                      <h5 class="card-title fw-semibold mb-4">
+                        Conexões ativas
+                      </h5>
+                      <div class="table-responsive">
+                        <table
+                          class="table text-nowrap mb-0 align-items-strecht table-hover"
+                          id="connectionsTable"
+                          style="width: 100%">
+                          <thead class="text-dark fs-4">
+                            <tr>
+                              <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Number</h6>
-                            </th>
-                            <th class="border-bottom-0">
-                              <h6 class="fw-semibold mb-0">Session/Key</h6>
-                            </th>
-                            <th class="border-bottom-0">
-                              <h6 class="fw-semibold mb-0">WA/JS Version</h6>
-                            </th>
-                            <th class="border-bottom-0">
-                              <h6 class="fw-semibold mb-0">Criado/Up</h6>
-                            </th>
-                            <th class="border-bottom-0">
+                              </th>
+                              <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Session/Key</h6>
+                              </th>
+                              <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">WA/JS Version</h6>
+                              </th>
+                              <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Criado/Up</h6>
+                              </th>
+                              <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">WebHook</h6>
-                            </th>
-                            <th class="border-bottom-0">
+                              </th>
+                              <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Status</h6>
-                            </th>
-                            <th class="border-bottom-0">
-                              <h6 class="fw-semibold mb-0">Ações</h6>
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                      </table>
+                              </th>
+                              <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Ações</h6>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody></tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -285,385 +369,585 @@
             </div>
           </div>
 
+          <%- include('../footer.ejs') %>
         </div>
-        
-        <%- include('../footer.ejs') %>
-        
       </div>
     </div>
-  </div>
 
-  <!--modal boostrap 5-->
-  <div class="modal fade" id="modalgeral" tabindex="-1" aria-labelledby="modalgeralLabel" aria-hidden="true" backdrop="static" keyboard="false">
-    <div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-        <h5 class="modal-title" id="modalgeralLabel">Instância</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
+    <!--modal boostrap 5-->
+    <div
+      class="modal fade"
+      id="modalgeral"
+      tabindex="-1"
+      aria-labelledby="modalgeralLabel"
+      aria-hidden="true"
+      backdrop="static"
+      keyboard="false">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalgeralLabel">Instância</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
             <div class="qrcode"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-        </div>
-    </div>
-    </div>
-</div>
-
-  <!-- 📊 Modal de Métricas da Sessão -->
-  <div class="modal fade" id="modalMetrics" tabindex="-1" aria-labelledby="modalMetricsLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title" id="modalMetricsLabel">
-            <i class="ti ti-chart-bar"></i> Métricas da Sessão
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="metricsModalBody">
-          <div class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Carregando...</span>
-            </div>
-            <p class="mt-2">Carregando métricas...</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal">
+              Fechar
+            </button>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-primary" onclick="refreshSessionMetrics()">
-            <i class="ti ti-refresh"></i> Atualizar
-          </button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+
+    <!-- 📊 Modal de Métricas da Sessão -->
+    <div
+      class="modal fade"
+      id="modalMetrics"
+      tabindex="-1"
+      aria-labelledby="modalMetricsLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="modalMetricsLabel">
+              <i class="ti ti-chart-bar"></i> Métricas da Sessão
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="metricsModalBody">
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Carregando...</span>
+              </div>
+              <p class="mt-2">Carregando métricas...</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              onclick="refreshSessionMetrics()">
+              <i class="ti ti-refresh"></i> Atualizar
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal">
+              Fechar
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <%- include('../scripts.ejs') %>
+    <%- include('../scripts.ejs') %>
 
-  <script src="/libs/dataTables/dataTables.min.js"></script>
+    <script src="/libs/dataTables/dataTables.min.js"></script>
 
-  <script>
+    <script>
+      let connectionsDataTable = null;
 
-    let connectionsDataTable = null;
-
-    $(document).ready(function() {
-
+      $(document).ready(function () {
         // Inicializar DataTable para conexões (Tab 2)
-        connectionsDataTable = $('#connectionsTable').DataTable({
-            "searching": true,
-            "processing": true,
-            "serverSide": false,
-            "paging": true,
-            "searching": true,
+        connectionsDataTable = $("#connectionsTable").DataTable({
+          searching: true,
+          processing: true,
+          serverSide: false,
+          paging: true,
+          searching: true,
 
-            //style
-            "lengthMenu": [
-                [10, 25, 50, 100, -1],
-                [10, 25, 50, 100, "All"]
-            ],
-            //select
-            "select": true,
-            "ajax": {
-                "url": "/instances",
-                "type": "POST",
-                "headers": {
-                  "apitoken": "<%= token %>"
-                },
-                "dataSrc": function(json) {
-                  // Atualizar badge de conexões
-                  if (json.data) {
-                    document.getElementById('badgeConnections').textContent = json.data.length;
-                  }
-                  return json.data || [];
-                }
+          //style
+          lengthMenu: [
+            [10, 25, 50, 100, -1],
+            [10, 25, 50, 100, "All"],
+          ],
+          //select
+          select: true,
+          ajax: {
+            url: "/instances",
+            type: "POST",
+            headers: {
+              apitoken: "<%= token %>",
             },
-            "columns": [
-                { "data": "pushname" },
-                { "data": "session" },
-                { "data": "wa_version" },
-                { "data": "created_at" },
-                { "data": "wh_qrcode" },
-                { "data": "status" },
-                { "data": "actions" }
-            ],
-            "columnDefs": [
-                {
-                    "targets": 0,
-                    "render": function (data, type, row) {
+            dataSrc: function (json) {
+              // Atualizar badge de conexões
+              if (json.data) {
+                document.getElementById("badgeConnections").textContent =
+                  json.data.length;
+              }
+              return json.data || [];
+            },
+          },
+          columns: [
+            { data: "pushname" },
+            { data: "session" },
+            { data: "wa_version" },
+            { data: "created_at" },
+            { data: "wh_qrcode" },
+            { data: "status" },
+            { data: "actions" },
+          ],
+          columnDefs: [
+            {
+              targets: 0,
+              render: function (data, type, row) {
+                let html = `<p class="fw-normal mb-1"><i class="fas fa-user"></i> ${
+                  row?.pushname ?? "not name"
+                }</p>`;
+                html += `<p class="fw-normal mb-1"><i class="fas fa-phone"></i> ${
+                  row.number ? row.number : "not_fount@c.us"
+                }</p>`;
 
-                      let html = `<p class="fw-normal mb-1"><i class="fas fa-user"></i> ${row?.pushname ?? 'not name'}</p>`;
-                      html += `<p class="fw-normal mb-1"><i class="fas fa-phone"></i> ${row.number ? row.number : 'not_fount@c.us'}</p>`;
+                return html;
+              },
+            },
+            {
+              targets: 1,
+              render: function (data, type, row) {
+                return `<p class="fw-normal mb-1">${data}</p><p class="fw-normal text-muted">${row.sessionkey}</p>`;
+              },
+            },
+            {
+              targets: 2,
+              render: function (data, type, row) {
+                let ios = `<i class="fab fa-apple text-success"></i>`;
+                let android = `<i class="fab fa-android text-success" title="Comum"></i>`;
+                let business = `<i class="fas fa-briefcase text-success" title="Business"></i>`;
+                let whatsapp = `<i class="fab fa-whatsapp text-success"></i>`;
 
-                      return html;
-
-                    }
-                },
-                {
-                    "targets": 1,
-                    "render": function (data, type, row) {
-                        return `<p class="fw-normal mb-1">${data}</p><p class="fw-normal text-muted">${row.sessionkey}</p>`;
-                    }
-                },
-                {
-                    "targets": 2,
-                    "render": function (data, type, row) {
-                      
-                      let ios = `<i class="fab fa-apple text-success"></i>`
-                      let android = `<i class="fab fa-android text-success" title="Comum"></i>`
-                      let business = `<i class="fas fa-briefcase text-success" title="Business"></i>`
-                      let whatsapp = `<i class="fab fa-whatsapp text-success"></i>`
-
-                      if(row?.platform == 'iphone'){
-                        return `
-                          <p class="fw-normal mb-1">${whatsapp} ${row.wa_version ? row.wa_version : 'not detected'}</p>
-                          <p class="fw-normal mb-1">${ios} ${row.wa_js_version ? row.wa_js_version : 'not detected'}</p>
+                if (row?.platform == "iphone") {
+                  return `
+                          <p class="fw-normal mb-1">${whatsapp} ${
+                    row.wa_version ? row.wa_version : "not detected"
+                  }</p>
+                          <p class="fw-normal mb-1">${ios} ${
+                    row.wa_js_version ? row.wa_js_version : "not detected"
+                  }</p>
                         `;
-                      }
-
-                      //smbi
-                      if(row?.platform == 'smbi'){
-                        return `
-
-                          <p class="fw-normal mb-1">${ios} ${row.wa_version ? row.wa_version : 'not detected'}</p>
-                          <p class="fw-normal mb-1">${business} ${row.wa_js_version ? row.wa_js_version : 'not detected'}</p>
-                        `;
-                      }
-
-                      if(row?.platform == 'smba'){
-
-                        return `
-                          <p class="fw-normal mb-1">${android} ${row.wa_version ? row.wa_version : 'not detected'}</p>
-                          <p class="fw-normal mb-1">${business} ${row.wa_js_version ? row.wa_js_version : 'not detected'}</p>
-                        `;
-
-                      } else {
-
-                        return `
-                          <p class="fw-normal mb-1">${android} ${row.wa_version ? row.wa_version : 'not detected'}</p>
-                          <p class="fw-normal mb-1">${whatsapp} ${row.wa_js_version ? row.wa_js_version : 'not detected'}</p>
-                        `;
-
-                      }
-                      
-                    }
-                },
-                {
-                    "targets": 3,
-                    "render": function (data, type, row) {
-                        return `
-                        <p class="mb-0 fw-normal">${new Date(row.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: true, day: '2-digit', month: '2-digit' })}</p>
-                        <p class="mb-0 fw-semibold">${new Date(row.updated_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: true, day: '2-digit', month: '2-digit' })}</p>
-                        `;
-                    }
-                },
-                {
-                    "targets": 4,
-                    "render": function (data, type, row) {
-                        
-                      let webhooks = "";
-
-                        if (row.wh_qrcode) {
-                          webhooks += `<i class="ti ti-qrcode"></i>`;  
-                        }
-
-                        if (row.wh_status) {
-                          webhooks += `<i class="ti ti-link"></i>`;
-                        }
-
-                        if (row.wh_connect) {
-                          webhooks += `<i class="fas fa-link"></i>`;
-                        }
-
-                        if (row.wh_message) {
-                          webhooks += `<i class="fas fa-comment"></i>`;
-                        }
-
-                        return webhooks;
-
-
-                    }
-                },
-                {
-                    "targets": 5,
-                    "render": function (data, type, row) {
-                        return `<span class="badge bg-${row.status == 'inChat' ? 'success' : 'danger'}">${row.status}</span>`;
-                    }
-                },
-                {
-                    "targets": 6,
-                    "render": function (data, type, row) {
-
-                      let btnMetrics = `<button type="button" class="btn btn-sm btn-info me-1" title="Ver métricas" onclick="showSessionMetrics('${row.session}')"><i class="ti ti-chart-bar"></i></button>`;
-                      let btnDrop = `<button type="button" class="btn btn-sm btn-danger" title="Deletar conexão" onclick="dropInstance('${row.session}','${row.sessionkey}')"><i class="ti ti-trash"></i></button>`;
-
-                      return `${btnMetrics}${btnDrop}`;
-
-                    }
                 }
-            ]
 
+                //smbi
+                if (row?.platform == "smbi") {
+                  return `
+
+                          <p class="fw-normal mb-1">${ios} ${
+                    row.wa_version ? row.wa_version : "not detected"
+                  }</p>
+                          <p class="fw-normal mb-1">${business} ${
+                    row.wa_js_version ? row.wa_js_version : "not detected"
+                  }</p>
+                        `;
+                }
+
+                if (row?.platform == "smba") {
+                  return `
+                          <p class="fw-normal mb-1">${android} ${
+                    row.wa_version ? row.wa_version : "not detected"
+                  }</p>
+                          <p class="fw-normal mb-1">${business} ${
+                    row.wa_js_version ? row.wa_js_version : "not detected"
+                  }</p>
+                        `;
+                } else {
+                  return `
+                          <p class="fw-normal mb-1">${android} ${
+                    row.wa_version ? row.wa_version : "not detected"
+                  }</p>
+                          <p class="fw-normal mb-1">${whatsapp} ${
+                    row.wa_js_version ? row.wa_js_version : "not detected"
+                  }</p>
+                        `;
+                }
+              },
+            },
+            {
+              targets: 3,
+              render: function (data, type, row) {
+                return `
+                        <p class="mb-0 fw-normal">${new Date(
+                          row.created_at
+                        ).toLocaleTimeString("pt-BR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                          day: "2-digit",
+                          month: "2-digit",
+                        })}</p>
+                        <p class="mb-0 fw-semibold">${new Date(
+                          row.updated_at
+                        ).toLocaleTimeString("pt-BR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                          day: "2-digit",
+                          month: "2-digit",
+                        })}</p>
+                        `;
+              },
+            },
+            {
+              targets: 4,
+              render: function (data, type, row) {
+                let webhooks = "";
+
+                if (row.wh_qrcode) {
+                  webhooks += `<i class="ti ti-qrcode"></i>`;
+                }
+
+                if (row.wh_status) {
+                  webhooks += `<i class="ti ti-link"></i>`;
+                }
+
+                if (row.wh_connect) {
+                  webhooks += `<i class="fas fa-link"></i>`;
+                }
+
+                if (row.wh_message) {
+                  webhooks += `<i class="fas fa-comment"></i>`;
+                }
+
+                return webhooks;
+              },
+            },
+            {
+              targets: 5,
+              render: function (data, type, row) {
+                return `<span class="badge bg-${
+                  row.status == "inChat" ? "success" : "danger"
+                }">${row.status}</span>`;
+              },
+            },
+            {
+              targets: 6,
+              render: function (data, type, row) {
+                let btnVerifyStatus = `<button type="button" class="btn btn-sm btn-warning me-1" title="Verificar Status Real" onclick="verifyRealStatus('${row.session}','${row.sessionkey}')"><i class="ti ti-search"></i></button>`;
+                let btnMetrics = `<button type="button" class="btn btn-sm btn-info me-1" title="Ver métricas" onclick="showSessionMetrics('${row.session}')"><i class="ti ti-chart-bar"></i></button>`;
+                let btnDrop = `<button type="button" class="btn btn-sm btn-danger" title="Deletar conexão" onclick="dropInstance('${row.session}','${row.sessionkey}')"><i class="ti ti-trash"></i></button>`;
+
+                return `${btnVerifyStatus}${btnMetrics}${btnDrop}`;
+              },
+            },
+          ],
         });
-    });
+      });
 
-  const socket = io('<%=host %>/', { transports: ['polling'] });
+      const socket = io("<%=host %>/", { transports: ["polling"] });
 
-  myModal = new bootstrap.Modal(document.getElementById('modalgeral'), {
-      keyboard: false
-  })
+      myModal = new bootstrap.Modal(document.getElementById("modalgeral"), {
+        keyboard: false,
+      });
 
-  socket.on('events', (event) => {
-  
-    console.log('events', event)
+      socket.on("events", (event) => {
+        console.log("events", event);
 
-    if(event.status === 'inChat'){
-      //modal 
-      $("#modalgeral").modal('hide')
-    }
-
-    // Atualizar tabela de conexões
-    if (connectionsDataTable) {
-      connectionsDataTable.ajax.reload(null, false);
-    }
-    // Atualizar métricas também
-    loadGeneralMetrics();
-  
-  });
-
-  //socket qrcode
-  socket.on('qrcode', (qrcode) => {
-    console.log('qrcode', qrcode)
-    document.querySelector('.qrcode').innerHTML = `<img src="${qrcode?.qrCode}" alt="QRCode" class="img-fluid">`
-  });
-
-  //socket on code
-  socket.on('code', (data) => {
-    
-    Swal.fire({
-        title: 'Código de autenticação!',
-        text: `${data.code}`,
-        icon: 'info',
-        showCancelButton: false
-    });
-
-  });
-
-  async function dropInstance (session, sessionkey){
-
-    const { value: accept } = await Swal.fire({
-        title: 'Deseja realmente deletar?',
-        text: "Você será desconectado do WhatsApp, será necessário iniciar novamente!",
-        icon: 'warning',
-        showCancelButton: true
-    });
-
-    if (!accept) return;
-
-    const response = await axios.post('/deleteSession', { session: session }, {
-        headers: {
-            'Content-Type': 'application/json',
-            'sessionkey': sessionkey
+        if (event.status === "inChat") {
+          //modal
+          $("#modalgeral").modal("hide");
         }
-    });
 
-    if (response.status === 200) {
+        // Atualizar tabela de conexões
+        if (connectionsDataTable) {
+          connectionsDataTable.ajax.reload(null, false);
+        }
+        // Atualizar métricas também
+        loadGeneralMetrics();
+      });
 
+      //socket qrcode
+      socket.on("qrcode", (qrcode) => {
+        console.log("qrcode", qrcode);
+        document.querySelector(
+          ".qrcode"
+        ).innerHTML = `<img src="${qrcode?.qrCode}" alt="QRCode" class="img-fluid">`;
+      });
+
+      //socket on code
+      socket.on("code", (data) => {
         Swal.fire({
-            title: 'Sucesso!',
-            text: 'Sessão fechada com sucesso!',
-            icon: 'success',
+          title: "Código de autenticação!",
+          text: `${data.code}`,
+          icon: "info",
+          showCancelButton: false,
+        });
+      });
+
+      // ✅ Função para verificar status real da sessão no Chrome/Puppeteer
+      // 🚀 OTIMIZADO: Apenas verifica, não tenta reparar (resposta rápida)
+      async function verifyRealStatus(session, sessionkey) {
+        try {
+          Swal.fire({
+            title: "🔍 Verificando...",
+            text: "Consultando status real da sessão...",
+            allowOutsideClick: false,
+            timer: 15000, // Timeout de 15 segundos
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
+
+          const response = await axios.post(
+            "/verifyRealStatus",
+            { session: session, AuthorizationToken: "<%=token%>" },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                sessionkey: sessionkey,
+              },
+              timeout: 15000, // 15 segundos
+            }
+          );
+
+          const data = response.data;
+
+          let icon = "info";
+          let title = "Status da Sessão";
+
+          if (data.functional === true) {
+            icon = "success";
+            title = "✅ Sessão FUNCIONAL";
+          } else if (
+            data.functional === false &&
+            data.realStatus === "CONNECTED"
+          ) {
+            icon = "error";
+            title = "🔴 FALSO POSITIVO";
+          } else if (data.realStatus === "NO_CLIENT") {
+            icon = "warning";
+            title = "⚠️ Client não encontrado";
+          } else {
+            icon = "warning";
+            title = "⚠️ Sessão com Problema";
+          }
+
+          let htmlContent = `
+        <div class="text-start">
+          <p><strong>🎯 FUNCIONAL:</strong> <span class="badge bg-${
+            data.functional ? "success" : "danger"
+          } fs-6">${data.functional ? "✅ SIM" : "❌ NÃO"}</span></p>
+          <hr>
+          <p><strong>Status Real:</strong> <span class="badge bg-${
+            data.realStatus === "CONNECTED" ? "warning" : "secondary"
+          }">${data.realStatus || "N/A"}</span></p>
+          <p><strong>Status Banco:</strong> <span class="badge bg-${
+            data.dbStatus === "CONNECTED" ? "success" : "warning"
+          }">${data.dbStatus}</span></p>
+      `;
+
+          if (data.action) {
+            htmlContent += `<p class="text-danger mt-2"><strong>⚠️ Ação:</strong> ${data.action}</p>`;
+          }
+
+          if (data.clientInfo && data.clientInfo.number) {
+            htmlContent += `
+          <hr>
+          <p><strong>📱 Número:</strong> ${data.clientInfo.number || "-"}</p>
+          <p><strong>👤 Nome:</strong> ${data.clientInfo.pushname || "-"}</p>
+        `;
+          }
+
+          // Diagnóstico técnico colapsado
+          if (data.diagnostics) {
+            htmlContent += `
+          <hr>
+          <details>
+            <summary class="text-muted" style="cursor:pointer">🔧 Diagnóstico</summary>
+            <pre class="text-start mt-2" style="font-size: 10px; background: #f5f5f5; padding: 8px; border-radius: 5px; max-height: 150px; overflow: auto;">${JSON.stringify(
+              data.diagnostics,
+              null,
+              2
+            )}</pre>
+          </details>
+        `;
+          }
+
+          htmlContent += "</div>";
+
+          Swal.fire({
+            title: title,
+            html: htmlContent,
+            icon: icon,
+            confirmButtonText: "OK",
+            showCancelButton: !data.functional,
+            cancelButtonText: "🗑️ Deletar Sessão",
+            cancelButtonColor: "#dc3545",
+            width: 500,
+          }).then((result) => {
+            if (result.dismiss === Swal.DismissReason.cancel) {
+              dropInstance(session, sessionkey);
+            }
+            // Atualizar tabela se houve correção
+            if (data.updated && connectionsDataTable) {
+              connectionsDataTable.ajax.reload(null, false);
+              loadGeneralMetrics();
+            }
+          });
+        } catch (error) {
+          console.error("Erro ao verificar status:", error);
+          Swal.fire({
+            title: "Erro!",
+            text: "Timeout ou erro na verificação. Tente novamente.",
+            icon: "error",
+          });
+        }
+      }
+
+      async function dropInstance(session, sessionkey) {
+        const { value: accept } = await Swal.fire({
+          title: "Deseja realmente deletar?",
+          text: "Você será desconectado do WhatsApp, será necessário iniciar novamente!",
+          icon: "warning",
+          showCancelButton: true,
+        });
+
+        if (!accept) return;
+
+        const response = await axios.post(
+          "/deleteSession",
+          { session: session },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              sessionkey: sessionkey,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          Swal.fire({
+            title: "Sucesso!",
+            text: "Sessão fechada com sucesso!",
+            icon: "success",
             showCancelButton: false,
             showConfirmButton: false,
-            timer: 1500
-        }).then((result) => {
+            timer: 1500,
+          }).then((result) => {
             if (result.isConfirmed) {
-                
               if (connectionsDataTable) {
                 connectionsDataTable.ajax.reload(null, false);
               }
               loadGeneralMetrics();
-
             }
-        });
-
-    } else {
-
-        Swal.fire({
-            title: 'Erro!',
-            text: 'Não foi possível deletar a sessão!',
-            icon: 'error',
-            showCancelButton: false
-        });
-
+          });
+        } else {
+          Swal.fire({
+            title: "Erro!",
+            text: "Não foi possível deletar a sessão!",
+            icon: "error",
+            showCancelButton: false,
+          });
+        }
       }
 
-    }
+      // =====================================================
+      // 📊 SISTEMA DE MÉTRICAS EM TEMPO REAL
+      // =====================================================
 
-  // =====================================================
-  // 📊 SISTEMA DE MÉTRICAS EM TEMPO REAL
-  // =====================================================
-  
-  let currentMetricsSession = null;
-  let metricsRefreshInterval = null;
-  
-  // Inicializar cards de métricas
-  loadGeneralMetrics();
-  
-  // Atualizar métricas a cada 30 segundos
-  metricsRefreshInterval = setInterval(loadGeneralMetrics, 30000);
-  
-  /**
-   * Carrega métricas gerais para a tab de métricas
-   */
-  async function loadGeneralMetrics() {
-    try {
-      const response = await axios.get('/api/metrics');
-      
-      if (response.data.success && response.data.data) {
-        const data = response.data.data;
-        const totals = data.totals || {};
-        const system = data.system || {};
-        const instances = data.instances || {};
-        
-        // ====== CARDS DE RESUMO ======
-        document.getElementById('metricTotal').textContent = totals.total || 0;
-        document.getElementById('metricConnected').textContent = totals.connected || 0;
-        document.getElementById('metricWaitingQR').textContent = totals.waiting_qr || 0;
-        document.getElementById('metricDisconnected').textContent = totals.disconnected || 0;
-        
-        // Atualizar badge da tab de conexões
-        document.getElementById('badgeConnections').textContent = totals.connected || 0;
-        
-        // ====== CARDS DE SISTEMA ======
-        // Memória do Processo
-        const heapMB = totals.process_heap_mb || 0;
-        const rssMB = totals.process_rss_mb || 0;
-        const heapPercent = Math.min(100, (heapMB / 1024) * 100); // Assumindo limite de 1GB
-        document.getElementById('metricHeapUsed').textContent = `${heapMB} MB`;
-        document.getElementById('progressHeap').style.width = `${heapPercent}%`;
-        document.getElementById('metricRSS').textContent = `${rssMB} MB`;
-        document.getElementById('metricRAMPerSession').textContent = `${totals.estimated_ram_per_instance_mb || 0} MB`;
-        
-        // Sistema
-        const totalRAM = (system.total_memory_mb / 1024).toFixed(1);
-        const freeRAM = (system.free_memory_mb / 1024).toFixed(1);
-        const usedPercent = parseFloat(system.used_percent || 0);
-        document.getElementById('metricSystemRAM').textContent = `${totalRAM} GB`;
-        document.getElementById('metricSystemFree').textContent = `${freeRAM} GB`;
-        document.getElementById('progressSystemRAM').style.width = `${usedPercent}%`;
-        document.getElementById('progressSystemRAM').className = `progress-bar ${usedPercent > 80 ? 'bg-danger' : usedPercent > 60 ? 'bg-warning' : 'bg-primary'}`;
-        document.getElementById('metricCPUs').textContent = `${system.cpus || 0} cores`;
-        
-        // Armazenamento
-        document.getElementById('metricDiskTotal').textContent = `${totals.disk_mb || 0} MB`;
-        document.getElementById('metricUptime').textContent = `${system.uptime_hours || 0}h`;
-        document.getElementById('metricLastUpdate').textContent = new Date().toLocaleTimeString('pt-BR');
-        
-        // ====== TABELA DE MÉTRICAS POR SESSÃO ======
-        const tbody = document.getElementById('metricsTableBody');
-        
-        if (Object.keys(instances).length === 0) {
-          tbody.innerHTML = `
+      let currentMetricsSession = null;
+      let metricsRefreshInterval = null;
+
+      // Inicializar cards de métricas
+      loadGeneralMetrics();
+
+      // Atualizar métricas a cada 30 segundos
+      metricsRefreshInterval = setInterval(loadGeneralMetrics, 30000);
+
+      /**
+       * Carrega métricas gerais para a tab de métricas
+       */
+      async function loadGeneralMetrics() {
+        try {
+          const response = await axios.get("/api/metrics");
+
+          if (response.data.success && response.data.data) {
+            const data = response.data.data;
+            const totals = data.totals || {};
+            const system = data.system || {};
+            const instances = data.instances || {};
+
+            // ====== CARDS DE RESUMO ======
+            document.getElementById("metricTotal").textContent =
+              totals.total || 0;
+            document.getElementById("metricConnected").textContent =
+              totals.connected || 0;
+            document.getElementById("metricWaitingQR").textContent =
+              totals.waiting_qr || 0;
+            document.getElementById("metricDisconnected").textContent =
+              totals.disconnected || 0;
+
+            // Atualizar badge da tab de conexões
+            document.getElementById("badgeConnections").textContent =
+              totals.connected || 0;
+
+            // ====== CARDS DE SISTEMA ======
+            // Memória do Processo
+            const heapMB = totals.process_heap_mb || 0;
+            const rssMB = totals.process_rss_mb || 0;
+            const heapPercent = Math.min(100, (heapMB / 1024) * 100); // Assumindo limite de 1GB
+            document.getElementById(
+              "metricHeapUsed"
+            ).textContent = `${heapMB} MB`;
+            document.getElementById(
+              "progressHeap"
+            ).style.width = `${heapPercent}%`;
+            document.getElementById("metricRSS").textContent = `${rssMB} MB`;
+            document.getElementById("metricRAMPerSession").textContent = `${
+              totals.estimated_ram_per_instance_mb || 0
+            } MB`;
+
+            // Sistema
+            const totalRAM = (system.total_memory_mb / 1024).toFixed(1);
+            const freeRAM = (system.free_memory_mb / 1024).toFixed(1);
+            const usedPercent = parseFloat(system.used_percent || 0);
+            document.getElementById(
+              "metricSystemRAM"
+            ).textContent = `${totalRAM} GB`;
+            document.getElementById(
+              "metricSystemFree"
+            ).textContent = `${freeRAM} GB`;
+            document.getElementById(
+              "progressSystemRAM"
+            ).style.width = `${usedPercent}%`;
+            document.getElementById(
+              "progressSystemRAM"
+            ).className = `progress-bar ${
+              usedPercent > 80
+                ? "bg-danger"
+                : usedPercent > 60
+                ? "bg-warning"
+                : "bg-primary"
+            }`;
+            document.getElementById("metricCPUs").textContent = `${
+              system.cpus || 0
+            } cores`;
+
+            // Armazenamento
+            document.getElementById("metricDiskTotal").textContent = `${
+              totals.disk_mb || 0
+            } MB`;
+            document.getElementById("metricUptime").textContent = `${
+              system.uptime_hours || 0
+            }h`;
+            document.getElementById("metricLastUpdate").textContent =
+              new Date().toLocaleTimeString("pt-BR");
+
+            // ====== TABELA DE MÉTRICAS POR SESSÃO ======
+            const tbody = document.getElementById("metricsTableBody");
+
+            if (Object.keys(instances).length === 0) {
+              tbody.innerHTML = `
             <tr>
               <td colspan="7" class="text-center text-muted py-4">
                 <i class="ti ti-info-circle fs-4"></i>
@@ -671,41 +955,63 @@
               </td>
             </tr>
           `;
-        } else {
-          let html = '';
-          for (const [session, m] of Object.entries(instances)) {
-            const statusClass = m.connected ? 'success' : (m.status === 'qrCode' ? 'warning' : 'danger');
-            const statusIcon = m.connected ? 'check' : (m.status === 'qrCode' ? 'qrcode' : 'x');
-            
-            html += `
+            } else {
+              let html = "";
+              for (const [session, m] of Object.entries(instances)) {
+                const statusClass = m.connected
+                  ? "success"
+                  : m.status === "qrCode"
+                  ? "warning"
+                  : "danger";
+                const statusIcon = m.connected
+                  ? "check"
+                  : m.status === "qrCode"
+                  ? "qrcode"
+                  : "x";
+
+                html += `
               <tr>
                 <td>
                   <strong>${session}</strong>
-                  ${m.pushname ? `<br><small class="text-muted">${m.pushname}</small>` : ''}
+                  ${
+                    m.pushname
+                      ? `<br><small class="text-muted">${m.pushname}</small>`
+                      : ""
+                  }
                 </td>
                 <td>${m.number || '<span class="text-muted">-</span>'}</td>
                 <td>
                   <span class="badge bg-${statusClass}">
-                    <i class="ti ti-${statusIcon} me-1"></i>${m.status || 'unknown'}
+                    <i class="ti ti-${statusIcon} me-1"></i>${
+                  m.status || "unknown"
+                }
                   </span>
                 </td>
-                <td>${m.uptime_hours > 0 ? m.uptime_hours + 'h' : '-'}</td>
+                <td>${m.uptime_hours > 0 ? m.uptime_hours + "h" : "-"}</td>
                 <td>${m.disk_mb} MB</td>
                 <td>
-                  <span class="badge ${m.attempts_start > 3 ? 'bg-danger' : m.attempts_start > 0 ? 'bg-warning' : 'bg-secondary'}">
+                  <span class="badge ${
+                    m.attempts_start > 3
+                      ? "bg-danger"
+                      : m.attempts_start > 0
+                      ? "bg-warning"
+                      : "bg-secondary"
+                  }">
                     ${m.attempts_start || 0}
                   </span>
                 </td>
-                <td>${m.last_connect ? formatDateShort(m.last_connect) : '-'}</td>
+                <td>${
+                  m.last_connect ? formatDateShort(m.last_connect) : "-"
+                }</td>
               </tr>
             `;
+              }
+              tbody.innerHTML = html;
+            }
           }
-          tbody.innerHTML = html;
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao carregar métricas:', error);
-      document.getElementById('metricsTableBody').innerHTML = `
+        } catch (error) {
+          console.error("Erro ao carregar métricas:", error);
+          document.getElementById("metricsTableBody").innerHTML = `
         <tr>
           <td colspan="7" class="text-center text-danger py-4">
             <i class="ti ti-alert-circle fs-4"></i>
@@ -713,57 +1019,59 @@
           </td>
         </tr>
       `;
-    }
-  }
-  
-  /**
-   * Formata data curta
-   */
-  function formatDateShort(dateStr) {
-    if (!dateStr) return '-';
-    try {
-      return new Date(dateStr).toLocaleString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (e) {
-      return dateStr;
-    }
-  }
-  
-  /**
-   * Exibe modal com métricas detalhadas da sessão
-   */
-  async function showSessionMetrics(session) {
-    currentMetricsSession = session;
-    
-    // Abrir modal
-    const modal = new bootstrap.Modal(document.getElementById('modalMetrics'));
-    modal.show();
-    
-    // Carregar dados
-    await loadSessionMetricsData(session);
-  }
-  
-  /**
-   * Atualiza métricas da sessão atual
-   */
-  async function refreshSessionMetrics() {
-    if (currentMetricsSession) {
-      await loadSessionMetricsData(currentMetricsSession);
-    }
-  }
-  
-  /**
-   * Carrega dados de métricas da sessão
-   */
-  async function loadSessionMetricsData(session) {
-    const modalBody = document.getElementById('metricsModalBody');
-    
-    // Loading
-    modalBody.innerHTML = `
+        }
+      }
+
+      /**
+       * Formata data curta
+       */
+      function formatDateShort(dateStr) {
+        if (!dateStr) return "-";
+        try {
+          return new Date(dateStr).toLocaleString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        } catch (e) {
+          return dateStr;
+        }
+      }
+
+      /**
+       * Exibe modal com métricas detalhadas da sessão
+       */
+      async function showSessionMetrics(session) {
+        currentMetricsSession = session;
+
+        // Abrir modal
+        const modal = new bootstrap.Modal(
+          document.getElementById("modalMetrics")
+        );
+        modal.show();
+
+        // Carregar dados
+        await loadSessionMetricsData(session);
+      }
+
+      /**
+       * Atualiza métricas da sessão atual
+       */
+      async function refreshSessionMetrics() {
+        if (currentMetricsSession) {
+          await loadSessionMetricsData(currentMetricsSession);
+        }
+      }
+
+      /**
+       * Carrega dados de métricas da sessão
+       */
+      async function loadSessionMetricsData(session) {
+        const modalBody = document.getElementById("metricsModalBody");
+
+        // Loading
+        modalBody.innerHTML = `
       <div class="text-center py-4">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Carregando...</span>
@@ -771,21 +1079,23 @@
         <p class="mt-2">Carregando métricas...</p>
       </div>
     `;
-    
-    try {
-      const response = await axios.get(`/api/metrics/session/${session}`);
-      
-      if (response.data.success && response.data.data) {
-        const m = response.data.data;
-        
-        // Atualizar título do modal
-        document.getElementById('modalMetricsLabel').innerHTML = `
+
+        try {
+          const response = await axios.get(`/api/metrics/session/${session}`);
+
+          if (response.data.success && response.data.data) {
+            const m = response.data.data;
+
+            // Atualizar título do modal
+            document.getElementById("modalMetricsLabel").innerHTML = `
           <i class="ti ti-chart-bar"></i> ${m.pushname || m.session}
-          <span class="badge bg-${m.connected ? 'success' : 'danger'} ms-2">${m.status}</span>
+          <span class="badge bg-${m.connected ? "success" : "danger"} ms-2">${
+              m.status
+            }</span>
         `;
-        
-        // Renderizar conteúdo
-        modalBody.innerHTML = `
+
+            // Renderizar conteúdo
+            modalBody.innerHTML = `
           <div class="row g-3">
             <!-- Informações Básicas -->
             <div class="col-12">
@@ -794,13 +1104,13 @@
                 <div class="col-md-4">
                   <div class="border rounded p-3 h-100">
                     <small class="text-muted d-block">Número</small>
-                    <strong>${m.number || 'N/A'}</strong>
+                    <strong>${m.number || "N/A"}</strong>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="border rounded p-3 h-100">
                     <small class="text-muted d-block">Nome</small>
-                    <strong>${m.pushname || 'N/A'}</strong>
+                    <strong>${m.pushname || "N/A"}</strong>
                   </div>
                 </div>
                 <div class="col-md-4">
@@ -819,13 +1129,17 @@
                 <div class="col-md-3">
                   <div class="border rounded p-3 text-center h-100">
                     <small class="text-muted d-block">Status</small>
-                    <span class="badge bg-${m.connected ? 'success' : 'danger'} fs-6">${m.status}</span>
+                    <span class="badge bg-${
+                      m.connected ? "success" : "danger"
+                    } fs-6">${m.status}</span>
                   </div>
                 </div>
                 <div class="col-md-3">
                   <div class="border rounded p-3 text-center h-100">
                     <small class="text-muted d-block">Uptime</small>
-                    <strong class="text-success fs-5">${m.uptime_formatted}</strong>
+                    <strong class="text-success fs-5">${
+                      m.uptime_formatted
+                    }</strong>
                   </div>
                 </div>
                 <div class="col-md-3">
@@ -863,13 +1177,17 @@
             </div>
             
             <!-- Bateria -->
-            ${m.battery !== 'N/A' ? `
+            ${
+              m.battery !== "N/A"
+                ? `
             <div class="col-12">
               <h6 class="text-muted mb-3"><i class="ti ti-battery-charging"></i> Bateria</h6>
               <div class="row">
                 <div class="col-md-6">
                   <div class="progress" style="height: 25px;">
-                    <div class="progress-bar ${parseInt(m.battery) < 20 ? 'bg-danger' : 'bg-success'}" 
+                    <div class="progress-bar ${
+                      parseInt(m.battery) < 20 ? "bg-danger" : "bg-success"
+                    }" 
                          role="progressbar" 
                          style="width: ${m.battery}%" 
                          aria-valuenow="${m.battery}" 
@@ -880,29 +1198,41 @@
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <span class="badge ${m.plugged ? 'bg-success' : 'bg-secondary'}">
-                    <i class="ti ti-plug ${m.plugged ? '' : 'text-muted'}"></i>
-                    ${m.plugged ? 'Carregando' : 'Na bateria'}
+                  <span class="badge ${
+                    m.plugged ? "bg-success" : "bg-secondary"
+                  }">
+                    <i class="ti ti-plug ${m.plugged ? "" : "text-muted"}"></i>
+                    ${m.plugged ? "Carregando" : "Na bateria"}
                   </span>
                 </div>
               </div>
             </div>
-            ` : ''}
+            `
+                : ""
+            }
             
             <!-- Webhooks -->
             <div class="col-12">
               <h6 class="text-muted mb-3"><i class="ti ti-webhook"></i> Webhooks Configurados</h6>
               <div class="d-flex flex-wrap gap-2">
-                <span class="badge ${m.webhooks.qrcode ? 'bg-success' : 'bg-secondary'}">
+                <span class="badge ${
+                  m.webhooks.qrcode ? "bg-success" : "bg-secondary"
+                }">
                   <i class="ti ti-qrcode"></i> QR Code
                 </span>
-                <span class="badge ${m.webhooks.connect ? 'bg-success' : 'bg-secondary'}">
+                <span class="badge ${
+                  m.webhooks.connect ? "bg-success" : "bg-secondary"
+                }">
                   <i class="ti ti-link"></i> Connect
                 </span>
-                <span class="badge ${m.webhooks.message ? 'bg-success' : 'bg-secondary'}">
+                <span class="badge ${
+                  m.webhooks.message ? "bg-success" : "bg-secondary"
+                }">
                   <i class="ti ti-message"></i> Message
                 </span>
-                <span class="badge ${m.webhooks.status ? 'bg-success' : 'bg-secondary'}">
+                <span class="badge ${
+                  m.webhooks.status ? "bg-success" : "bg-secondary"
+                }">
                   <i class="ti ti-bell"></i> Status
                 </span>
               </div>
@@ -918,11 +1248,15 @@
                 </div>
                 <div class="col-md-3">
                   <small class="text-muted d-block">Última conexão</small>
-                  <small class="text-success">${formatDate(m.last_connect)}</small>
+                  <small class="text-success">${formatDate(
+                    m.last_connect
+                  )}</small>
                 </div>
                 <div class="col-md-3">
                   <small class="text-muted d-block">Última desconexão</small>
-                  <small class="text-danger">${formatDate(m.last_disconnect)}</small>
+                  <small class="text-danger">${formatDate(
+                    m.last_disconnect
+                  )}</small>
                 </div>
                 <div class="col-md-3">
                   <small class="text-muted d-block">Atualizado em</small>
@@ -935,63 +1269,59 @@
             <div class="col-12">
               <div class="alert alert-secondary mb-0">
                 <small class="text-muted">Session Key:</small>
-                <code class="ms-2">${m.sessionkey || 'N/A'}</code>
+                <code class="ms-2">${m.sessionkey || "N/A"}</code>
               </div>
             </div>
           </div>
         `;
-        
-      } else {
-        modalBody.innerHTML = `
+          } else {
+            modalBody.innerHTML = `
           <div class="alert alert-danger">
             <i class="ti ti-alert-circle"></i> Erro ao carregar métricas da sessão.
           </div>
         `;
-      }
-    } catch (error) {
-      console.error('Erro ao carregar métricas da sessão:', error);
-      modalBody.innerHTML = `
+          }
+        } catch (error) {
+          console.error("Erro ao carregar métricas da sessão:", error);
+          modalBody.innerHTML = `
         <div class="alert alert-danger">
           <i class="ti ti-alert-circle"></i> Erro: ${error.message}
         </div>
       `;
-    }
-  }
-  
-  /**
-   * Formata plataforma para exibição
-   */
-  function formatPlatform(platform) {
-    const platforms = {
-      'android': '<i class="fab fa-android text-success"></i> Android',
-      'iphone': '<i class="fab fa-apple"></i> iPhone',
-      'smba': '<i class="fas fa-briefcase text-primary"></i> Business Android',
-      'smbi': '<i class="fas fa-briefcase text-primary"></i> Business iOS',
-      'web': '<i class="fab fa-chrome"></i> Web'
-    };
-    return platforms[platform] || platform || 'N/A';
-  }
-  
-  /**
-   * Formata data para exibição
-   */
-  function formatDate(dateStr) {
-    if (!dateStr) return 'N/A';
-    try {
-      return new Date(dateStr).toLocaleString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (e) {
-      return dateStr;
-    }
-  }
+        }
+      }
 
-  </script>
+      /**
+       * Formata plataforma para exibição
+       */
+      function formatPlatform(platform) {
+        const platforms = {
+          android: '<i class="fab fa-android text-success"></i> Android',
+          iphone: '<i class="fab fa-apple"></i> iPhone',
+          smba: '<i class="fas fa-briefcase text-primary"></i> Business Android',
+          smbi: '<i class="fas fa-briefcase text-primary"></i> Business iOS',
+          web: '<i class="fab fa-chrome"></i> Web',
+        };
+        return platforms[platform] || platform || "N/A";
+      }
 
-</body>
-
+      /**
+       * Formata data para exibição
+       */
+      function formatDate(dateStr) {
+        if (!dateStr) return "N/A";
+        try {
+          return new Date(dateStr).toLocaleString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        } catch (e) {
+          return dateStr;
+        }
+      }
+    </script>
+  </body>
 </html>

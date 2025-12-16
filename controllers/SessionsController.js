@@ -605,6 +605,232 @@ class Sessions {
       customLogger.warning(`[SESSIONS] Erro ao remover sessão ${session} da memória:`, error.message);
     }
   }
+
+  /**
+   * 🔍 VERIFICAR STATUS REAL - Verifica se a sessão está realmente conectada no Puppeteer/Chrome
+   * Endpoint: POST /verifyRealStatus
+   * Body: { session: "nome_da_sessao" }
+   * 
+   * Esta função:
+   * 1. Pega o client WhatsApp da memória
+   * 2. Verifica se está conectado usando client.getState()
+   * 3. Se conectado mas banco está diferente → Atualiza banco
+   * 4. Retorna status real
+   */
+  static async verifyRealStatus(req, res) {
+    try {
+      const session = req.body.session;
+      
+      if (!session) {
+        return http.invalid(res, 'Parâmetro session é obrigatório');
+      }
+
+      customLogger.info(`[VERIFY REAL STATUS] ${session} - Iniciando verificação REAL...`);
+
+      // 1. Buscar device do banco
+      const sessionkey = req.headers['sessionkey'];
+      const device = await SessionsHelper.getDevice(session, sessionkey);
+      
+      if (!device) {
+        return http.notFound(res, 'Sessão não encontrada no banco de dados');
+      }
+
+      // 2. Buscar client da memória
+      const client = SessionsHelper.getInjectedClient(session);
+      
+      if (!client) {
+        customLogger.warning(`[VERIFY REAL STATUS] ${session} - Client não encontrado na memória`);
+        return http.json(res, 200, {
+          result: 200,
+          realStatus: 'NO_CLIENT',
+          dbStatus: device.status,
+          dbState: device.state,
+          synced: false,
+          functional: false,
+          message: '❌ Client não está na memória. Sessão não iniciada ou perdida.',
+          action: 'Requer reinicialização da sessão'
+        });
+      }
+
+      // 3. Diagnóstico completo
+      let diagnostics = {
+        hasClient: !!client,
+        hasInfo: false,
+        hasPupPage: !!client.pupPage,
+        hasPupBrowser: !!client.pupBrowser,
+        getStateResult: null,
+        canGetWid: false,
+        canGetContacts: false,
+        functional: false
+      };
+
+      let realState = null;
+      let clientInfo = null;
+      let isFunctional = false;
+
+      try {
+        // TESTE 1: getState()
+        realState = await client.getState();
+        diagnostics.getStateResult = realState;
+        customLogger.info(`[VERIFY REAL STATUS] ${session} - getState(): ${realState}`);
+      } catch (stateErr) {
+        diagnostics.getStateError = stateErr.message;
+        customLogger.error(`[VERIFY REAL STATUS] ${session} - getState() falhou: ${stateErr.message}`);
+      }
+
+      try {
+        // TESTE 2: client.info (só existe se evento 'ready' disparou)
+        clientInfo = client.info;
+        diagnostics.hasInfo = !!clientInfo;
+        diagnostics.hasWid = !!clientInfo?.wid;
+        
+        if (clientInfo?.wid) {
+          diagnostics.widUser = clientInfo.wid.user;
+          customLogger.info(`[VERIFY REAL STATUS] ${session} - client.info.wid: ${clientInfo.wid.user}`);
+        }
+      } catch (infoErr) {
+        diagnostics.infoError = infoErr.message;
+      }
+
+      try {
+        // TESTE 3: Tentar obter WID via pupPage (teste mais profundo)
+        if (client.pupPage) {
+          const widFromPage = await client.pupPage.evaluate(() => {
+            return window.Store?.Conn?.wid?._serialized || null;
+          });
+          diagnostics.canGetWid = !!widFromPage;
+          diagnostics.widFromPage = widFromPage;
+          
+          if (widFromPage) {
+            customLogger.info(`[VERIFY REAL STATUS] ${session} - WID via pupPage: ${widFromPage}`);
+          }
+        }
+      } catch (pageErr) {
+        diagnostics.pageError = pageErr.message;
+      }
+
+      try {
+        // TESTE 4: ⭐ TESTE FUNCIONAL REAL - Tentar buscar o próprio número
+        // Este é o teste DECISIVO - se funcionar, a sessão está operacional
+        if (client.pupPage) {
+          const isReady = await client.pupPage.evaluate(() => {
+            // Verifica se o Store está carregado e funcional
+            return !!(
+              window.Store && 
+              window.Store.Conn && 
+              window.Store.Conn.wid && 
+              window.Store.Chat
+            );
+          });
+          diagnostics.storeReady = isReady;
+          
+          if (isReady) {
+            // Tentar contar chats como teste funcional
+            const chatCount = await client.pupPage.evaluate(() => {
+              try {
+                return window.Store.Chat.models?.length || 0;
+              } catch {
+                return -1;
+              }
+            });
+            diagnostics.chatCount = chatCount;
+            diagnostics.canGetContacts = chatCount > 0;
+            
+            // Se conseguiu contar chats, está funcional!
+            isFunctional = chatCount > 0;
+            customLogger.info(`[VERIFY REAL STATUS] ${session} - Chat count: ${chatCount}, Funcional: ${isFunctional}`);
+          }
+        }
+      } catch (funcErr) {
+        diagnostics.functionalError = funcErr.message;
+        customLogger.error(`[VERIFY REAL STATUS] ${session} - Teste funcional falhou: ${funcErr.message}`);
+      }
+
+      diagnostics.functional = isFunctional;
+
+      // 4. Determinar status real
+      const dbIsConnected = ['CONNECTED', 'inChat', 'isLogged'].includes(device.status);
+      const reallyConnected = isFunctional; // ⭐ Usar resultado do teste funcional
+
+      // 5. Resposta baseada no status FUNCIONAL
+      if (reallyConnected) {
+        // Sessão realmente funcional
+        if (!dbIsConnected) {
+          // Atualizar banco se estava desincronizado
+          await Device.update({
+            status: 'CONNECTED',
+            state: 'CONNECTED',
+            qrCode: '',
+            urlCode: '',
+            attempts: 0,
+            number: clientInfo?.wid?.user || diagnostics.widFromPage?.split('@')[0] || device.number,
+            last_connect: new Date(),
+            updated_at: new Date()
+          }, { where: { session } });
+        }
+        
+        return http.json(res, 200, {
+          result: 200,
+          realStatus: realState,
+          dbStatus: dbIsConnected ? device.status : 'CONNECTED',
+          dbState: device.state,
+          synced: true,
+          functional: true,
+          updated: !dbIsConnected,
+          message: '✅ Sessão FUNCIONAL - Pode enviar mensagens!',
+          clientInfo: {
+            number: clientInfo?.wid?.user || diagnostics.widFromPage?.split('@')[0],
+            pushname: clientInfo?.pushname,
+            platform: clientInfo?.platform
+          },
+          diagnostics
+        });
+      } else {
+        // ⚠️ Sessão NÃO funcional - Responder RÁPIDO e sugerir ação
+        customLogger.warning(`[VERIFY REAL STATUS] ${session} - Sessão não funcional`);
+        
+        // 🚀 OTIMIZADO: Não tentar reparar de forma síncrona (causa timeout)
+        // Apenas informar o usuário e dar opções
+        
+        const hasClient = !!client;
+        const hasPupPage = !!client?.pupPage;
+        const canTryRepair = hasClient && hasPupPage;
+        
+        // Sugestão de ação baseada no diagnóstico
+        let suggestedAction = 'Deletar sessão e reconectar com QR Code';
+        let canAutoRepair = false;
+        
+        // Se tem client e pupPage, pode tentar reparar
+        if (canTryRepair && realState === 'CONNECTED') {
+          suggestedAction = 'Clique em "Tentar Reparar" ou delete e reconecte';
+          canAutoRepair = true;
+        } else if (!hasClient) {
+          suggestedAction = 'Sessão perdida. Delete e reconecte com QR Code';
+        } else if (realState === null || realState === 'UNPAIRED') {
+          suggestedAction = 'Sessão deslogada. Delete e reconecte com QR Code';
+        }
+        
+        return http.json(res, 200, {
+          result: 200,
+          realStatus: realState,
+          dbStatus: device.status,
+          dbState: device.state,
+          synced: false,
+          functional: false,
+          canAutoRepair: canAutoRepair,
+          message: realState === 'CONNECTED' 
+            ? '⚠️ getState()=CONNECTED mas sessão NÃO funciona! Store não carregou.'
+            : `❌ Sessão não funcional. Estado: ${realState || 'desconhecido'}`,
+          action: suggestedAction,
+          diagnostics
+        });
+      }
+
+    } catch (err) {
+      customLogger.error(`[VERIFY REAL STATUS ERROR] ${req.body.session} - ${err.message}`);
+      return http.fail(res, err, 500, 'Erro ao verificar status real');
+    }
+  }
 }
 
 module.exports = Sessions;
