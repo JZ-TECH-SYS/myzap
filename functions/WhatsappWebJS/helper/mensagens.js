@@ -80,23 +80,23 @@ module.exports = {
   },
 
   async sendImage(req, res) {
-    return sendMedia(req, res, "image");
+    return this.sendMedia(req, res, "image");
   },
 
   async sendVideo(req, res) {
-    return sendMedia(req, res, "video");
+    return this.sendMedia(req, res, "video");
   },
 
   async sendSticker(req, res) {
-    return sendMedia(req, res, "sticker");
+    return this.sendMedia(req, res, "sticker");
   },
 
   async sendFile(req, res) {
-    return sendMedia(req, res, "file");
+    return this.sendMedia(req, res, "file");
   },
 
   async sendAudio(req, res) {
-    return sendMedia(req, res, "audio");
+    return this.sendMedia(req, res, "audio");
   },
 
   async sendLocation(req, res) {
