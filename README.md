@@ -172,15 +172,18 @@ cd myzap
 ### 5. Instalar Dependências do Node
 
 ```bash
-npm install
-npm audit fix --force
+# Ativar corepack (gerenciador de package managers)
+corepack enable
+
+# Instalar dependências com pnpm
+pnpm install
 ```
 
 ### 6. Configurar Banco de Dados
 
 ```bash
 # Criar estrutura do banco
-npm run migrate
+pnpm run migrate
 
 # Ou usar o script automatizado
 bash ./scripts/database.sh
@@ -233,7 +236,7 @@ Acesse o dashboard em `http://seu-servidor:3000/admin/ia-manager` e configure:
 ### Desenvolvimento
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ### Produção

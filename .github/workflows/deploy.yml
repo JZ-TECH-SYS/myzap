@@ -21,8 +21,8 @@ jobs:
           port: 22022
           timeout: 2m            # tempo para CONECTAR via SSH (default 30s)
           command_timeout: 40m   # tempo para rodar os comandos (default 10m)
-          # Se você quiser controlar updates (npm update) pelo Actions:
-          envs: NPM_UPDATE
+          # Se você quiser controlar updates (pnpm update) pelo Actions:
+          envs: PNPM_UPDATE
           script: |
             set -e
 
@@ -36,37 +36,33 @@ jobs:
               exit 1
             fi
 
-            echo "[INFO] Instalando dependências Node..."
-            if ! command -v npm >/dev/null 2>&1; then
-              echo "[ERRO] npm não encontrado no PATH. Instale Node.js na VPS." >&2
-              exit 1
+            echo "[INFO] Instalando dependências Node com pnpm..."
+            if ! command -v pnpm >/dev/null 2>&1; then
+              echo "[INFO] pnpm não encontrado. Instalando via corepack..."
+              corepack enable
+              corepack prepare pnpm@latest --activate
             fi
-            echo "Node: $(node -v) / NPM: $(npm -v)"
+            echo "Node: $(node -v) / pnpm: $(pnpm -v)"
 
             # ✅ LIMPEZA FORÇADA - Remove node_modules e cache corrompidos
             echo "[INFO] Limpando instalação anterior..."
             rm -rf node_modules
-            npm cache clean --force
-
-            # acelera e evita ruído
-            npm config set fund false
-            npm config set audit false
-            npm config set progress false
+            pnpm store prune
 
             # Se já existir lockfile, instalação determinística
-            if [ -f package-lock.json ]; then
-              npm ci --no-audit --no-fund
+            if [ -f pnpm-lock.yaml ]; then
+              pnpm install --frozen-lockfile
             else
-              npm install --no-audit --no-fund
+              pnpm install
             fi
 
-            # (Opcional) atualizar compatíveis se NPM_UPDATE=1
-            if [ "${NPM_UPDATE:-0}" = "1" ]; then
-              echo "[INFO] Executando npm update"
-              npm update || true
+            # (Opcional) atualizar compatíveis se PNPM_UPDATE=1
+            if [ "${PNPM_UPDATE:-0}" = "1" ]; then
+              echo "[INFO] Executando pnpm update"
+              pnpm update || true
             fi
 
-            npm prune
+            pnpm prune
 
             echo "[INFO] Reiniciando aplicação via PM2"
             if command -v pm2 >/dev/null 2>&1; then

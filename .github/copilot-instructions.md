@@ -47,9 +47,9 @@ myzap/
 
 ```bash
 # Verificar versão atual vs disponível
-npm outdated whatsapp-web.js
-npm outdated @wppconnect-team/wppconnect  
-npm outdated venom-bot
+pnpm outdated whatsapp-web.js
+pnpm outdated @wppconnect-team/wppconnect  
+pnpm outdated venom-bot
 ```
 
 As engines WhatsApp dependem de engenharia reversa do WhatsApp Web e **quebram frequentemente** com atualizações do WhatsApp. Sintomas comuns:
@@ -58,7 +58,7 @@ As engines WhatsApp dependem de engenharia reversa do WhatsApp Web e **quebram f
 - Mensagens não enviando
 - Timeouts inexplicáveis
 
-**Solução típica:** `npm update whatsapp-web.js` (ou a engine em uso)
+**Solução típica:** `pnpm update whatsapp-web.js` (ou a engine em uso)
 
 ---
 
@@ -140,7 +140,7 @@ Para trocar a engine, altere `config.engine` em `config.js` e reinicie.
 
 ### 1. Sessão desconecta após QR scan
 - **Causa provável:** Atualização da biblioteca da engine
-- **Solução:** `npm update whatsapp-web.js` (ou engine em uso)
+- **Solução:** `pnpm update whatsapp-web.js` (ou engine em uso)
 
 ### 2. Emails não chegam
 - Verificar `nome_remetente` no payload

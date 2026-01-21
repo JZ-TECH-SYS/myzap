@@ -65,18 +65,19 @@ Este é um fork aprimorado do projeto [billbarsch/myzap](https://github.com/bill
 git clone https://github.com/JZ-TECH-SYS/myzap.git
 cd myzap
 
-# 2. Instalar dependências
-npm install
+# 2. Ativar corepack e instalar dependências
+corepack enable
+pnpm install
 
 # 3. Configurar .env
 cp .env.example .env
 # Edite o .env com suas configurações
 
 # 4. Rodar migrações
-npm run migrate
+pnpm run migrate
 
 # 5. Iniciar servidor
-npm run dev
+pnpm dev
 ```
 
 Acesse: `http://localhost:3000/dashboard`
