@@ -25,7 +25,7 @@ function generateUserAgent() {
 
 /**
  * Argumentos mínimos e "normais" para o browser
- * ✅ Otimizado para Windows e prevenção de Code: 21
+ * Otimizado para Windows e prevenção de Code: 21
  */
 function getStealthBrowserArgs() {
     return [

@@ -20,7 +20,7 @@ async function processAudio({ message, client, numero, payload, session, session
         return { success: true }; // não é áudio, continua processamento normal
     }
 
-    // ✅ Verificação global de áudio habilitado
+    // Verificação global de áudio habilitado
     if (!ACEITAR_AUDIO) {
         await MessageSender.sendText({
             client,

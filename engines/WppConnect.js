@@ -9,7 +9,7 @@ const config = require('../config.js');
 const DeviceModel = require('../Models/device.js');
 const UserModel = require('../Models/user.js');
 const logger = require('../util/logger.js');
-const customLogger = require('../util/customLogger.js'); // ✅ ADICIONADO
+const customLogger = require('../util/customLogger.js'); // ADICIONADO
 const WppHelper = require('./helper/wpp');
 const DeviceCompanyModel = require('../Models/deviceCompany.js');
 const DeviceCompany = DeviceCompanyModel(config.sequelize);
@@ -40,7 +40,7 @@ module.exports = class Wppconnect {
     customLogger.whatsapp(`🚀 Starting WppConnect - Session: ${session}`);
 
     try {
-      // ✅ VERIFICAR SE SESSÃO JÁ EXISTE E ESTÁ CONECTADA
+      // VERIFICAR SE SESSÃO JÁ EXISTE E ESTÁ CONECTADA
       const existingClient = Sessions.getClient(session);
       if (existingClient && existingClient.status === 'inChat') {
         customLogger.info(`✅ Sessão ${session} já conectada`);
@@ -51,7 +51,7 @@ module.exports = class Wppconnect {
         });
       }
 
-      // ✅ REGRA SIMPLES: SE TEM QR CODE NO BANCO, LIMPAR E GERAR NOVO
+      // REGRA SIMPLES: SE TEM QR CODE NO BANCO, LIMPAR E GERAR NOVO
       const existingDevice = await Device.findOne({ where: { session } });
       if (existingDevice && existingDevice.status === 'qrCode') {
         customLogger.info(`� ${session} - Tem QR Code existente, limpando para gerar novo`);
@@ -64,7 +64,7 @@ module.exports = class Wppconnect {
         }, { where: { session } });
       }
 
-      // ✅ DETECTA SESSÃO PERDIDA APÓS RESTART (existe no banco mas não na memória)
+      // DETECTA SESSÃO PERDIDA APÓS RESTART (existe no banco mas não na memória)
       const device = await Device.findOne({ where: { session } });
       if (device && (device.status === 'inChat' || device.status === 'isLogged') && !existingClient) {
         customLogger.info(`🔄 Detectada sessão perdida após restart: ${session} - Status banco: ${device.status}`);
@@ -76,7 +76,7 @@ module.exports = class Wppconnect {
       const { empresa_nome, api_url } = body;
       const sysUser = await User.findOne({ where: { email: process.env.EMAIL } });
       
-      // ✅ USAR existingDevice já buscado acima para incrementar attempts_start
+      // USAR existingDevice já buscado acima para incrementar attempts_start
       const currentAttemptsStart = existingDevice?.attempts_start || 0;
       
       const payload = WppHelper.getPayloadCreateDevice({
@@ -85,7 +85,7 @@ module.exports = class Wppconnect {
         wh_connect, wh_status, wh_message, wh_qrcode
       });
       
-      // ✅ INCREMENTAR tentativas de start
+      // INCREMENTAR tentativas de start
       payload.attempts_start = currentAttemptsStart + 1;
       customLogger.info(`📊 Sessão ${session} - tentativa de start #${currentAttemptsStart + 1}`);
       
@@ -132,7 +132,7 @@ module.exports = class Wppconnect {
 
     req.funcoesSocket = socketFns;
 
-    // ✅ ATUALIZAR STATUS NO BANCO PARA INITIALIZING
+    // ATUALIZAR STATUS NO BANCO PARA INITIALIZING
     try {
       await Device.update({
         state: 'STARTING',
@@ -225,7 +225,7 @@ module.exports = class Wppconnect {
     global.__wppInit = global.__wppInit || {};
     global.__wppInit[session] = Date.now();
     
-    // ✅ VERIFICAR TOKENS EXISTENTES ANTES DE GERAR QR CODE
+    // VERIFICAR TOKENS EXISTENTES ANTES DE GERAR QR CODE
     const fs = require('fs');
     const path = require('path');
     const sessionPath = path.join('./instances', session);

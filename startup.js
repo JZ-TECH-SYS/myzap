@@ -1,122 +1,186 @@
-const request = require('request-promise');
-const axios = require('axios');
-const config = require('./config');
-const logger = require('./util/logger');
-const customLogger = require('./util/customLogger');
+"use strict";
 
-const { exec } = require('child_process');
+const config = require("./config");
+const SessionsHelper = require("./controllers/helper/core/sessions.js");
+const customLogger = require("./util/customLogger");
 
-const chalk = require('chalk');
+// Imports dos jobs
+const { startCacheCleanupJob } = require("./jobs/cacheCleanup");
+const { startLogsCleanupJob } = require("./jobs/logsCleanup");
+const { startDatabaseCleanupJob } = require("./jobs/databaseCleanup");
+const { startInstancesCleanupJob } = require("./jobs/instancesCleanup");
+const { startChatHistoryCleanupJob } = require("./jobs/chatHistoryCleanup");
+const { startDailyReportJob } = require("./jobs/dailyReport");
+const { startMemoryMonitorJob } = require("./jobs/memoryMonitor");
+const { startInstanceMetricsJob } = require("./jobs/instanceMetrics");
 
-const DeviceModel = require('./Models/device');
-const Device = DeviceModel(config.sequelize);
-
-// 🚀 JOBS DE LIMPEZA AUTOMÁTICA
-const { startCacheCleanupJob } = require('./jobs/cacheCleanup');
-const { startChatHistoryCleanupJob } = require('./jobs/chatHistoryCleanup');
-const { startInstancesCleanupJob } = require('./jobs/instancesCleanup');
-const { startDatabaseCleanupJob } = require('./jobs/databaseCleanup');
-const { startLogsCleanupJob } = require('./jobs/logsCleanup');
-const { startMemoryMonitorJob } = require('./jobs/memoryMonitor');
-const { startInstanceMetricsJob } = require('./jobs/instanceMetrics'); // 📊 Métricas por instância
-const dailyReportJob = require('./jobs/dailyReport'); // 📧 Relatório diário por email
-
+/**
+ * 🚀 Inicia todas as sessões salvas no banco de dados
+ */
 async function startAllSessions() {
+  try {
+    customLogger.info("[STARTUP] Buscando sessões no banco de dados...");
+    
+    const devices = await SessionsHelper.listDevices();
+    
+    if (!devices || devices.length === 0) {
+      customLogger.info("[STARTUP] Nenhuma sessão encontrada para iniciar");
+      return;
+    }
 
-	const host = config?.host ? `${config?.host}:${config?.port}` : config?.host_ssl;
-	const sessions = await Device.findAll();
+    customLogger.info(`[STARTUP] ${devices.length} sessão(ões) encontrada(s)`);
 
-	if (sessions != null) {
-		
-        // update all devices without where
-        await Device.update({
-			
-			qrCode: '',
-			attempts: 0,
-			urlCode: '',
-			attempts_start: 0,
-			last_start: 'NULL',
+    // Importar a engine dinamicamente baseado na configuração
+    const engine = config.engine || 'WhatsappWebJS';
+    let startSessionFunction;
 
-			state: 'DISCONNECTED',
-			status: 'notLogged',
-			
-			updated_at: new Date()
-		}, { where: {} });
+    try {
+      if (engine === 'WhatsappWebJS' || engine === '1') {
+        const WhatsappWebJS = require('./engines/WhatsappWebJS');
+        startSessionFunction = WhatsappWebJS.start;
+      } else if (engine === 'WppConnect' || engine === '2') {
+        const WppConnect = require('./engines/WppConnect');
+        startSessionFunction = WppConnect.start;
+      } else if (engine === 'Venom' || engine === '3') {
+        const Venom = require('./engines/Venom');
+        startSessionFunction = Venom.start;
+      } else {
+        customLogger.warn(`[STARTUP] Engine desconhecida: ${engine}. Usando WhatsappWebJS como padrão.`);
+        const WhatsappWebJS = require('./engines/WhatsappWebJS');
+        startSessionFunction = WhatsappWebJS.start;
+      }
+    } catch (error) {
+      customLogger.error(`[STARTUP] Erro ao carregar engine ${engine}:`, error.message);
+      return;
+    }
 
-		logger.info(`Iniciando ${sessions.length} sessões...`);
+    // Iniciar cada sessão com um pequeno delay para evitar sobrecarga
+    for (const device of devices) {
+      try {
+        const deviceData = device.dataValues || device;
+        customLogger.info(`[STARTUP] Iniciando sessão: ${deviceData.session}`);
+        
+        // Criar mock de req e res para a engine (ela espera req, res, session)
+        const mockReq = {
+          headers: {
+            sessionkey: deviceData.sessionkey
+          },
+          body: {
+            number: deviceData.number || '',
+            wh_connect: deviceData.wh_connect || '',
+            wh_status: deviceData.wh_status || '',
+            wh_message: deviceData.wh_message || '',
+            wh_qrcode: deviceData.wh_qrcode || ''
+          }
+        };
+        
+        const mockRes = {
+          status: () => mockRes,
+          json: (data) => data,
+          send: (data) => data
+        };
+        
+        // Chama a função start da engine apropriada (req, res, session)
+        await startSessionFunction(mockReq, mockRes, deviceData.session);
+        
+        customLogger.success(`[STARTUP] Sessão ${deviceData.session} iniciada com sucesso`);
+        
+        // Pequeno delay entre inicializações
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+      } catch (error) {
+        const deviceData = device.dataValues || device;
+        customLogger.error(`[STARTUP] ❌ Erro ao iniciar sessão ${deviceData.session}:`, error.message);
+      }
+    }
 
-		async function startSession(object) {
-
-			const sessionData = {
-				...object.dataValues,
-				apitoken: config.token,
-			}
-
-			try {
-
-				await axios.post(`${host}/start`, {
-					session: sessionData.session,
-					wh_connect: sessionData.wh_connect,
-					wh_qrcode: sessionData.wh_qrcode,
-					wh_status: sessionData.wh_status,
-					wh_message: sessionData.wh_message,
-					AutoRejectCall: sessionData.AutoRejectCall,
-					AnswerMissedCall: sessionData.AnswerMissedCall
-				}, {
-					headers: {
-						apitoken: sessionData.apitoken,
-						sessionkey: sessionData.sessionkey
-					}
-				});
-		
-				console.log(chalk.green(`[SESSION] ${chalk.bold.green(sessionData.session)} - ${chalk.bold.green(`Iniciada com sucesso!`)}`));
-
-			} catch (error) {
-				console.log(error);
-			}
-		}
-
-		for (let i = 0; i < sessions.length; i++) {
-
-			sessionData = sessions[i];
-			await startSession(sessionData);
-
-			if (i < sessions.length - 1) {
-				await new Promise(resolve => setTimeout(resolve, 15000)); // 15 seconds
-			}
-
-		}
-
-	}else{
-		//clear instances folder
-		exec('rm -rf ./instances/*', (err) => {
-			if (err) {
-				console.error("Erro ao apagar instances folder:", err);
-			}
-		});
-
-	}
+    customLogger.success("[STARTUP] Processo de inicialização de sessões concluído");
+    
+  } catch (error) {
+    customLogger.error("[STARTUP] Erro ao iniciar sessões:", error);
+    throw error;
+  }
 }
 
-// 🚀 Iniciar jobs de limpeza automática
+/**
+ * 🧹 Inicia todos os jobs de limpeza e manutenção
+ */
 function startCleanupJobs() {
-	try {
-		customLogger.info('🚀 Iniciando jobs de limpeza automática...');
-		
-		startCacheCleanupJob();
-		startChatHistoryCleanupJob();
-		startInstancesCleanupJob();
-		startDatabaseCleanupJob();
-		startLogsCleanupJob();
-		startMemoryMonitorJob();
-		startInstanceMetricsJob(); // 📊 Métricas por instância
-		dailyReportJob.start(); // 📧 Relatório diário por email
-		
-		customLogger.success('✅ Todos os jobs de limpeza foram iniciados com sucesso!');
-	} catch (err) {
-		customLogger.error(`❌ Erro ao iniciar jobs de limpeza: ${err.message}`);
-	}
+  try {
+    customLogger.info("[JOBS] Iniciando jobs de limpeza e manutenção...");
+
+    // Iniciar job de limpeza de cache
+    if (typeof startCacheCleanupJob === 'function') {
+      startCacheCleanupJob();
+    } else {
+      customLogger.warning("[JOBS] startCacheCleanupJob não disponível");
+    }
+
+    // Iniciar job de limpeza de logs
+    if (typeof startLogsCleanupJob === 'function') {
+      startLogsCleanupJob();
+    } else {
+      customLogger.warning("[JOBS] startLogsCleanupJob não disponível");
+    }
+
+    // Iniciar job de limpeza de banco de dados
+    if (typeof startDatabaseCleanupJob === 'function') {
+      startDatabaseCleanupJob();
+    } else {
+      customLogger.warning("[JOBS] startDatabaseCleanupJob não disponível");
+    }
+
+    // Iniciar job de limpeza de instâncias
+    if (typeof startInstancesCleanupJob === 'function') {
+      startInstancesCleanupJob();
+    } else {
+      customLogger.warning("[JOBS] startInstancesCleanupJob não disponível");
+    }
+
+    // Iniciar job de limpeza de histórico de chat
+    if (typeof startChatHistoryCleanupJob === 'function') {
+      startChatHistoryCleanupJob();
+    } else {
+      customLogger.warning("[JOBS] startChatHistoryCleanupJob não disponível");
+    }
+
+    // Iniciar job de relatório diário
+    if (typeof startDailyReportJob === 'function') {
+      startDailyReportJob();
+    } else {
+      customLogger.warning("[JOBS] startDailyReportJob não disponível");
+    }
+
+    // Iniciar job de monitoramento de memória
+    if (typeof startMemoryMonitorJob === 'function') {
+      startMemoryMonitorJob();
+    } else {
+      customLogger.warning("[JOBS] startMemoryMonitorJob não disponível");
+    }
+
+    // Iniciar job de métricas de instâncias
+    if (typeof startInstanceMetricsJob === 'function') {
+      startInstanceMetricsJob();
+    } else {
+      customLogger.warning("[JOBS] startInstanceMetricsJob não disponível");
+    }
+
+    customLogger.success("[JOBS] Todos os jobs foram inicializados");
+    
+  } catch (error) {
+    customLogger.error("[JOBS] ❌ Erro ao iniciar jobs:", error);
+  }
 }
 
-module.exports.startAllSessions = startAllSessions;
-module.exports.startCleanupJobs = startCleanupJobs;
+/**
+ * 🔄 Inicializa todos os jobs (alias para startCleanupJobs)
+ */
+function initializeJobs() {
+  return startCleanupJobs();
+}
+
+module.exports = {
+  startAllSessions,
+  startCleanupJobs,
+  initializeJobs
+};

@@ -15,7 +15,7 @@ const socket = io(url, {
   },
 });
 
-// ✅ ADICIONADO - Logs de conexão Socket.IO para debugging
+// ADICIONADO - Logs de conexão Socket.IO para debugging
 socket.on('connect', () => {
   console.log('🔌 Socket.IO conectado com sucesso');
   console.log('📡 Socket ID:', socket.id);
@@ -61,7 +61,7 @@ async function getClient(session) {
       }
     }
     
-    // ✅ ADICIONADO - Verificar se QR Code veio na resposta HTTP (para WhatsApp WebJS)
+    // ADICIONADO - Verificar se QR Code veio na resposta HTTP (para WhatsApp WebJS)
     if (value.data?.state === 'QRCODE' && value.data?.qrcode) {
       console.log('📱 QR Code recebido via HTTP:', value.data);
       
@@ -122,7 +122,7 @@ async function alterSession(session) {
     if (session === qrcode.session) {
       console.log('📡 QR Code recebido via Socket.IO:', qrcode);
       
-      // ✅ CORRIGIDO - Tornar a imagem visível e definir o QR Code
+      // CORRIGIDO - Tornar a imagem visível e definir o QR Code
       const imageElement = document.getElementById('image');
       if (imageElement) {
         imageElement.src = qrcode.qrCode || "/error.png";

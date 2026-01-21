@@ -10,13 +10,13 @@ dotenv.config();
 
 const is_production = process.env.PRODUCTION === 'true';
 
-// ✅ ADICIONADO - Usar logger customizado
+// ADICIONADO - Usar logger customizado
 const customLogger = require('./util/customLogger.js');
 
 if (is_production) {
     database_config.development.logging = false;
 } else {
-    // ✅ DESABILITADO - Logs SQL só em arquivo, não no console para evitar poluição
+    // DESABILITADO - Logs SQL só em arquivo, não no console para evitar poluição
     database_config.development.logging = false; // Apenas em arquivo via customLogger.database()
 }
 

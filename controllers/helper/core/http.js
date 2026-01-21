@@ -22,7 +22,7 @@ module.exports = {
     },
   
   fail(res, error = null, statusCode = 500, reason = 'Erro inesperado') {
-    // ✅ Verificação segura para evitar erro "Cannot read properties of undefined"
+    // Verificação segura para evitar erro "Cannot read properties of undefined"
     const safeError = error || {};
     const errorStatus = safeError.status || statusCode;
     

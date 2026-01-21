@@ -6,7 +6,7 @@ const util = require("util");
 const urlExistsImport = require("url-exists");
 const urlExists = util.promisify(urlExistsImport);
 const engine = require("../../../engines/Venom.js");
-const { Device } = require("../../../Models"); // ✅ ADICIONADO
+const { Device } = require("../../../Models"); // ADICIONADO
 
 module.exports = {
   async sendAudio(req, res) {
@@ -226,7 +226,7 @@ module.exports = {
     const data = Sessions.getSession(req.body.session);
 
     try {
-      // ✅ CORRIGIDO - Verificar se método existe antes de chamar
+      // CORRIGIDO - Verificar se método existe antes de chamar
       if (!data?.client || typeof data.client.getOrderbyMsg !== 'function') {
         return res.status(400).json({
           result: 400,
@@ -445,9 +445,9 @@ module.exports = {
 
     try {
       const sessionName = req.body.session;
-      const sessionkey = req.headers['sessionkey']; // ✅ ADICIONADO
+      const sessionkey = req.headers['sessionkey']; // ADICIONADO
 
-      // ✅ Verificar também no banco de dados (com sessionkey como WPPConnect)
+      // Verificar também no banco de dados (com sessionkey como WPPConnect)
       const deviceFromDB = await Device.findOne({ 
         where: { session: sessionName, sessionkey } 
       });
@@ -460,7 +460,7 @@ module.exports = {
         console.log(`[WARNING] ${sessionName} - Falha ao atualizar tentativas`);
       }
 
-      // ✅ Combinar dados da memória e banco
+      // Combinar dados da memória e banco
       if (data || deviceFromDB) {
         let status_permited = [
           "CONNECTED",
@@ -475,7 +475,7 @@ module.exports = {
           session: sessionName,
         };
 
-        // ✅ Priorizar status do banco se disponível
+        // Priorizar status do banco se disponível
         const currentStatus = deviceFromDB?.status || data?.status;
         const isConnected = deviceFromDB?.connected || status_permited.includes(data?.status);
 
@@ -491,7 +491,7 @@ module.exports = {
           responseData.qrcode = deviceFromDB?.qr_code || data?.qrCode;
           responseData.urlcode = data?.urlCode;
         } else {
-          // ✅ CORRIGIDO - Não aguardar engine para não bloquear resposta
+          // CORRIGIDO - Não aguardar engine para não bloquear resposta
           engine.start(req, res, sessionName)
             .catch((error) => {
               console.error(`[VENOM ENGINE ERROR] ${sessionName}:`, error);
@@ -508,7 +508,7 @@ module.exports = {
 
         return res.status(200).json(responseData);
       } else {
-        // ✅ CORRIGIDO - Não aguardar engine para não bloquear resposta
+        // CORRIGIDO - Não aguardar engine para não bloquear resposta
         engine.start(req, res, sessionName)
           .catch((error) => {
             console.error(`[VENOM ENGINE ERROR] ${sessionName}:`, error);
@@ -813,17 +813,17 @@ module.exports = {
     }
   },
 
-  // ✅ Função para verificar status da sessão (consistência com outros engines)
+  // Função para verificar status da sessão (consistência com outros engines)
   async getSessionResponse(session, sessionkey = null) {
     try {
-      // ✅ Primeiro verificar no banco de dados (com sessionkey como WPPConnect)
+      // Primeiro verificar no banco de dados (com sessionkey como WPPConnect)
       const where = sessionkey ? { session, sessionkey } : { session };
       const deviceFromDB = await Device.findOne({ where });
 
-      // ✅ Verificar na memória
+      // Verificar na memória
       const sessionFromMemory = Sessions.getSession(session);
 
-      // ✅ Priorizar dados do banco se existirem
+      // Priorizar dados do banco se existirem
       if (deviceFromDB) {
         return {
           session: session,
@@ -843,7 +843,7 @@ module.exports = {
         };
       }
 
-      // ✅ Fallback para dados da memória
+      // Fallback para dados da memória
       if (sessionFromMemory) {
         return {
           session: session,
@@ -856,7 +856,7 @@ module.exports = {
         };
       }
 
-      // ✅ Nenhuma sessão encontrada
+      // Nenhuma sessão encontrada
       return {
         session: session,
         state: 'NOT_FOUND',

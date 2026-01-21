@@ -5,13 +5,13 @@ const whatsappweb = require("whatsapp-web.js");
 const util = require("util");
 const urlExistsImport = require("url-exists");
 const engine = require("../../../engines/WhatsappWebJS");
-const Cache = require("../../../util/cache"); // ✅ ADICIONADO - Para usar números processados
-const customLogger = require('../../../util/customLogger.js'); // ✅ Logger padronizado
+const Cache = require("../../../util/cache"); // ADICIONADO - Para usar números processados
+const customLogger = require('../../../util/customLogger.js'); // Logger padronizado
 
 const urlExists = util.promisify(urlExistsImport);
 const { MessageMedia, Location, Poll } = whatsappweb;
 
-// ✅ CORRIGIDO - Usar Cache.get() igual WPPConnect
+// CORRIGIDO - Usar Cache.get() igual WPPConnect
 async function buildNumber(req) {
   const number = req.body.number;
   
@@ -19,7 +19,7 @@ async function buildNumber(req) {
     // Para grupos, usar o número diretamente com @g.us
     return number + "@g.us";
   } else {
-    // ✅ Para contatos, usar o número processado do Cache (igual WPPConnect)
+    // Para contatos, usar o número processado do Cache (igual WPPConnect)
     const processedNumber = await Cache.get(number);
     if (processedNumber) {
       customLogger.info(`[BUILD NUMBER] ${number} → ${processedNumber} (do cache)`);
@@ -32,7 +32,7 @@ async function buildNumber(req) {
   }
 }
 
-// ✅ NOVO - Formatar qualquer número sem precisar de req
+// NOVO - Formatar qualquer número sem precisar de req
 async function formatNumber(rawNumber) {
   if (!rawNumber) return null;
   
@@ -50,7 +50,7 @@ async function formatNumber(rawNumber) {
 module.exports = {
   async sendText(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = await buildNumber(req); // ✅ AWAIT adicionado
+    const number = await buildNumber(req); // AWAIT adicionado
     const text = req.body.text;
 
     if (!text) {
@@ -80,28 +80,28 @@ module.exports = {
   },
 
   async sendImage(req, res) {
-    return this.sendMedia(req, res, "image");
+    return module.exports.sendMedia(req, res, "image");
   },
 
   async sendVideo(req, res) {
-    return this.sendMedia(req, res, "video");
+    return module.exports.sendMedia(req, res, "video");
   },
 
   async sendSticker(req, res) {
-    return this.sendMedia(req, res, "sticker");
+    return module.exports.sendMedia(req, res, "sticker");
   },
 
   async sendFile(req, res) {
-    return this.sendMedia(req, res, "file");
+    return module.exports.sendMedia(req, res, "file");
   },
 
   async sendAudio(req, res) {
-    return this.sendMedia(req, res, "audio");
+    return module.exports.sendMedia(req, res, "audio");
   },
 
   async sendLocation(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = await buildNumber(req); // ✅ CORRIGIDO - Usar buildNumber()
+    const number = await buildNumber(req); // CORRIGIDO - Usar buildNumber()
     const { lat, log, title, description } = req.body;
 
     if (!lat || !log || !title || !description) {
@@ -128,7 +128,7 @@ module.exports = {
 
   async sendContact(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = await buildNumber(req); // ✅ CORRIGIDO - Usar buildNumber()
+    const number = await buildNumber(req); // CORRIGIDO - Usar buildNumber()
 
     if (!req.body.contact || !req.body.name) {
       return res
@@ -137,7 +137,7 @@ module.exports = {
     }
 
     try {
-      const contactNumber = await formatNumber(req.body.contact); // ✅ CORRIGIDO
+      const contactNumber = await formatNumber(req.body.contact); // CORRIGIDO
       const response = await data.client.sendMessage(
         number,
         contactNumber,
@@ -158,7 +158,7 @@ module.exports = {
 
   async sendLink(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = await buildNumber(req); // ✅ AWAIT adicionado
+    const number = await buildNumber(req); // AWAIT adicionado
 
     if (!req.body.url) {
       return res
@@ -188,7 +188,7 @@ module.exports = {
 
   async sendMedia(req, res, type) {
     const data = Sessions.getSession(req.body.session);
-    const number = await buildNumber(req); // ✅ CORRIGIDO - Usar buildNumber()
+    const number = await buildNumber(req); // CORRIGIDO - Usar buildNumber()
     const filePath = req.body.path;
     const isURL = await urlExists(filePath);
     const name = filePath?.split(/[\/]/).pop();
@@ -234,12 +234,12 @@ module.exports = {
 
   async startSession(req, res) {
     const session = req.body.session;
-    const data = await Sessions.getClient(session); // ✅ Busca device no banco + client na memória (igual WPPConnect)
+    const data = await Sessions.getClient(session); // Busca device no banco + client na memória (igual WPPConnect)
 
     customLogger.info('[DEBUG] startSession WhatsApp WebJS', session);
     
     try {
-      // ✅ CORREÇÃO PRINCIPAL - Verificar se pasta da sessão existe
+      // CORREÇÃO PRINCIPAL - Verificar se pasta da sessão existe
       const fs = require('fs');
       const path = require('path');
       const sessionPath = path.join('./instances', session);
@@ -248,7 +248,7 @@ module.exports = {
       customLogger.info(`[SESSION CHECK] ${session} - Pasta exists: ${sessionExists}`);
       
       if (data) {
-        // ✅ REMOVIDO: O incremento de attempts_start agora é feito APENAS no engine (WhatsappWebJS.js)
+        // REMOVIDO: O incremento de attempts_start agora é feito APENAS no engine (WhatsappWebJS.js)
         // Isso evita incremento duplo que fazia atingir o limite de 3 muito rápido
         
         const status = data.status;
@@ -261,7 +261,7 @@ module.exports = {
           status: status || 'INITIALIZING'
         };
 
-        // ✅ Se tem QR Code no banco, incluir na resposta
+        // Se tem QR Code no banco, incluir na resposta
         if (data.qrCode && data.status === 'qrCode') {
           resposta.qrCode = data.qrCode;  // Base64 da imagem do QR Code  
           resposta.urlCode = data.urlCode; // Como estava antes
@@ -274,15 +274,15 @@ module.exports = {
           return http.json(res, 200, resposta);
         }
 
-        // ✅ RECONEXÃO CORRIGIDA - Verificar se client está REALMENTE ativo
-        const currentSession = Sessions.getClient(session); // ✅ CORRIGIDO: getClient em vez de getSession
+        // RECONEXÃO CORRIGIDA - Verificar se client está REALMENTE ativo
+        const currentSession = Sessions.getClient(session); // CORRIGIDO: getClient em vez de getSession
         const sessionHelper = require('../../../controllers/helper/core/sessions.js');
         const injectedClient = sessionHelper.getInjectedClient(session);
         const isClientActive = injectedClient && injectedClient.info;
         
         customLogger.info(`[RECONNECT CHECK] ${session} - Pasta: ${sessionExists} - Status: ${status} - Client ativo: ${!!isClientActive}`);
         
-        // ✅ CRÍTICO - SE JÁ ESTÁ INICIALIZANDO, NÃO INICIAR NOVAMENTE (evita conflito)
+        // CRÍTICO - SE JÁ ESTÁ INICIALIZANDO, NÃO INICIAR NOVAMENTE (evita conflito)
         if (['INITIALIZING', 'STARTING', 'RECONNECTING'].includes(status) || ['STARTING', 'INITIALIZING'].includes(state)) {
           // Verificar quanto tempo está inicializando
           const lastStart = data.last_start ? new Date(data.last_start) : null;
@@ -300,13 +300,13 @@ module.exports = {
           customLogger.warning(`${session} - Inicialização travada há ${minutesSinceStart.toFixed(1)} min, reiniciando...`);
         }
         
-        // ✅ SÓ RETORNAR CONECTADO SE: pasta existe + status conectado + CLIENT ATIVO
+        // SÓ RETORNAR CONECTADO SE: pasta existe + status conectado + CLIENT ATIVO
         if (sessionExists && ['CONNECTED', 'inChat', 'isLogged', 'isConnected'].includes(status) && isClientActive) {
           customLogger.info(`[ALREADY CONNECTED] ${session} - Sessão já ativa`);
           resposta.state = 'CONNECTED';
           resposta.status = status;
         } 
-        // ✅ SE TEM PASTA MAS CLIENT NÃO ESTÁ ATIVO = RECONECTAR
+        // SE TEM PASTA MAS CLIENT NÃO ESTÁ ATIVO = RECONECTAR
         else if (sessionExists && ['CONNECTED', 'inChat', 'isLogged', 'isConnected'].includes(status) && !isClientActive) {
           customLogger.info(`[RECONNECT] ${session} - Pasta existe mas client inativo, reconectando...`);
           const engine = require('../../../engines/WhatsappWebJS.js');
@@ -314,19 +314,19 @@ module.exports = {
           resposta.state = 'STARTING';
           resposta.status = 'RECONNECTING';
         }
-        // ✅ SE TEM QR CODE NO BANCO = GERAR NOVO (igual WPPConnect)
+        // SE TEM QR CODE NO BANCO = GERAR NOVO (igual WPPConnect)
         else if (state === 'QRCODE') {
           customLogger.info(`[QR EXPIRED] ${session} - QR Code no banco expirado, gerando novo`);
           const engine = require('../../../engines/WhatsappWebJS.js');
-          engine.start(req, res, session); // ✅ SEMPRE gera novo QR
+          engine.start(req, res, session); // SEMPRE gera novo QR
           resposta.state = 'STARTING';
           resposta.status = 'INITIALIZING';
         } 
-        // ✅ OUTROS CASOS - GERAR NOVO
+        // OUTROS CASOS - GERAR NOVO
         else {
           customLogger.info(`[START NEW] ${session} - Status: ${status} - Iniciando engine`);
           const engine = require('../../../engines/WhatsappWebJS.js');
-          engine.start(req, res, session); // ✅ Não bloquear com await
+          engine.start(req, res, session); // Não bloquear com await
           resposta.state = 'STARTING';
           resposta.status = 'INITIALIZING';
         }
@@ -335,10 +335,10 @@ module.exports = {
         return http.json(res, 200, resposta);
       }
 
-      // ✅ IGUAL WPPConnect - Se não tem data, iniciar engine
+      // IGUAL WPPConnect - Se não tem data, iniciar engine
       customLogger.info(`[START FRESH] ${session} - Nenhum dado encontrado, iniciando engine`);
       const engine = require('../../../engines/WhatsappWebJS.js');
-      engine.start(req, res, session); // ✅ Não bloquear com await
+      engine.start(req, res, session); // Não bloquear com await
       
       const http = require('../../../controllers/helper/core/http.js');
       return http.json(res, 200, {
@@ -369,9 +369,9 @@ module.exports = {
 
     try {
       const data = Sessions.getSession(req.body.session);
-      const number = await buildNumber(req); // ✅ AWAIT adicionado
+      const number = await buildNumber(req); // AWAIT adicionado
       
-      // ✅ LIMPAR E VALIDAR BASE64
+      // LIMPAR E VALIDAR BASE64
       let cleanBase64 = base64Data;
       
       // Remover data URI prefix se existir (data:image/png;base64,)
@@ -393,7 +393,7 @@ module.exports = {
         });
       }
       
-      // ✅ DETECTAR MIMETYPE AUTOMATICAMENTE SE NÃO FORNECIDO
+      // DETECTAR MIMETYPE AUTOMATICAMENTE SE NÃO FORNECIDO
       let detectedMimetype = mimetype || 'application/octet-stream';
       
       if (!mimetype && base64Data.includes('data:')) {
@@ -446,7 +446,7 @@ module.exports = {
 
     try {
       const data = Sessions.getSession(req.body.session);
-      const number = await buildNumber(req); // ✅ AWAIT adicionado
+      const number = await buildNumber(req); // AWAIT adicionado
       const results = [];
 
       for (const file of files) {

@@ -1,5 +1,5 @@
 const Sessions = require('../../../../controllers/SessionsController');
-const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
+const customLogger = require('../../../../util/customLogger.js'); // Logger padronizado
 
 module.exports = {
     async setProfilePic(req, res) {

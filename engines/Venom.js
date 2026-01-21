@@ -4,12 +4,12 @@ const events = require('../controllers/EventsController.js');
 const webhooks = require('../controllers/WebhooksController.js');
 const config = require('../config.js');
 const VenomHelper = require('./helper/vn.js');
-const customLogger = require('../util/customLogger.js'); // ✅ ADICIONADO
-const { Device, User } = require('../Models'); // ✅ ADICIONADO
+const customLogger = require('../util/customLogger.js'); // ADICIONADO
+const { Device, User } = require('../Models'); // ADICIONADO
 
 module.exports = class Venom {
   static async start(req, res, session) {
-    // ✅ Criar ou atualizar dispositivo no banco antes de iniciar a sessão (seguindo padrão WPPConnect)
+    // Criar ou atualizar dispositivo no banco antes de iniciar a sessão (seguindo padrão WPPConnect)
     try {
       const sessionkey = req.headers['sessionkey'];
       const number = req?.body?.number || '';
@@ -22,11 +22,11 @@ module.exports = class Venom {
 
       customLogger.whatsapp(`🚀 Starting Venom - Session: ${session}`);
 
-      // ✅ BUSCAR device existente para incrementar attempts_start
+      // BUSCAR device existente para incrementar attempts_start
       const existingDevice = await Device.findOne({ where: { session } });
       const currentAttemptsStart = existingDevice?.attempts_start || 0;
 
-      // ✅ Payload completo seguindo padrão WPPConnect
+      // Payload completo seguindo padrão WPPConnect
       const sysUser = await User.findOne({ where: { email: process.env.EMAIL } });
       const payload = {
         user_id: sysUser?.id,
@@ -35,7 +35,7 @@ module.exports = class Venom {
         qrCode: '',
         attempts: 0,
         urlCode: '',
-        attempts_start: currentAttemptsStart + 1, // ✅ INCREMENTAR tentativas de start
+        attempts_start: currentAttemptsStart + 1, // INCREMENTAR tentativas de start
         last_start: new Date(),
         state: 'STARTING',
         status: 'notLogged',
@@ -54,10 +54,10 @@ module.exports = class Venom {
       customLogger.error(`${session} - Erro ao criar dispositivo no banco: ${error.message}`);
     }
 
-    // ✅ REMOVIDO getToken do Firebase - agora usa pasta local instances/
+    // REMOVIDO getToken do Firebase - agora usa pasta local instances/
     customLogger.whatsapp(`${session} - 🐍 Iniciando Venom com tokens da pasta instances/`);
 
-    // ✅ Capturar sessionkey antes dos callbacks
+    // Capturar sessionkey antes dos callbacks
     const sessionkey = req.headers['sessionkey'];
 
     try {
@@ -67,7 +67,7 @@ module.exports = class Venom {
         catchQR: (base64Qr, asciiQR, attempts, urlCode) => {
           customLogger.whatsapp(`${session} - 📱 QR Code gerado (tentativa ${attempts})`);
           
-          // ✅ Atualizar status no banco ao gerar QR code (seguindo padrão WPPConnect)
+          // Atualizar status no banco ao gerar QR code (seguindo padrão WPPConnect)
           Device.update({
             state: 'QRCODE',
             status: 'qrCode',
@@ -79,14 +79,14 @@ module.exports = class Venom {
             customLogger.error(`${session} - Erro ao atualizar QR no banco: ${err.message}`)
           );
           
-          // ✅ Enviar QR
+          // Enviar QR
           VenomHelper.generateQRHooksAndEmit({ req, res, qrCode: base64Qr, session });
         },
         statusFind: (statusSession) => {
           customLogger.whatsapp(`${session} - 📱 Status: ${statusSession}`);
           Sessions.addInfoSession(session, { status: statusSession });
 
-          // ✅ Atualizar status no banco de dados (seguindo padrão WPPConnect)
+          // Atualizar status no banco de dados (seguindo padrão WPPConnect)
           const updateData = { status: statusSession, updated_at: new Date() };
           
           // Estados baseados na documentação oficial do Venom
@@ -98,7 +98,7 @@ module.exports = class Venom {
             updateData.last_connect = new Date();
             updateData.qrCode = '';
             updateData.attempts = 0;
-            updateData.attempts_start = 0; // ✅ RESETAR tentativas quando conectar
+            updateData.attempts_start = 0; // RESETAR tentativas quando conectar
             updateData.urlCode = '';
           } else if (offlineStatuses.includes(statusSession)) {
             updateData.state = 'DISCONNECTED';
@@ -137,14 +137,14 @@ module.exports = class Venom {
       const info = await client.getHostDevice();
       const tokens = await client.getSessionTokenBrowser();
 
-      // ✅ Atualizar informações do dispositivo no banco após conexão bem-sucedida (seguindo padrão WPPConnect)
+      // Atualizar informações do dispositivo no banco após conexão bem-sucedida (seguindo padrão WPPConnect)
       try {
         await Device.update({
           state: 'CONNECTED',
           status: 'CONNECTED',
           qrCode: '',
           attempts: 0,
-          attempts_start: 0, // ✅ RESETAR tentativas quando conectar com sucesso
+          attempts_start: 0, // RESETAR tentativas quando conectar com sucesso
           urlCode: '',
           last_connect: new Date(),
           number: info?.wid?.user || null,

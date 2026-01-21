@@ -6,12 +6,12 @@ const config = require('../config');
 const CONNECTED_STATUSES = new Set(['CONNECTED', 'inChat', 'isLogged', 'isConnected']);
 const CONNECTED_STATES = new Set(['CONNECTED', 'inChat', 'isLogged', 'isConnected']);
 
-// ✅ Status que indicam que a sessão está aguardando QR Code (NÃO tentar reiniciar)
+// Status que indicam que a sessão está aguardando QR Code (NÃO tentar reiniciar)
 const WAITING_QR_STATUSES = new Set(['qrCode', 'QRCODE', 'WAITING_QR', 'INITIALIZING', 'STARTING']);
 
-// ✅ Configurações de controle de tentativas
-const MAX_START_ATTEMPTS = 10; // ✅ AUMENTADO: Máximo de tentativas antes de parar
-const QR_COOLDOWN_MINUTES = 5; // ✅ REDUZIDO: Minutos de espera entre tentativas quando tem QR
+// Configurações de controle de tentativas
+const MAX_START_ATTEMPTS = 10; // AUMENTADO: Máximo de tentativas antes de parar
+const QR_COOLDOWN_MINUTES = 5; // REDUZIDO: Minutos de espera entre tentativas quando tem QR
 
 let intervalHandle = null;
 let timeoutHandle = null;
@@ -30,7 +30,7 @@ function resolveBaseUrl() {
     return normalized.replace(/\/$/, '');
   }
 
-  // ✅ CORRIGIDO - Usar config.host do .env ao invés de hardcoded 127.0.0.1
+  // CORRIGIDO - Usar config.host do .env ao invés de hardcoded 127.0.0.1
   const host = process.env.HOST || 'http://127.0.0.1';
   return `${host}:${config.port}`;
 }
@@ -45,11 +45,11 @@ function isEligible(device) {
     return false;
   }
 
-  // ✅ NOVO - Verificar se está aguardando QR Code ou inicializando (NÃO tentar reiniciar)
+  // NOVO - Verificar se está aguardando QR Code ou inicializando (NÃO tentar reiniciar)
   const status = device.status || '';
   const state = device.state || '';
   
-  // ✅ CRÍTICO - Nunca interferir enquanto está inicializando
+  // CRÍTICO - Nunca interferir enquanto está inicializando
   if (WAITING_QR_STATUSES.has(status) || WAITING_QR_STATUSES.has(state)) {
     // Verificar se já passou tempo suficiente desde a última tentativa
     const lastStart = device.last_start ? new Date(device.last_start) : null;
@@ -58,7 +58,7 @@ function isEligible(device) {
     if (lastStart) {
       const minutesSinceLastStart = (now - lastStart) / (1000 * 60);
       
-      // ✅ AUMENTADO: Aguardar pelo menos 10 minutos antes de tentar novamente
+      // AUMENTADO: Aguardar pelo menos 10 minutos antes de tentar novamente
       if (minutesSinceLastStart < 10) {
         customLogger.debug(`[SESSION KEEPALIVE] ${device.session} inicializando (${minutesSinceLastStart.toFixed(1)} min) - aguardando timeout de 10min`);
         return false;
@@ -70,26 +70,26 @@ function isEligible(device) {
     }
   }
   
-  // ✅ NOVO - Verificar limite de tentativas
+  // NOVO - Verificar limite de tentativas
   const attemptsStart = device.attempts_start || 0;
   if (attemptsStart >= MAX_START_ATTEMPTS) {
     customLogger.debug(`[SESSION KEEPALIVE] ${device.session} atingiu limite de ${MAX_START_ATTEMPTS} tentativas - pulando`);
     return false;
   }
 
-  // ✅ CORRIGIDO - Também reconectar sessões que caíram (DISCONNECTED, TIMEOUT, notLogged)
+  // CORRIGIDO - Também reconectar sessões que caíram (DISCONNECTED, TIMEOUT, notLogged)
   const RECONNECT_STATUSES = new Set(['DISCONNECTED', 'TIMEOUT', 'notLogged', 'disconnected']);
   
   if (!config.session_keepalive_only_connected) {
     return true;
   }
 
-  // ✅ Se está conectado OU se caiu e precisa reconectar
+  // Se está conectado OU se caiu e precisa reconectar
   if (CONNECTED_STATUSES.has(status) || CONNECTED_STATES.has(state)) {
     return true;
   }
   
-  // ✅ NOVO - Também reconectar sessões que caíram
+  // NOVO - Também reconectar sessões que caíram
   if (RECONNECT_STATUSES.has(status) || RECONNECT_STATUSES.has(state)) {
     customLogger.info(`[SESSION KEEPALIVE] ${device.session} caiu (${status}/${state}) - tentando reconectar`);
     return true;

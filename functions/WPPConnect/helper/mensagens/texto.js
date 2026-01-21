@@ -1,7 +1,7 @@
 const Sessions = require('../../../../controllers/SessionsController');
 const config = require('../../../../config');
 const Cache = require('../../../../util/cache');
-const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
+const customLogger = require('../../../../util/customLogger.js'); // Logger padronizado
 
 module.exports = {
   async sendText(req, res) {

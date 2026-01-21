@@ -1,5 +1,5 @@
 const Sessions = require('../../../../controllers/SessionsController');
-const customLogger = require('../../../../util/customLogger.js'); // ✅ Logger padronizado
+const customLogger = require('../../../../util/customLogger.js'); // Logger padronizado
 const engine = require('../../../../engines/WppConnect');
 const helpSS = require('../../../../controllers/helper/core/sessions');
 const http = require('../../../../controllers/helper/http');
@@ -195,7 +195,7 @@ module.exports = {
           status: status || 'INITIALIZING'
         };
 
-        // ✅ Se tem QR Code no banco, incluir na resposta
+        // Se tem QR Code no banco, incluir na resposta
         if (data.qrCode && data.status === 'qrCode') {
           resposta.qrCode = data.qrCode;  // Base64 da imagem do QR Code
           resposta.urlCode = data.urlCode; // Como estava antes

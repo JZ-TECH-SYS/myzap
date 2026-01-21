@@ -43,7 +43,7 @@ class DailyReportJob {
         // Verificar imediatamente ao iniciar
         this._checkAndSend();
 
-        customLogger.info(`[DAILY REPORT] ✅ Job iniciado - Relatório será enviado às ${String(REPORT_HOUR).padStart(2, '0')}:${String(REPORT_MINUTE).padStart(2, '0')} (America/Sao_Paulo)`);
+        customLogger.info(`[DAILY REPORT] Job iniciado - Relatório será enviado às ${String(REPORT_HOUR).padStart(2, '0')}:${String(REPORT_MINUTE).padStart(2, '0')} (America/Sao_Paulo)`);
         
         return this;
     }
@@ -111,7 +111,7 @@ class DailyReportJob {
             if (isSuccess) {
                 this.lastReportSent = new Date();
                 const idemail = result?.result?.idemail || result?.idemail || 'N/A';
-                customLogger.info(`[DAILY REPORT] ✅ Relatório enviado com sucesso (idemail: ${idemail})`);
+                customLogger.info(`[DAILY REPORT] Relatório enviado com sucesso (idemail: ${idemail})`);
             } else {
                 customLogger.error('[DAILY REPORT] ❌ Falha ao enviar relatório:', result?.error || result?.mensagem);
             }

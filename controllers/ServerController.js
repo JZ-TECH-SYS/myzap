@@ -1,5 +1,5 @@
 const { exec } = require("child_process");
-const customLogger = require('../util/customLogger.js'); // ✅ Logger padronizado
+const customLogger = require('../util/customLogger.js'); // Logger padronizado
 
 class ServerController {
   //update

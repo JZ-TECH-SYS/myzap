@@ -3,7 +3,7 @@ require('dotenv').config();
 const config = require('../config.js');
 
 const CacheModel = require('../Models/cache');
-const customLogger = require('./customLogger.js'); // ✅ Corrigido nome da variável
+const customLogger = require('./customLogger.js'); // Corrigido nome da variável
 const CacheDB = CacheModel(config.sequelize);
 
 module.exports = class Cache {

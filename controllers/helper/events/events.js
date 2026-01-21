@@ -169,7 +169,7 @@ module.exports = {
 
       case 'order':
         try {
-          // ✅ CORRIGIDO - Verificar se método existe antes de chamar
+          // CORRIGIDO - Verificar se método existe antes de chamar
           if (typeof client.getOrderbyMsg === 'function') {
             const orderInfo = await client.getOrderbyMsg(message.id);
             extras = { content: '', order: orderInfo };

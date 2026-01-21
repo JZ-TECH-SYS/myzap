@@ -1,7 +1,7 @@
 const SessionsHelper = require('./helper/core/sessions.js');
 const http = require('./helper/core/http.js');
 const chalk = require('chalk');
-const customLogger = require('../util/customLogger.js'); // ✅ Logger padronizado
+const customLogger = require('../util/customLogger.js'); // Logger padronizado
 const config = require('../config.js');
 // Models para auto-provisionamento de configuração simplificada da IA
 const DeviceCompanyModel = require('../Models/deviceCompany.js');
@@ -101,7 +101,7 @@ class Sessions {
     return await SessionsHelper.getSessionWithClient(session);
   }
 
-  // ✅ ADICIONADO - Função getSession para compatibilidade com código existente
+  // ADICIONADO - Função getSession para compatibilidade com código existente
   static getSession(session) {
     try {
       // Retorna client injetado diretamente (igual ao comportamento esperado)
@@ -139,7 +139,7 @@ class Sessions {
       const sessionkey = req.headers['sessionkey'];
       const device = await SessionsHelper.getDevice(session, sessionkey);
 
-      // ✅ DEBUG - Log detalhado do device encontrado
+      // DEBUG - Log detalhado do device encontrado
       customLogger.info(`[GET STATUS] ${session} - Device encontrado:`, {
         exists: !!device,
         status: device?.status,
@@ -159,7 +159,7 @@ class Sessions {
       // Status que permitem reconexão automática (celular ainda conectado)
       const reconnectableStatuses = ['browserClose', 'serverClose', 'autocloseCalled'];
 
-      // ✅ SESSÃO CONECTADA
+      // SESSÃO CONECTADA
       if (connectedStatuses.includes(device?.status)) {
         return http.json(res, 200, {
           result: 200,
@@ -170,7 +170,7 @@ class Sessions {
         });
       }
 
-      // ✅ SESSÃO INICIALIZANDO - Retorna estado atual sem QR ainda
+      // SESSÃO INICIALIZANDO - Retorna estado atual sem QR ainda
       if (device?.status === 'INITIALIZING' || device?.state === 'STARTING') {
         return http.json(res, 200, {
           result: 200,
@@ -181,7 +181,7 @@ class Sessions {
         });
       }
 
-      // ✅ TEM QR CODE DISPONÍVEL - Verificar tanto por status quanto por presença do QR (ou cache para WPPConnect)
+      // TEM QR CODE DISPONÍVEL - Verificar tanto por status quanto por presença do QR (ou cache para WPPConnect)
       if ((device?.qrCode && device.qrCode !== '') || (device?.status === 'qrCode' || device?.state === 'QRCODE')) {
         let qrToReturn = device.qrCode;
         let urlToReturn = device.urlCode;
@@ -242,7 +242,7 @@ class Sessions {
         }
       }
 
-      // ✅ QR CODE ESPERADO mas ainda não gerado
+      // QR CODE ESPERADO mas ainda não gerado
       if (device?.status === 'qrCode' && !device?.qrCode) {
         return http.json(res, 200, {
           result: 200,
@@ -253,7 +253,7 @@ class Sessions {
         });
       }
 
-      // ✅ VERIFICAR SE ESTÁ INICIALIZANDO (status INITIALIZING mas sem QR ainda)
+      // VERIFICAR SE ESTÁ INICIALIZANDO (status INITIALIZING mas sem QR ainda)
       if (device?.status === 'INITIALIZING') {
         return http.json(res, 200, {
           result: 200,
@@ -547,7 +547,7 @@ class Sessions {
     }
   }
 
-  // ✅ ADICIONADO - Método para reparar sessão com problemas de associação
+  // ADICIONADO - Método para reparar sessão com problemas de associação
   static async repairSession(req, res) {
     try {
       const session = req.body.session;

@@ -1,6 +1,6 @@
 const Sessions = require("../../../controllers/SessionsController");
 const Cache = require("../../../util/cache");
-const customLogger = require("../../../util/customLogger.js"); // ✅ Logger padronizado
+const customLogger = require("../../../util/customLogger.js"); // Logger padronizado
 
 const moment = require("moment");
 moment().format("DD-MM-YYYY HH:mm:ss");

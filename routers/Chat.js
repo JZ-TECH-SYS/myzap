@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 
 const config = require('../config');
 const ChatHistoryModel = require('../Models/chatHistory.js');
-const customLogger = require('../util/customLogger.js'); // ✅ Logger padronizado
+const customLogger = require('../util/customLogger.js'); // Logger padronizado
 
 const ChatHistory = ChatHistoryModel(config.sequelize);
 

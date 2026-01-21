@@ -31,12 +31,12 @@ class EmailAlertService {
         this.lastError = null;
         this.lastResponse = null;
         
-        // ✅ Controle de rate limiting para evitar flood de emails
+        // Controle de rate limiting para evitar flood de emails
         this.alertHistory = new Map(); // tipo => { count, lastSent }
         this.rateLimitMinutes = 15; // Mínimo de 15 minutos entre alertas do mesmo tipo
         this.maxAlertsPerHour = 4; // Máximo de 4 alertas do mesmo tipo por hora
         
-        // ✅ Cache de status do serviço
+        // Cache de status do serviço
         this.isConfigured = this._checkConfiguration();
     }
 
@@ -52,7 +52,7 @@ class EmailAlertService {
             customLogger.warning('[EMAIL ALERT] Destinatário não configurado (EMAIL_DESTINATION)');
             return false;
         }
-        customLogger.success('[EMAIL ALERT] Serviço de alertas por email configurado ✅');
+        customLogger.success('[EMAIL ALERT] Serviço de alertas por email configurado');
         return true;
     }
 
@@ -474,7 +474,7 @@ class EmailAlertService {
     }
 }
 
-// ✅ Exportar instância singleton
+// Exportar instância singleton
 const emailAlertService = new EmailAlertService();
 
 module.exports = emailAlertService;

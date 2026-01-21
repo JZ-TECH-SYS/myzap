@@ -53,7 +53,7 @@ async function cleanBrokenCache() {
       // Extrair o número do profile (sem @c.us)
       const phoneNumber = profile.replace("@c.us", "");
 
-      // ✅ CRITÉRIO 1: Número brasileiro SEM código +55
+      // CRITÉRIO 1: Número brasileiro SEM código +55
       // Formato errado: 10-11 dígitos (ex: 44999710077 ou 4499971007)
       if (phoneNumber.length >= 10 && phoneNumber.length <= 11) {
         console.log(`❌ DELETANDO: ${number} → ${profile} (sem código +55)`);
@@ -62,7 +62,7 @@ async function cleanBrokenCache() {
         continue;
       }
 
-      // ✅ CRITÉRIO 2: Número com código errado (não começa com 55)
+      // CRITÉRIO 2: Número com código errado (não começa com 55)
       if (phoneNumber.length >= 12 && !phoneNumber.startsWith("55")) {
         console.log(`❌ DELETANDO: ${number} → ${profile} (código errado)`);
         await cache.destroy();
@@ -70,7 +70,7 @@ async function cleanBrokenCache() {
         continue;
       }
 
-      // ✅ CRITÉRIO 3: NOVO - Deletar TODOS os números brasileiros para revalidar
+      // CRITÉRIO 3: NOVO - Deletar TODOS os números brasileiros para revalidar
       // Isso garante que números salvos com formato errado sejam reprocessados
       if (phoneNumber.startsWith("55") && (phoneNumber.length === 12 || phoneNumber.length === 13)) {
         console.log(`⚠️  DELETANDO (revalidação): ${number} → ${profile}`);

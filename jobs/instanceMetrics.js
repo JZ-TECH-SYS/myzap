@@ -29,11 +29,11 @@ const Device = DeviceModel(config.sequelize);
 
 let intervalHandle = null;
 
-// ✅ Configurações
+// Configurações
 const METRICS_INTERVAL_MINUTES = parseInt(process.env.METRICS_INTERVAL_MINUTES, 10) || 5;
 const METRICS_RETENTION_DAYS = parseInt(process.env.METRICS_RETENTION_DAYS, 10) || 7;
 
-// ✅ Limites para alertas
+// Limites para alertas
 const ALERTS = {
   RAM_PER_INSTANCE_MB: 1500,  // Alerta se instância usar > 1.5GB
   DISK_PER_INSTANCE_MB: 500,  // Alerta se cache > 500MB
@@ -127,7 +127,7 @@ async function collectMetrics() {
         metrics.totals.disconnected++;
       }
       
-      // ✅ Verificar alertas por instância
+      // Verificar alertas por instância
       if (diskMB > ALERTS.DISK_PER_INSTANCE_MB) {
         customLogger.warning(`[INSTANCE METRICS] ⚠️ ${session} - Disco alto: ${diskMB}MB (limite: ${ALERTS.DISK_PER_INSTANCE_MB}MB)`);
       }

@@ -13,16 +13,16 @@ Router.post('/instances', checkAPITokenMiddleware, Sessions.instances);
 // Sessões 
 // #swagger.tags = ['Sessions']
 Router.get('/getQrCode', Auth.getQrCode);
-Router.get('/getQrCode/:session', Auth.getQrCode); // ✅ ADICIONADO - Aceita session como parâmetro da URL
+Router.get('/getQrCode/:session', Auth.getQrCode); // ADICIONADO - Aceita session como parâmetro da URL
 
 Router.post('/getAllSessions', Sessions.getAllSessions);
 Router.post('/getConnectionStatus', checkParams, Sessions.getConnectionStatus);
 Router.post('/forceReconnect', checkParams, Sessions.forceReconnect);
-// ✅ ADICIONADO - Endpoint para reparar sessões com problemas
+// ADICIONADO - Endpoint para reparar sessões com problemas
 Router.post('/repairSession', checkParams, Sessions.repairSession);
 Router.post('/reconnect', checkParams, Sessions.forceReconnect);
 Router.post('/deleteSession', Sessions.deleteSession);
-// ✅ ADICIONADO - Verificar status REAL da sessão no Puppeteer/Chrome
+// ADICIONADO - Verificar status REAL da sessão no Puppeteer/Chrome
 Router.post('/verifyRealStatus', checkParams, Sessions.verifyRealStatus);
 
 // Mensagens

@@ -4,9 +4,9 @@ const qrcodeBase64 = require('qrcode');
 const chalk = require('chalk');
 const webhooks = require('../../controllers/WebhooksController.js');
 const Sessions = require('../../controllers/SessionsController.js');
-const customLogger = require('../../util/customLogger.js'); // ✅ ADICIONADO
+const customLogger = require('../../util/customLogger.js'); // ADICIONADO
 
-// ✅ MELHORADO - Controle de QR Code para evitar mudanças muito rápidas
+// MELHORADO - Controle de QR Code para evitar mudanças muito rápidas
 let qrCodeCache = new Map(); // Cache para evitar QR Codes duplicados
 let qrTimers = new Map(); // Timers para controlar exibição
 
@@ -17,7 +17,7 @@ module.exports = {
       
       // 🔍 VERIFICAR SE JÁ É BASE64 OU PRECISA CONVERTER
       if (qrCode.startsWith('data:image/')) {
-        // ✅ Já é base64 completo
+        // Já é base64 completo
         qrCodeBase64 = qrCode;
       } else {
         // 🚀 CONVERTER TEXTO PARA BASE64
@@ -116,7 +116,7 @@ module.exports = {
     qrTimers.set(session, timer3);
   },
 
-  // ✅ ADICIONADO - Função para limpar cache de sessão corrompida
+  // ADICIONADO - Função para limpar cache de sessão corrompida
   async cleanSessionCache(session) {
     try {
       const fs = require('fs');
@@ -142,7 +142,7 @@ module.exports = {
     }
   },
 
-  // ✅ ADICIONADO - Função para verificar e reparar sessão
+  // ADICIONADO - Função para verificar e reparar sessão
   async repairSession(session) {
     console.log(chalk.cyan(`🔧 Reparando sessão: ${session}`));
     
@@ -175,7 +175,7 @@ module.exports = {
           dark: '#000000',
           light: '#FFFFFF'
         },
-        width: 256 // ✅ TAMANHO ADEQUADO
+        width: 256 // TAMANHO ADEQUADO
       });
       
       const payload = {
@@ -187,7 +187,7 @@ module.exports = {
         session
       };
       
-      // ✅ Emitir imediatamente igual WPPConnect
+      // Emitir imediatamente igual WPPConnect
       req?.io?.emit('qrcode', payload);
       req?.io?.emit('events', { ...payload, message: 'Evento `events` será descontinuado; use `qrcode`.' });
       
@@ -233,27 +233,27 @@ module.exports = {
 
   getClientOptions({ session, useHere, sessionData }) {
     const base = {
-      // ✅ ADICIONADO - Estratégia de autenticação local para persistir sessões
+      // ADICIONADO - Estratégia de autenticação local para persistir sessões
       authStrategy: new (require('whatsapp-web.js').LocalAuth)({ 
         clientId: session,
         dataPath: './instances'
       }),
       restartOnAuthFail: true,
       takeoverOnConflict: useHere,
-      // ✅ PADRONIZADO - usar pasta local instances/ igual WPPConnect e Venom
+      // PADRONIZADO - usar pasta local instances/ igual WPPConnect e Venom
       dataPath: './instances',
-      // ✅ MELHORADO - Aumentar timeouts para dar mais tempo ao QR Code
-      qrMaxRetries: 5, // ✅ AUMENTADO para 5 tentativas
-      authTimeoutMs: 120000, // ✅ AUMENTADO para 120 segundos (2 minutos)
-      takeoverTimeoutMs: 120000, // ✅ AUMENTADO timeout para takeover
+      // MELHORADO - Aumentar timeouts para dar mais tempo ao QR Code
+      qrMaxRetries: 5, // AUMENTADO para 5 tentativas
+      authTimeoutMs: 120000, // AUMENTADO para 120 segundos (2 minutos)
+      takeoverTimeoutMs: 120000, // AUMENTADO timeout para takeover
       puppeteer: {
-        // ✅ CORRIGIDO - headless: true para não abrir navegador automaticamente
-        headless: true, // ✅ MUDADO: true para evitar abrir navegador visual
-        // ✅ MELHORADO - Timeouts maiores para estabilidade
-        timeout: 120000, // ✅ AUMENTADO para 120 segundos
-        // ✅ ADICIONADO - Opções para manter processo estável
+        // CORRIGIDO - headless: true para não abrir navegador automaticamente
+        headless: true, // MUDADO: true para evitar abrir navegador visual
+        // MELHORADO - Timeouts maiores para estabilidade
+        timeout: 120000, // AUMENTADO para 120 segundos
+        // ADICIONADO - Opções para manter processo estável
         defaultViewport: null,
-        // ✅ ADICIONADO - Configurações de protocolo
+        // ADICIONADO - Configurações de protocolo
         protocolTimeout: 120000,
         args: [
           '--no-sandbox',
@@ -263,17 +263,17 @@ module.exports = {
           '--no-first-run',
           '--no-zygote',
           '--disable-gpu',
-          // ✅ MELHORADO - Argumentos adicionais para estabilidade
+          // MELHORADO - Argumentos adicionais para estabilidade
           '--disable-features=VizDisplayCompositor',
           '--disable-extensions',
           '--disable-plugins',
           '--no-default-browser-check',
-          // ✅ ADICIONADO - Argumentos para evitar problemas de associação
+          // ADICIONADO - Argumentos para evitar problemas de associação
           '--disable-web-security',
           '--disable-background-timer-throttling',
           '--disable-backgrounding-occluded-windows',
           '--disable-renderer-backgrounding',
-          // ✅ ADICIONADO - Para estabilidade de sessão
+          // ADICIONADO - Para estabilidade de sessão
           '--disable-blink-features=AutomationControlled',
           '--disable-infobars',
           '--window-size=1920,1080',
@@ -291,7 +291,7 @@ module.exports = {
       }
     };
 
-    // ✅ REMOVIDO Firebase - agora usa pasta local instances/
+    // REMOVIDO Firebase - agora usa pasta local instances/
     // WhatsApp WebJS irá salvar tokens automaticamente na pasta instances/
     console.log(`[WEBJS TOKEN] ${session} - Usando tokens da pasta instances/`);
 

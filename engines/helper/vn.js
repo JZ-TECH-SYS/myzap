@@ -1,11 +1,11 @@
 const { Buffer } = require('buffer');
-// ✅ REMOVIDO Firebase - agora usa pasta local instances/
+// REMOVIDO Firebase - agora usa pasta local instances/
 const webhooks = require('../../controllers/WebhooksController.js');
 const Sessions = require('../../controllers/SessionsController.js');
 
 module.exports = {
   exportQR(req, res, qrCode, session) {
-    // ✅ Aceitar base64 vindo com ou sem prefixo e normalizar
+    // Aceitar base64 vindo com ou sem prefixo e normalizar
     if (!qrCode) {
       console.warn(`${session} - QR Code vazio ou undefined`);
       return;
@@ -77,13 +77,13 @@ module.exports = {
   getClientOptions() {
     return {
       headless: true,
-      logQR: false, // ✅ Desabilitar log no terminal, usar callbacks
-      autoClose: 0, // ✅ Desabilitar auto-close para evitar problemas de sessão
+      logQR: false, // Desabilitar log no terminal, usar callbacks
+      autoClose: 0, // Desabilitar auto-close para evitar problemas de sessão
       disableSpins: true,
       disableWelcome: true,
       updatesLog: false,
-      folderNameToken: './instances', // ✅ PADRONIZADO - usar pasta local
-      createPathFileToken: true, // ✅ Habilitar criação de tokens
+      folderNameToken: './instances', // PADRONIZADO - usar pasta local
+      createPathFileToken: true, // Habilitar criação de tokens
       useChrome: true,
     browserArgs: this.getBrowserArgs().filter(arg => arg !== '--single-process'), // evitar flag problemática no Windows
       puppeteerOptions: {
@@ -107,7 +107,7 @@ module.exports = {
   },
 
   async getToken(session) {
-    // ✅ REMOVIDO Firebase - agora usa pasta local instances/
+    // REMOVIDO Firebase - agora usa pasta local instances/
     // Venom irá salvar tokens automaticamente na pasta instances/
     console.log(`[VENOM TOKEN] ${session} - Usando tokens da pasta instances/`);
     return null; // Deixa Venom gerenciar automaticamente via folderNameToken

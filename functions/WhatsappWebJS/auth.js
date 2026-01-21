@@ -1,9 +1,9 @@
 const helper = require('./helper/auth.js');
-const customLogger = require('../../util/customLogger.js'); // ✅ Logger padronizado
+const customLogger = require('../../util/customLogger.js'); // Logger padronizado
 
 module.exports = class Auth {
   static async getQrCode(req, res) {
-    // ✅ CORRIGIDO - GET usa query params, não body
+    // CORRIGIDO - GET usa query params, não body
     const session = req.query.session || req.params.session;
     customLogger.info(`[GET QR CODE] ${session}`);
     
@@ -15,7 +15,7 @@ module.exports = class Auth {
     }
     
     try {
-      // ✅ CORRIGIDO - Método agora é async
+      // CORRIGIDO - Método agora é async
       const validacao = await helper.validarAcesso(req);
 
       if (!validacao.autorizado) {

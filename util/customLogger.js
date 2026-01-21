@@ -8,7 +8,7 @@ if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
 }
 
-// ✅ FUNÇÃO - Obter pasta do dia atual
+// FUNÇÃO - Obter pasta do dia atual
 function getTodayLogsDir() {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const todayDir = path.join(logsDir, today);
@@ -21,7 +21,7 @@ function getTodayLogsDir() {
     return todayDir;
 }
 
-// ✅ CONFIGURAÇÃO - Tipos de log e suas cores
+// CONFIGURAÇÃO - Tipos de log e suas cores
 const LOG_TYPES = {
     INFO: { color: chalk.blue, file: 'app.log' },
     SUCCESS: { color: chalk.green, file: 'app.log' },
@@ -37,11 +37,11 @@ class CustomLogger {
         this.showDatabase = process.env.DEBUG_SQL === 'true';
         this.logLevel = process.env.LOG_LEVEL || 'INFO'; // DEBUG, INFO, WARNING, ERROR
         
-        // ✅ Limpar logs antigos na inicialização (manter 7 dias)
+        // Limpar logs antigos na inicialização (manter 7 dias)
         this.cleanOldLogs(7);
     }
 
-    // ✅ MÉTODO PRINCIPAL - Log com tipo
+    // MÉTODO PRINCIPAL - Log com tipo
     log(type, message, data = null) {
         const timestamp = new Date().toISOString();
         const logConfig = LOG_TYPES[type] || LOG_TYPES.INFO;
@@ -52,10 +52,10 @@ class CustomLogger {
             logMessage += ` | Data: ${JSON.stringify(data)}`;
         }
 
-        // ✅ ESCREVER NO ARQUIVO
+        // ESCREVER NO ARQUIVO
         this.writeToFile(logConfig.file, logMessage);
 
-        // ✅ MOSTRAR NO CONSOLE com base nas regras
+        // MOSTRAR NO CONSOLE com base nas regras
         if (this.shouldShowInConsole(type)) {
             const coloredMessage = logConfig.color(`[${type}] ${message}`);
             console.log(coloredMessage);
@@ -66,7 +66,7 @@ class CustomLogger {
         }
     }
 
-    // ✅ REGRAS - Quando mostrar no console
+    // REGRAS - Quando mostrar no console
     shouldShowInConsole(type) {
         // Sempre mostrar erros
         if (type === 'ERROR') return true;
@@ -82,7 +82,7 @@ class CustomLogger {
         return messageLevelIndex >= currentLevelIndex;
     }
 
-    // ✅ ESCREVER ARQUIVO - Agora salva na pasta do dia
+    // ESCREVER ARQUIVO - Agora salva na pasta do dia
     writeToFile(filename, message) {
         try {
             const todayDir = getTodayLogsDir();
@@ -93,7 +93,7 @@ class CustomLogger {
         }
     }
 
-    // ✅ MÉTODOS CONVENIENTES
+    // MÉTODOS CONVENIENTES
     info(message, data) { this.log('INFO', message, data); }
     success(message, data) { this.log('SUCCESS', message, data); }
     warning(message, data) { this.log('WARNING', message, data); }
@@ -102,7 +102,7 @@ class CustomLogger {
     database(query, data) { this.log('DATABASE', query, data); }
     whatsapp(message, data) { this.log('WHATSAPP', message, data); }
 
-    // ✅ MÉTODO ESPECÍFICO - Log do Sequelize
+    // MÉTODO ESPECÍFICO - Log do Sequelize
     sequelizeLogger(query, options) {
         const timestamp = new Date().toISOString();
         
@@ -129,7 +129,7 @@ class CustomLogger {
         }
     }
 
-    // ✅ MÉTODO - Limpar logs antigos (manter apenas X dias)
+    // MÉTODO - Limpar logs antigos (manter apenas X dias)
     cleanOldLogs(daysToKeep = 7) {
         try {
             const items = fs.readdirSync(logsDir);
@@ -155,5 +155,5 @@ class CustomLogger {
     }
 }
 
-// ✅ EXPORTAR INSTÂNCIA SINGLETON
+// EXPORTAR INSTÂNCIA SINGLETON
 module.exports = new CustomLogger();

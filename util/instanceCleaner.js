@@ -13,7 +13,7 @@ class InstanceCleaner {
    */
   static async cleanStuckInstances() {
     try {
-      const instancesDir = path.join(process.cwd(), 'instances'); // ✅ Usar process.cwd()
+      const instancesDir = path.join(process.cwd(), 'instances'); // Usar process.cwd()
       
       if (!fs.existsSync(instancesDir)) {
         customLogger.info('Diretório instances não existe');
@@ -64,7 +64,7 @@ class InstanceCleaner {
         try {
           // Mata processo com força total
           await execPromise(`taskkill /f /im ${processName} /t`);
-          customLogger.info(`[KILL-CHROME] ✅ ${processName} terminado`);
+          customLogger.info(`[KILL-CHROME] ${processName} terminado`);
         } catch (killErr) {
           // Ignorar erro se processo não existe
           if (killErr.message.includes('não foi encontrado')) {
@@ -78,7 +78,7 @@ class InstanceCleaner {
       // Aguardar processos terminarem completamente
       await new Promise(resolve => setTimeout(resolve, 4000));
       
-      customLogger.success(`[KILL-CHROME] ✅ Limpeza de processos Chrome concluída`);
+      customLogger.success(`[KILL-CHROME] Limpeza de processos Chrome concluída`);
       return true;
       
     } catch (error) {
@@ -94,7 +94,7 @@ class InstanceCleaner {
     try {
       customLogger.info(`[AGGRESSIVE-CLEANUP] Iniciando limpeza agressiva para ${session}`);
       
-      // ✅ 1. Matar processos Chrome que podem estar travados
+      // 1. Matar processos Chrome que podem estar travados
       try {
         const { exec } = require('child_process');
         const util = require('util');
@@ -109,17 +109,17 @@ class InstanceCleaner {
         customLogger.warning(`[AGGRESSIVE-CLEANUP] Erro ao matar processos:`, killErr.message);
       }
       
-      // ✅ 2. Aguardar processos terminarem
+      // 2. Aguardar processos terminarem
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // ✅ 3. Tentar remover userDataDir
+      // 3. Tentar remover userDataDir
       const sessionPath = path.join(process.cwd(), 'instances', session);
       if (fs.existsSync(sessionPath)) {
         await this.cleanSessionWithRetry(sessionPath, session, 5); // Mais retries
         customLogger.info(`[AGGRESSIVE-CLEANUP] UserDataDir limpo`);
       }
       
-      customLogger.success(`[AGGRESSIVE-CLEANUP] ✅ Limpeza agressiva concluída para ${session}`);
+      customLogger.success(`[AGGRESSIVE-CLEANUP] Limpeza agressiva concluída para ${session}`);
       return true;
       
     } catch (error) {

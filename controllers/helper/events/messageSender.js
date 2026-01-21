@@ -74,8 +74,9 @@ async function sendText({ client, to, text }) {
   try {
     switch (engine) {
       case 'webjs':
-        // whatsapp-web.js -> sendMessage(chatId, content)
-        await client.sendMessage(to, text);
+        // whatsapp-web.js -> sendMessage(chatId, content, options)
+        // Fix para erro markedUnread: usar sendSeen: false
+        await client.sendMessage(to, text, { sendSeen: false });
         break;
       case 'wppconnect':
       case 'venom':

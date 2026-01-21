@@ -15,7 +15,7 @@ module.exports = {
     }
 
     try {
-      // ✅ CORRIGIDO - Usar método correto para buscar sessão
+      // CORRIGIDO - Usar método correto para buscar sessão
       const device = await SessionsHelper.getDevice(session, sessionkey);
 
       if (!device) {
