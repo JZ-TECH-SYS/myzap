@@ -246,6 +246,12 @@ module.exports = {
       qrMaxRetries: 5, // AUMENTADO para 5 tentativas
       authTimeoutMs: 120000, // AUMENTADO para 120 segundos (2 minutos)
       takeoverTimeoutMs: 120000, // AUMENTADO timeout para takeover
+      // 🚀 CRÍTICO - webVersionCache para evitar sessão zumbi
+      // Referência: https://github.com/pedroslopez/whatsapp-web.js/issues/3991
+      webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/AliAryanTech/cache/refs/heads/main/AliAryan-Cache-1.html'
+      },
       puppeteer: {
         // CORRIGIDO - headless: true para não abrir navegador automaticamente
         headless: true, // MUDADO: true para evitar abrir navegador visual
@@ -253,8 +259,8 @@ module.exports = {
         timeout: 120000, // AUMENTADO para 120 segundos
         // ADICIONADO - Opções para manter processo estável
         defaultViewport: null,
-        // ADICIONADO - Configurações de protocolo
-        protocolTimeout: 120000,
+        // 🚀 AUMENTADO - protocolTimeout para evitar "Runtime.callFunctionOn timed out"
+        protocolTimeout: 300000, // 5 minutos (era 120000)
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',

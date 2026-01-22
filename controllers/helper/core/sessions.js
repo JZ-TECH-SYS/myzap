@@ -24,6 +24,27 @@ const SessionsHelper = {
     return this.clients[session];
   },
 
+  /**
+   * 🔍 Retorna todas as sessões ativas na memória com seus clients
+   * Usado pelo Health Check para verificar sessões zumbi
+   */
+  getAllSessions() {
+    const sessions = [];
+    for (const [session, client] of Object.entries(this.clients)) {
+      if (client) {
+        sessions.push({ session, client });
+      }
+    }
+    return sessions;
+  },
+
+  /**
+   * Retorna o client de uma sessão (alias para getInjectedClient)
+   */
+  getClient(session) {
+    return this.clients[session];
+  },
+
   async getSessionWithClient(session) {
     const instance = await this.getDevice(session);
     if (!instance) return false;
@@ -41,6 +62,24 @@ const SessionsHelper = {
       return true;
     } catch (err) {
       customLogger.error(`[❌ DELETE SESSION] ${session} - ${err.message}`);
+      return false;
+    }
+  },
+
+  /**
+   * Remove cliente da memória (usado pelo health check para zombies)
+   * NÃO remove do banco de dados - apenas limpa a referência em memória
+   */
+  removeClientFromMemory(session) {
+    try {
+      if (this.clients[session]) {
+        delete this.clients[session];
+        customLogger.info(`[MEMORY CLEANUP] ${session}: Cliente removido da memória`);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      customLogger.error(`[MEMORY CLEANUP ERROR] ${session}: ${err.message}`);
       return false;
     }
   },

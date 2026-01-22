@@ -428,9 +428,25 @@ module.exports = class WhatsappWebJS {
           }
         });
 
-        // ADICIONADO - Event para capturar erros gerais
-        client.on('change_state', (state) => {
-          customLogger.debug(`${session} - 🔄 Mudança de estado: ${state}`);
+        // 🔍 MELHORADO - Event para capturar mudanças de estado com mais detalhes
+        client.on('change_state', async (state) => {
+          customLogger.warning(`[STATE CHANGE] ${session}: ${state}`);
+          
+          // Atualizar estado no banco
+          try {
+            await Device.update({
+              state: state,
+              updated_at: new Date()
+            }, { where: { session } });
+          } catch (e) {
+            // Ignorar erros de update
+          }
+          
+          // Detectar estados problemáticos
+          const problematicStates = ['CONFLICT', 'UNLAUNCHED', 'UNPAIRED', 'TIMEOUT'];
+          if (problematicStates.includes(state)) {
+            customLogger.error(`[⚠️ PROBLEMATIC STATE] ${session}: ${state} - Pode indicar sessão zumbi!`);
+          }
         });
 
         customLogger.whatsapp(`${session} - 🚀 Inicializando cliente...`);

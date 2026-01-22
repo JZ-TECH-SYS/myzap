@@ -13,6 +13,8 @@ const { startChatHistoryCleanupJob } = require("./jobs/chatHistoryCleanup");
 const { startDailyReportJob } = require("./jobs/dailyReport");
 const { startMemoryMonitorJob } = require("./jobs/memoryMonitor");
 const { startInstanceMetricsJob } = require("./jobs/instanceMetrics");
+// 🔍 Health Check - Detecta sessões zumbi
+const { startHealthCheckJob } = require("./jobs/sessionHealthCheck");
 
 /**
  * 🚀 Inicia todas as sessões salvas no banco de dados
@@ -163,6 +165,13 @@ function startCleanupJobs() {
       startInstanceMetricsJob();
     } else {
       customLogger.warning("[JOBS] startInstanceMetricsJob não disponível");
+    }
+
+    // 🔍 Iniciar job de health check para detectar sessões zumbi
+    if (typeof startHealthCheckJob === 'function') {
+      startHealthCheckJob();
+    } else {
+      customLogger.warning("[JOBS] startHealthCheckJob não disponível");
     }
 
     customLogger.success("[JOBS] Todos os jobs foram inicializados");

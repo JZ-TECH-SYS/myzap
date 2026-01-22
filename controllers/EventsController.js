@@ -13,6 +13,9 @@ const StatusAckManager = require('./helper/events/statusAckManager.js');
 const ConnectionStateManager = require('./helper/events/connectionStateManager.js');
 const customLogger = require('../util/customLogger.js');
 
+// 🔍 Health Check - Registrar quando mensagens são recebidas
+const { registerMessageReceived } = require('../jobs/sessionHealthCheck.js');
+
 module.exports = class Events {
   /**
    * Configura listeners de mensagens baseado na engine
@@ -21,12 +24,16 @@ module.exports = class Events {
     if (typeof client?.onAnyMessage === 'function') {
       // WPPConnect & Venom
       client.onAnyMessage(async message => {
+        // 🔍 Registrar mensagem para health check
+        registerMessageReceived(session);
         await this.processMessage(message, session, client, req);
       });
     } else if (typeof client?.on === 'function') {
       // WhatsApp Web.js
       client.on('message', async (message) => {
         if (message.from === 'status@broadcast') return;
+        // 🔍 Registrar mensagem para health check
+        registerMessageReceived(session);
         await this.processMessage(message, session, client, req);
       });
     }
