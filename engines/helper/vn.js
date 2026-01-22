@@ -19,10 +19,12 @@ module.exports = {
     const base64Data = normalized.replace('data:image/png;base64,', '');
     const imageBuffer = Buffer.from(base64Data, 'base64');
 
-    req.io.emit('qrCode', {
-      data: 'data:image/png;base64,' + imageBuffer.toString('base64'),
-      session
-    });
+    if (req?.io?.emit) {
+      req.io.emit('qrCode', {
+        data: 'data:image/png;base64,' + imageBuffer.toString('base64'),
+        session
+      });
+    }
 
     console.log(`${session} - QR Code emitido (normalizado=${qrCode !== normalized})`);
   },

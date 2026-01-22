@@ -115,19 +115,25 @@ module.exports = class Venom {
           const reconnectableStatuses = ['deviceNotConnected', 'serverWssNotConnected'];
 
           if (offlineStatuses.includes(statusSession)) {
-            req.io.emit('whatsapp-status', false);
+            if (req?.io?.emit) {
+              req.io.emit('whatsapp-status', false);
+            }
             customLogger.warning(`${session} - 🔴 Status offline: ${statusSession}`);
           }
 
           if (onlineStatuses.includes(statusSession)) {
-            req.io.emit('whatsapp-status', true);
+            if (req?.io?.emit) {
+              req.io.emit('whatsapp-status', true);
+            }
             customLogger.success(`${session} - 🟢 Status online: ${statusSession}`);
           }
 
           // Tentar reconexão automática em alguns casos
           if (reconnectableStatuses.includes(statusSession)) {
             customLogger.warning(`${session} - 🔄 Status reconectável: ${statusSession}`);
-            req.io.emit('whatsapp-status', 'reconnecting');
+            if (req?.io?.emit) {
+              req.io.emit('whatsapp-status', 'reconnecting');
+            }
           }
         },
         ...VenomHelper.getClientOptions()
@@ -187,7 +193,9 @@ module.exports = class Venom {
           
           if (disconnectedStates.includes(state)) {
             customLogger.warning(`${session} - 🔌 Estado desconectado: ${state}`);
-            req.io.emit('whatsapp-status', false);
+            if (req?.io?.emit) {
+              req.io.emit('whatsapp-status', false);
+            }
           }
         });
       }
@@ -212,7 +220,9 @@ module.exports = class Venom {
           
           if (state === 'CONNECTED') {
             customLogger.success(`[VENOM] ${session} - Stream reconectado com sucesso`);
-            req.io.emit('whatsapp-status', true);
+            if (req?.io?.emit) {
+              req.io.emit('whatsapp-status', true);
+            }
           }
         });
       }

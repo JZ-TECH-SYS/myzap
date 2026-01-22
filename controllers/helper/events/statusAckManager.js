@@ -80,7 +80,9 @@ class StatusAckManager {
    */
   static emitStatus(req, status, session) {
     customLogger.info(`[STATUS MESSAGE] ${session}: ${status}`);
-    req.io.emit('whatsapp-status', { session, status });
+    if (req?.io?.emit) {
+      req.io.emit('whatsapp-status', { session, status });
+    }
   }
 }
 

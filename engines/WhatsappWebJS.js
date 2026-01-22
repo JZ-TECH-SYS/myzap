@@ -237,7 +237,10 @@ module.exports = class WhatsappWebJS {
           clearCurrentTimeout();
           resolved = true; // Marcar como resolvido para evitar timeout posterior
           
-          req.io.emit('whatsapp-status', true);
+          // Socket.IO pode não existir (ex: quando Health Check reconecta)
+          if (req?.io?.emit) {
+            req.io.emit('whatsapp-status', true);
+          }
           
           // ADICIONADO - Limpar qrTimeout quando conectar
           if (qrTimeout) {

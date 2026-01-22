@@ -23,11 +23,12 @@
       "data": {
         "base_url": "http://localhost:5555",
         "session": "joaosn",
-        "api_token": "seu_token_aqui",
+        "sessionkey": "joaosn",
+        "apitoken": "@Juliana137@137",
         "phone_number": "5511999999999"
       },
       "dataPropertyOrder": {
-        "&": ["base_url", "session", "api_token", "phone_number"]
+        "&": ["base_url", "session", "sessionkey", "apitoken", "phone_number"]
       },
       "color": null,
       "isPrivate": false,
@@ -59,47 +60,31 @@
       "_type": "request_group"
     },
     {
-      "_id": "fld_grupos",
-      "parentId": "wrk_myzap",
-      "modified": 1705795200000,
-      "created": 1705795200000,
-      "name": "👥 Grupos",
-      "description": "Operações com grupos",
-      "environment": {},
-      "environmentPropertyOrder": null,
-      "metaSortKey": -1705795000000,
-      "_type": "request_group"
-    },
-    {
-      "_id": "fld_contatos",
-      "parentId": "wrk_myzap",
-      "modified": 1705795200000,
-      "created": 1705795200000,
-      "name": "📇 Contatos",
-      "description": "Operações com contatos",
-      "environment": {},
-      "environmentPropertyOrder": null,
-      "metaSortKey": -1705794900000,
-      "_type": "request_group"
-    },
-    {
       "_id": "req_start_session",
       "parentId": "fld_sessions",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/start",
+      "url": "{{ _.base_url }}/start",
       "name": "🚀 Iniciar Sessão",
       "description": "Inicia uma nova sessão WhatsApp (gera QR Code)",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"sessionkey\": \"{{ _.sessionkey }}\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "apitoken",
+          "value": "{{ _.apitoken }}"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -118,13 +103,18 @@
       "parentId": "fld_sessions",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/getQrCode/{{ _.session }}",
+      "url": "{{ _.base_url }}/getQrCode/{{ _.session }}",
       "name": "📷 Obter QR Code",
       "description": "Obtém o QR Code da sessão (base64)",
       "method": "GET",
       "body": {},
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
+        }
+      ],
       "authentication": {},
       "metaSortKey": -1705795190000,
       "isPrivate": false,
@@ -141,19 +131,27 @@
       "parentId": "fld_sessions",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/getAllSessions",
+      "url": "{{ _.base_url }}/getAllSessions",
       "name": "📋 Listar Todas Sessões",
       "description": "Lista todas as sessões ativas",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"token\": \"{{ _.api_token }}\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
+        },
+        {
+          "name": "apitoken",
+          "value": "{{ _.apitoken }}"
         }
       ],
       "authentication": {},
@@ -172,19 +170,23 @@
       "parentId": "fld_sessions",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/getConnectionStatus",
+      "url": "{{ _.base_url }}/getConnectionStatus",
       "name": "🔌 Status da Conexão",
       "description": "Verifica status de conexão da sessão",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -203,19 +205,23 @@
       "parentId": "fld_sessions",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/verifyRealStatus",
+      "url": "{{ _.base_url }}/verifyRealStatus",
       "name": "🔍 Verificar Status Real",
       "description": "Verifica status REAL da sessão no Puppeteer/Chrome",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -234,19 +240,23 @@
       "parentId": "fld_sessions",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/forceReconnect",
+      "url": "{{ _.base_url }}/forceReconnect",
       "name": "🔄 Forçar Reconexão",
       "description": "Força reconexão de uma sessão",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -265,19 +275,23 @@
       "parentId": "fld_sessions",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/repairSession",
+      "url": "{{ _.base_url }}/repairSession",
       "name": "🔧 Reparar Sessão",
       "description": "Tenta reparar uma sessão com problemas",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -296,19 +310,27 @@
       "parentId": "fld_sessions",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/deleteSession",
+      "url": "{{ _.base_url }}/deleteSession",
       "name": "🗑️ Deletar Sessão",
       "description": "Deleta uma sessão (logout + remove dados)",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
+        },
+        {
+          "name": "apitoken",
+          "value": "{{ _.apitoken }}"
         }
       ],
       "authentication": {},
@@ -327,19 +349,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendText",
+      "url": "{{ _.base_url }}/sendText",
       "name": "💬 Enviar Texto",
       "description": "Envia mensagem de texto simples",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"text\": \"Olá! Esta é uma mensagem de teste da API MyZap 🚀\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"text\": \"Olá! Esta é uma mensagem de teste da API MyZap 🚀\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -358,19 +384,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendImage",
+      "url": "{{ _.base_url }}/sendImage",
       "name": "🖼️ Enviar Imagem (URL)",
       "description": "Envia imagem via URL",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://via.placeholder.com/500x500.png?text=MyZap+API\",\n  \"caption\": \"Imagem enviada via API MyZap\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://via.placeholder.com/500x500.png?text=MyZap+API\",\n  \"caption\": \"Imagem enviada via API MyZap\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -389,19 +419,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendFile64",
+      "url": "{{ _.base_url }}/sendFile64",
       "name": "📄 Enviar Arquivo Base64",
       "description": "Envia arquivo em formato base64",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"base64\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\",\n  \"filename\": \"teste.png\",\n  \"caption\": \"Arquivo enviado via base64\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"base64\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==\",\n  \"filename\": \"teste.png\",\n  \"caption\": \"Arquivo enviado via base64\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -420,19 +454,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendVideo",
+      "url": "{{ _.base_url }}/sendVideo",
       "name": "🎥 Enviar Vídeo",
       "description": "Envia vídeo via URL",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://www.w3schools.com/html/mov_bbb.mp4\",\n  \"caption\": \"Vídeo de teste\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://www.w3schools.com/html/mov_bbb.mp4\",\n  \"caption\": \"Vídeo de teste\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -451,19 +489,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendAudio",
+      "url": "{{ _.base_url }}/sendAudio",
       "name": "🎵 Enviar Áudio",
       "description": "Envia áudio (aparece como mensagem de voz)",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -482,19 +524,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendFile",
+      "url": "{{ _.base_url }}/sendFile",
       "name": "📎 Enviar Arquivo (URL)",
       "description": "Envia arquivo via URL",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf\",\n  \"filename\": \"documento.pdf\",\n  \"caption\": \"Documento de teste\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf\",\n  \"filename\": \"documento.pdf\",\n  \"caption\": \"Documento de teste\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -513,19 +559,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendSticker",
+      "url": "{{ _.base_url }}/sendSticker",
       "name": "🎨 Enviar Sticker",
       "description": "Envia figurinha/sticker",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://via.placeholder.com/512x512.png?text=Sticker\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://via.placeholder.com/512x512.png?text=Sticker\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -544,19 +594,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendLocation",
+      "url": "{{ _.base_url }}/sendLocation",
       "name": "📍 Enviar Localização",
       "description": "Envia localização no mapa",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"lat\": \"-23.5505\",\n  \"lng\": \"-46.6333\",\n  \"title\": \"São Paulo\",\n  \"address\": \"São Paulo, SP - Brasil\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"lat\": \"-23.5505\",\n  \"lng\": \"-46.6333\",\n  \"title\": \"São Paulo\",\n  \"address\": \"São Paulo, SP - Brasil\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -575,19 +629,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendContact",
+      "url": "{{ _.base_url }}/sendContact",
       "name": "👤 Enviar Contato",
       "description": "Envia cartão de contato",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"contactName\": \"João da Silva\",\n  \"contactNumber\": \"5511988887777\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"contactName\": \"João da Silva\",\n  \"contactNumber\": \"5511988887777\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -606,19 +664,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendLink",
+      "url": "{{ _.base_url }}/sendLink",
       "name": "🔗 Enviar Link com Preview",
       "description": "Envia link com preview automático",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://github.com\",\n  \"text\": \"Confira esse link!\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"url\": \"https://github.com\",\n  \"text\": \"Confira esse link!\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -637,19 +699,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/sendPoll",
+      "url": "{{ _.base_url }}/sendPoll",
       "name": "📊 Enviar Enquete",
       "description": "Envia enquete/votação",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"title\": \"Qual sua linguagem favorita?\",\n  \"options\": [\"JavaScript\", \"Python\", \"Java\", \"C#\", \"Outra\"],\n  \"multiSelect\": false\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"title\": \"Qual sua linguagem favorita?\",\n  \"options\": [\"JavaScript\", \"Python\", \"Java\", \"C#\", \"Outra\"],\n  \"multiSelect\": false\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -668,19 +734,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/reply",
+      "url": "{{ _.base_url }}/reply",
       "name": "↩️ Responder Mensagem",
       "description": "Responde a uma mensagem específica",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"text\": \"Esta é uma resposta!\",\n  \"messageId\": \"ID_DA_MENSAGEM_ORIGINAL\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"text\": \"Esta é uma resposta!\",\n  \"messageId\": \"ID_DA_MENSAGEM_ORIGINAL\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -699,19 +769,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/reaction",
+      "url": "{{ _.base_url }}/reaction",
       "name": "😀 Enviar Reação",
       "description": "Envia reação (emoji) a uma mensagem",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"messageId\": \"ID_DA_MENSAGEM\",\n  \"reaction\": \"👍\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"messageId\": \"ID_DA_MENSAGEM\",\n  \"reaction\": \"👍\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -730,19 +804,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/forward",
+      "url": "{{ _.base_url }}/forward",
       "name": "➡️ Encaminhar Mensagem",
       "description": "Encaminha mensagem para outro contato",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"messageId\": \"ID_DA_MENSAGEM\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"number\": \"{{ _.phone_number }}\",\n  \"messageId\": \"ID_DA_MENSAGEM\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -761,19 +839,23 @@
       "parentId": "fld_mensagens",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/downloadMedia",
+      "url": "{{ _.base_url }}/downloadMedia",
       "name": "⬇️ Download de Mídia",
       "description": "Baixa mídia de uma mensagem (retorna base64)",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"token\": \"{{ _.api_token }}\",\n  \"messageId\": \"ID_DA_MENSAGEM_COM_MIDIA\"\n}"
+        "text": "{\n  \"session\": \"{{ _.session }}\",\n  \"messageId\": \"ID_DA_MENSAGEM_COM_MIDIA\"\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "name": "sessionkey",
+          "value": "{{ _.sessionkey }}"
         }
       ],
       "authentication": {},
@@ -792,7 +874,7 @@
       "parentId": "fld_sessions",
       "modified": 1705795200000,
       "created": 1705795200000,
-      "url": "{{ _.base_url }}/api/WhatsappWebJS/instances",
+      "url": "{{ _.base_url }}/instances",
       "name": "🏢 Listar Instâncias",
       "description": "Lista todas as instâncias (requer API Token)",
       "method": "POST",
@@ -808,7 +890,7 @@
         },
         {
           "name": "apitoken",
-          "value": "{{ _.api_token }}"
+          "value": "{{ _.apitoken }}"
         }
       ],
       "authentication": {},
