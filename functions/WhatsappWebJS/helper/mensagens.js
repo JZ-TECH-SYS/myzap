@@ -60,7 +60,9 @@ module.exports = {
     }
 
     try {
-      const response = await data.client.sendMessage(number, text);
+      // Fix para erro markedUnread: usar sendSeen: false
+      const response = await data.client.sendMessage(number, text, { sendSeen: false });
+      customLogger.info(`[SEND TEXT] ✅ Mensagem enviada: ${req.body.session} → ${number}`);
       return res.status(200).json({
         result: 200,
         type: "text",
@@ -69,13 +71,14 @@ module.exports = {
         content: response.body,
       });
     } catch (error) {
-      return res.status(500).json({ status: "FAIL", error });
+      customLogger.error(`[SEND TEXT] ❌ Erro ao enviar: ${req.body.session} → ${number}: ${error.message}`);
+      return res.status(500).json({ status: "FAIL", error: { name: error.name, message: error.message } });
     }
   },
 
   async addStatusText(req, res) {
     const data = Sessions.getSession(req.body.session);
-    await data.client.sendMessage("status@broadcast", req.body.text);
+    await data.client.sendMessage("status@broadcast", req.body.text, { sendSeen: false });
     return res.status(200).json({ result: "success" });
   },
 
@@ -112,7 +115,7 @@ module.exports = {
 
     try {
       const loc = new Location(lat, log, `${title}\n${description}`);
-      const response = await data.client.sendMessage(number, loc);
+      const response = await data.client.sendMessage(number, loc, { sendSeen: false });
       return res.status(200).json({
         result: 200,
         type: "locate",
@@ -141,7 +144,7 @@ module.exports = {
       const response = await data.client.sendMessage(
         number,
         contactNumber,
-        { parseVCards: true }
+        { parseVCards: true, sendSeen: false }
       );
       return res.status(200).json({
         result: 200,
@@ -171,7 +174,7 @@ module.exports = {
         number,
         req.body.url,
         req.body.text,
-        { linkPreview: true }
+        { linkPreview: true, sendSeen: false }
       );
       return res.status(200).json({
         result: 200,
@@ -205,10 +208,10 @@ module.exports = {
       const media = MessageMedia.fromFilePath(fullPath);
       const sendOptions =
         type === "sticker"
-          ? { sendMediaAsSticker: true }
+          ? { sendMediaAsSticker: true, sendSeen: false }
           : type === "audio"
-          ? { sendAudioAsVoice: true }
-          : { caption: req.body.caption || "" };
+          ? { sendAudioAsVoice: true, sendSeen: false }
+          : { caption: req.body.caption || "", sendSeen: false };
       const response = await data.client.sendMessage(
         number,
         media,
@@ -411,7 +414,8 @@ module.exports = {
       );
       
       const response = await data.client.sendMessage(number, media, {
-        caption: caption || ""
+        caption: caption || "",
+        sendSeen: false
       });
 
       return res.status(200).json({
@@ -461,7 +465,8 @@ module.exports = {
         );
         
         const response = await data.client.sendMessage(number, media, {
-          caption: caption || ""
+          caption: caption || "",
+          sendSeen: false
         });
 
         results.push({
@@ -518,7 +523,8 @@ module.exports = {
 
         const media = MessageMedia.fromFilePath(fullPath);
         const response = await data.client.sendMessage(number, media, {
-          caption: caption || ""
+          caption: caption || "",
+          sendSeen: false
         });
 
         if (isURL) fs.unlinkSync(fullPath);
@@ -584,7 +590,7 @@ module.exports = {
         orderText += `*Total: ${currency || 'R$'} ${total}*`;
       }
       
-      const response = await data.client.sendMessage(number, orderText);
+      const response = await data.client.sendMessage(number, orderText, { sendSeen: false });
       
       return res.status(200).json({
         result: 200,
@@ -621,7 +627,7 @@ module.exports = {
       
       const poll = new Poll(question, options);
       
-      const response = await data.client.sendMessage(number, poll);
+      const response = await data.client.sendMessage(number, poll, { sendSeen: false });
       
       return res.status(200).json({
         result: 200,

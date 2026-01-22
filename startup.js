@@ -54,47 +54,47 @@ async function startAllSessions() {
       return;
     }
 
-    // Iniciar cada sessão com um pequeno delay para evitar sobrecarga
+    // Iniciar cada sessão SEM BLOQUEAR (não usar await)
+    // Isso permite que todas as sessões iniciem mesmo que algumas precisem de QR code
     for (const device of devices) {
-      try {
-        const deviceData = device.dataValues || device;
-        customLogger.info(`[STARTUP] Iniciando sessão: ${deviceData.session}`);
-        
-        // Criar mock de req e res para a engine (ela espera req, res, session)
-        const mockReq = {
-          headers: {
-            sessionkey: deviceData.sessionkey
-          },
-          body: {
-            number: deviceData.number || '',
-            wh_connect: deviceData.wh_connect || '',
-            wh_status: deviceData.wh_status || '',
-            wh_message: deviceData.wh_message || '',
-            wh_qrcode: deviceData.wh_qrcode || ''
-          }
-        };
-        
-        const mockRes = {
-          status: () => mockRes,
-          json: (data) => data,
-          send: (data) => data
-        };
-        
-        // Chama a função start da engine apropriada (req, res, session)
-        await startSessionFunction(mockReq, mockRes, deviceData.session);
-        
-        customLogger.success(`[STARTUP] Sessão ${deviceData.session} iniciada com sucesso`);
-        
-        // Pequeno delay entre inicializações
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-      } catch (error) {
-        const deviceData = device.dataValues || device;
-        customLogger.error(`[STARTUP] ❌ Erro ao iniciar sessão ${deviceData.session}:`, error.message);
-      }
+      const deviceData = device.dataValues || device;
+      customLogger.info(`[STARTUP] Iniciando sessão: ${deviceData.session}`);
+      
+      // Criar mock de req e res para a engine (ela espera req, res, session)
+      const mockReq = {
+        headers: {
+          sessionkey: deviceData.sessionkey
+        },
+        body: {
+          number: deviceData.number || '',
+          wh_connect: deviceData.wh_connect || '',
+          wh_status: deviceData.wh_status || '',
+          wh_message: deviceData.wh_message || '',
+          wh_qrcode: deviceData.wh_qrcode || ''
+        }
+      };
+      
+      const mockRes = {
+        status: () => mockRes,
+        json: (data) => data,
+        send: (data) => data
+      };
+      
+      // Chama a função start da engine SEM AWAIT (não bloqueia)
+      // Isso permite iniciar todas as sessões em paralelo
+      startSessionFunction(mockReq, mockRes, deviceData.session)
+        .then(() => {
+          customLogger.success(`[STARTUP] ✅ Sessão ${deviceData.session} iniciada com sucesso`);
+        })
+        .catch((error) => {
+          customLogger.error(`[STARTUP] ❌ Erro ao iniciar sessão ${deviceData.session}:`, error.message);
+        });
+      
+      // Pequeno delay entre inicializações para não sobrecarregar
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
 
-    customLogger.success("[STARTUP] Processo de inicialização de sessões concluído");
+    customLogger.success("[STARTUP] Processo de inicialização de sessões disparado");
     
   } catch (error) {
     customLogger.error("[STARTUP] Erro ao iniciar sessões:", error);
