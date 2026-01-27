@@ -57,14 +57,34 @@ async function checkNumber(req, res, next) {
 async function getConnectedDevice(req, res) {
   const device = await Sessions.getClient(req.body.session);
 
-  let status_permited = ["inChat", "qrReadSuccess", "isLogged","CONNECTED"];
+  let status_permited = ["inChat", "qrReadSuccess", "isLogged", "CONNECTED"];
 
-  if (!device || !status_permited.includes(device.status)) {
-    console.log(`[CHECKNUMBER] Dispositivo não conectado - Sessão: ${req?.body?.session ?? ""}`);
+  // 🔴 CORRIGIDO: Verificar também se o CLIENT está realmente conectado
+  // O status no banco pode estar desatualizado
+  let clientReallyConnected = false;
+  
+  if (device?.client) {
+    try {
+      // Verificar estado REAL do client (com timeout de 3s)
+      const statePromise = Promise.race([
+        device.client.getState?.() || Promise.resolve(null),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+      ]);
+      const realState = await statePromise;
+      clientReallyConnected = realState === 'CONNECTED';
+    } catch (e) {
+      // Se deu erro/timeout, verificar se client.info existe (autenticado)
+      clientReallyConnected = !!device.client.info;
+    }
+  }
+
+  // Aceita se: status no banco é permitido OU client está realmente conectado
+  if (!device || (!status_permited.includes(device.status) && !clientReallyConnected)) {
+    console.log(`[CHECKNUMBER] Dispositivo não conectado - Sessão: ${req?.body?.session ?? ""} - Status: ${device?.status} - ClientConnected: ${clientReallyConnected}`);
     return res.status(400).send({
       error: true,
-      status: device.status,
-      state: device.state,
+      status: device?.status,
+      state: device?.state,
       message: `O dispositivo ${req?.body?.session ?? ""} não está conectado.`,
     });
   }
