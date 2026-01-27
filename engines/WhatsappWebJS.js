@@ -348,6 +348,33 @@ module.exports = class WhatsappWebJS {
             state: 'AUTHENTICATED',
             updated_at: new Date()
           }, { where: { session } }).catch(() => {});
+          
+          // 🔴 FALLBACK: Se evento 'ready' não disparar em 10s, registrar listeners mesmo assim
+          // Isso resolve casos onde o WhatsApp conecta mas 'ready' nunca vem
+          setTimeout(async () => {
+            try {
+              const state = await client.getState().catch(() => null);
+              if (state === 'CONNECTED' && !resolved) {
+                customLogger.warning(`${session} - ⚠️ Evento 'ready' não disparou, ativando fallback...`);
+                
+                // Registrar listeners de mensagem
+                Events.receiveMessage(session, client, req);
+                Events.statusMessage(session, client, req);
+                
+                // Atualizar status
+                await Device.update({
+                  state: 'CONNECTED',
+                  status: 'CONNECTED',
+                  updated_at: new Date()
+                }, { where: { session } }).catch(() => {});
+                
+                Sessions.addInfoSession(session, { session, client });
+                customLogger.success(`${session} - ✅ Fallback ativado - listeners registrados`);
+              }
+            } catch (e) {
+              customLogger.debug(`${session} - Fallback check falhou: ${e.message}`);
+            }
+          }, 10000); // 10 segundos
         });
 
         // ADICIONADO - Evento para sessão carregada de arquivo (sem QR Code)
