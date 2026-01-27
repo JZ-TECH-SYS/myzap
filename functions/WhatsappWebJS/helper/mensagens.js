@@ -78,7 +78,12 @@ module.exports = {
     const healthResult = await isClientHealthy(session, data.client);
     if (!healthResult.healthy) {
       customLogger.error(`[SEND TEXT] ❌ Client não saudável: ${session} - ${healthResult.reason}`);
-      registerSendFailure(session, healthResult.reason);
+      
+      // 🔴 Só registrar falha se NÃO for bloqueio por muitas falhas (evita loop infinito)
+      if (!healthResult.skipFailureCount) {
+        registerSendFailure(session, healthResult.reason);
+      }
+      
       return res.status(503).json({ 
         status: "FAIL", 
         error: { name: "ClientUnhealthy", message: `Sessão com problema: ${healthResult.reason}` },

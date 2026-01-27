@@ -95,17 +95,26 @@ function registerSendFailure(session, errorMessage) {
 
 /**
  * 🔍 Verifica se client está saudável ANTES de enviar (usar no sendText)
- * Retorna { healthy: boolean, reason: string|null }
+ * Retorna { healthy: boolean, reason: string|null, skipFailureCount: boolean }
+ * 
+ * skipFailureCount=true significa que NÃO devemos incrementar o contador de falhas
+ * (usado quando o bloqueio é por já ter muitas falhas - evita loop infinito)
  */
 async function isClientHealthy(session, client) {
   if (!client) {
-    return { healthy: false, reason: 'Client não existe na memória' };
+    return { healthy: false, reason: 'Client não existe na memória', skipFailureCount: false };
   }
 
   // Verificar falhas de envio recentes
+  // 🔴 IMPORTANTE: Se bloqueou por muitas falhas, NÃO incrementar mais
+  // Isso evita loop infinito de falhas
   const sendFails = sendFailureCount.get(session) || 0;
   if (sendFails >= MAX_SEND_FAILURES) {
-    return { healthy: false, reason: `${sendFails} falhas de envio consecutivas` };
+    return { 
+      healthy: false, 
+      reason: `${sendFails} falhas de envio consecutivas - aguardando recuperação automática`,
+      skipFailureCount: true  // NÃO incrementar - evita loop!
+    };
   }
 
   // Verificação rápida do estado (timeout de 5s para não travar)
@@ -118,12 +127,12 @@ async function isClientHealthy(session, client) {
     const state = await statePromise;
     
     if (state !== 'CONNECTED') {
-      return { healthy: false, reason: `Estado: ${state}` };
+      return { healthy: false, reason: `Estado: ${state}`, skipFailureCount: false };
     }
     
-    return { healthy: true, reason: null, state };
+    return { healthy: true, reason: null, state, skipFailureCount: false };
   } catch (error) {
-    return { healthy: false, reason: error.message };
+    return { healthy: false, reason: error.message, skipFailureCount: false };
   }
 }
 
@@ -271,12 +280,20 @@ async function runHealthCheckCycle() {
         try {
           customLogger.warning(`[🔄 AUTO-RECONNECT] ${session}: Tentando reviver sessão zumbi...`);
           
-          // Verificar se é erro de "detached Frame" - nesse caso, refresh não vai funcionar
+          // Verificar condições que exigem destroy completo (refresh não resolve)
           const isDetachedFrame = health.reason && health.reason.includes('detached Frame');
+          const hasManyFailures = health.sendFailures >= MAX_SEND_FAILURES;
+          const isBrowserRunning = health.reason && health.reason.includes('browser is already running');
           
-          if (isDetachedFrame) {
-            // Frame detached = sessão irrecuperável, precisa destruir e recriar
-            customLogger.warning(`[AUTO-RECONNECT] ${session}: Frame detached detectado - destruindo cliente...`);
+          // 🔴 Se tem muitas falhas de envio, precisa destruir e recriar
+          const needsFullRestart = isDetachedFrame || hasManyFailures || isBrowserRunning;
+          
+          if (needsFullRestart) {
+            // Sessão irrecuperável com refresh, precisa destruir e recriar
+            const reason = isDetachedFrame ? 'Frame detached' : 
+                          hasManyFailures ? `${health.sendFailures} falhas de envio` :
+                          'Browser já rodando';
+            customLogger.warning(`[AUTO-RECONNECT] ${session}: ${reason} - destruindo cliente para restart...`);
             
             try {
               // Tentar fechar o cliente de forma limpa
@@ -288,20 +305,25 @@ async function runHealthCheckCycle() {
             // Remover da lista de sessões ativas
             SessionsHelper.removeClientFromMemory(session);
             
-            // Limpar contadores
+            // 🔴 IMPORTANTE: Limpar contadores de falha para permitir nova tentativa!
             lastMessageTime.delete(session);
             failureCount.delete(session);
             lastHealthCheck.delete(session);
+            sendFailureCount.delete(session);  // 🆕 Limpar falhas de envio!
+            lastSendError.delete(session);      // 🆕 Limpar último erro de envio!
             
-            // Atualizar banco para marcar como desconectado (forçar novo QR)
+            // Atualizar banco para marcar como desconectado (sessionKeepAlive vai recriar)
             await Device.update({
               state: 'disconnected',
               status: 'disconnected',
+              send_failure_count: 0,  // 🆕 Resetar no banco também!
+              last_send_error: null,
+              health_status: 'RECOVERING',
               qrcode: null,
               updated_at: new Date()
             }, { where: { session } }).catch(() => {});
             
-            customLogger.warning(`[AUTO-RECONNECT] ${session}: Sessão destruída - aguardando novo QR code`);
+            customLogger.warning(`[AUTO-RECONNECT] ${session}: Cliente destruído - sessionKeepAlive vai reiniciar em breve`);
             
           } else if (client.pupPage && !client.pupPage.isClosed()) {
             // Tentar refresh da página (para casos menos graves)
