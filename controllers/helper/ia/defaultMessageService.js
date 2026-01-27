@@ -2,6 +2,13 @@ const ChatHistoryHelper = require('../events/chatHistory');
 const customLogger = require('../../../util/customLogger');
 const { TEMPO_MENSAGEM_PADRAO_DEFAULT, LOG_PREFIX } = require('./iaConfig');
 
+// 🔒 Lock para evitar race condition em envios paralelos
+const sendingLocks = new Map();
+
+function buildLockKey(session, sessionkey, numero) {
+  return `${session}:${sessionkey}:${numero}`;
+}
+
 async function sendDefault({
   client,
   session,
@@ -14,11 +21,25 @@ async function sendDefault({
 }) {
   if (!mensagemPadrao) return false;
 
+  const lockKey = buildLockKey(session, sessionkey, numero);
+  
+  // Se já está enviando para este número, retornar false
+  if (sendingLocks.has(lockKey)) {
+    customLogger.debug(`${LOG_PREFIX} Lock ativo para ${numero}, ignorando envio duplicado`);
+    return false;
+  }
+
+  // Adquirir lock
+  sendingLocks.set(lockKey, Date.now());
+
   try {
     if (!force) {
       const jaEnviouHoje = await ChatHistoryHelper.jaEnvieiMensagemPadraoHoje({ session, sessionkey, numero });
       console.log('ja enviou hoje?', jaEnviouHoje);
-      if (jaEnviouHoje) return false;
+      if (jaEnviouHoje) {
+        sendingLocks.delete(lockKey);
+        return false;
+      }
     }
 
     let sent = false;
@@ -39,6 +60,7 @@ async function sendDefault({
 
     if (!sent) return false;
 
+    // Registrar ANTES para evitar duplicatas em caso de race condition
     await ChatHistoryHelper.registerAssistantMessage({
       session,
       sessionkey,
@@ -51,7 +73,21 @@ async function sendDefault({
   } catch (err) {
     customLogger.error(`${LOG_PREFIX} Erro ao enviar mensagem padrão`, err.message || err);
     return false;
+  } finally {
+    // Sempre liberar o lock
+    sendingLocks.delete(lockKey);
   }
 }
+
+// Limpar locks antigos a cada 5 minutos (proteção contra vazamento de memória)
+setInterval(() => {
+  const now = Date.now();
+  const maxAge = 60000; // 1 minuto
+  for (const [key, timestamp] of sendingLocks.entries()) {
+    if (now - timestamp > maxAge) {
+      sendingLocks.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
 
 module.exports = { sendDefault };

@@ -2,10 +2,13 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('DeviceCompanies', 'idprompt', {
-      type: Sequelize.TEXT,   // agora é TEXT
-      allowNull: true,
-    });
+    const tableInfo = await queryInterface.describeTable('DeviceCompanies');
+    if (!tableInfo.idprompt) {
+      await queryInterface.addColumn('DeviceCompanies', 'idprompt', {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      });
+    }
   },
 
   down: async (queryInterface, _Sequelize) => {

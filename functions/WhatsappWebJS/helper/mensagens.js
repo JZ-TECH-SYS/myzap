@@ -8,6 +8,9 @@ const engine = require("../../../engines/WhatsappWebJS");
 const Cache = require("../../../util/cache"); // ADICIONADO - Para usar números processados
 const customLogger = require('../../../util/customLogger.js'); // Logger padronizado
 
+// 🆕 Importar funções de health check para rastrear envios
+const { registerSendSuccess, registerSendFailure, isClientHealthy } = require('../../../jobs/sessionHealthCheck.js');
+
 const urlExists = util.promisify(urlExistsImport);
 const { MessageMedia, Location, Poll } = whatsappweb;
 
@@ -49,7 +52,8 @@ async function formatNumber(rawNumber) {
 
 module.exports = {
   async sendText(req, res) {
-    const data = Sessions.getSession(req.body.session);
+    const session = req.body.session;
+    const data = Sessions.getSession(session);
     const number = await buildNumber(req); // AWAIT adicionado
     const text = req.body.text;
 
@@ -59,10 +63,38 @@ module.exports = {
         .json({ status: 400, error: "Text não foi informado" });
     }
 
+    // 🛡️ VALIDAÇÃO 1: Client existe na memória?
+    if (!data || !data.client) {
+      customLogger.error(`[SEND TEXT] ❌ Client não encontrado: ${session}`);
+      registerSendFailure(session, 'Client não encontrado na memória');
+      return res.status(503).json({ 
+        status: "FAIL", 
+        error: { name: "ClientNotFound", message: "Sessão não está conectada. Por favor, reconecte." },
+        needsReconnect: true
+      });
+    }
+
+    // 🛡️ VALIDAÇÃO 2: Client está saudável? (verifica estado real)
+    const healthResult = await isClientHealthy(session, data.client);
+    if (!healthResult.healthy) {
+      customLogger.error(`[SEND TEXT] ❌ Client não saudável: ${session} - ${healthResult.reason}`);
+      registerSendFailure(session, healthResult.reason);
+      return res.status(503).json({ 
+        status: "FAIL", 
+        error: { name: "ClientUnhealthy", message: `Sessão com problema: ${healthResult.reason}` },
+        needsReconnect: true,
+        healthCheck: healthResult
+      });
+    }
+
     try {
       // Fix para erro markedUnread: usar sendSeen: false
       const response = await data.client.sendMessage(number, text, { sendSeen: false });
-      customLogger.info(`[SEND TEXT] ✅ Mensagem enviada: ${req.body.session} → ${number}`);
+      
+      // ✅ Registrar envio bem sucedido
+      registerSendSuccess(session);
+      customLogger.info(`[SEND TEXT] ✅ Mensagem enviada: ${session} → ${number}`);
+      
       return res.status(200).json({
         result: 200,
         type: "text",
@@ -71,8 +103,19 @@ module.exports = {
         content: response.body,
       });
     } catch (error) {
-      customLogger.error(`[SEND TEXT] ❌ Erro ao enviar: ${req.body.session} → ${number}: ${error.message}`);
-      return res.status(500).json({ status: "FAIL", error: { name: error.name, message: error.message } });
+      // ❌ Registrar falha de envio
+      registerSendFailure(session, error.message);
+      customLogger.error(`[SEND TEXT] ❌ Erro ao enviar: ${session} → ${number}: ${error.message}`);
+      
+      // Verificar se é erro que indica sessão morta
+      const isSessionDead = ['getChat', 'sendMessage', 'detached Frame', 
+        'Execution context', 'Target closed', 'Protocol error'].some(k => error.message.includes(k));
+      
+      return res.status(500).json({ 
+        status: "FAIL", 
+        error: { name: error.name, message: error.message },
+        needsReconnect: isSessionDead
+      });
     }
   },
 

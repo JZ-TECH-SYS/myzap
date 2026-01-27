@@ -16,6 +16,21 @@ const customLogger = require('../util/customLogger.js');
 // 🔍 Health Check - Registrar quando mensagens são recebidas
 const { registerMessageReceived } = require('../jobs/sessionHealthCheck.js');
 
+// 🛡️ Cache de deduplicação de mensagens (evita processar mesma msg 2x)
+const processedMessages = new Map();
+const DEDUP_TTL_MS = 30000; // 30 segundos
+const DEDUP_CLEANUP_INTERVAL = 60000; // Limpar a cada 1 minuto
+
+// Limpar cache de deduplicação periodicamente
+setInterval(() => {
+  const now = Date.now();
+  for (const [msgId, timestamp] of processedMessages.entries()) {
+    if (now - timestamp > DEDUP_TTL_MS) {
+      processedMessages.delete(msgId);
+    }
+  }
+}, DEDUP_CLEANUP_INTERVAL);
+
 module.exports = class Events {
   /**
    * Configura listeners de mensagens baseado na engine
@@ -43,6 +58,18 @@ module.exports = class Events {
    * Pipeline principal de processamento de mensagens
    */
   static async processMessage(message, session, client, req) {
+    // 🛡️ Deduplicação: extrair ID único da mensagem
+    const msgId = message.id?._serialized || message.id?.id || message.id || `${message.from}-${message.timestamp}`;
+    
+    // Verificar se já processamos esta mensagem
+    if (processedMessages.has(msgId)) {
+      customLogger.debug(`[DEDUP] Mensagem ${msgId} já processada, ignorando duplicata`);
+      return;
+    }
+    
+    // Marcar como processada ANTES de iniciar o processamento
+    processedMessages.set(msgId, Date.now());
+    
     // Gerenciador de comunicação socket/webhook
     customLogger.debug(`[IA] processMessage chamada para sessão ${session}`);
     console.log(`[DEBUG] Message isGroupMsg: ${message.isGroupMsg}, from: ${message.from}, type: ${message.type}`);

@@ -192,7 +192,21 @@ module.exports = class WhatsappWebJS {
         let qrTimeout;
 
         // MELHORADO - Sempre escuta QR Code (não usa mais sessionData)
+        // Rastrear se já tivemos sessão existente para detectar tokens inválidos
+        let sessionExistedBeforeQR = false;
+        if (fs.existsSync(sessionPath)) {
+          sessionExistedBeforeQR = true;
+        }
+        
         client.on('qr', async (qr) => {
+          // NOVO - Detectar se sessão existente era inválida
+          if (sessionExistedBeforeQR) {
+            customLogger.warning(`${session} - ⚠️ SESSÃO INVÁLIDA DETECTADA!`);
+            customLogger.warning(`${session} - 📋 Pasta existia mas tokens eram inválidos (provavelmente dispositivo foi removido no celular)`);
+            customLogger.warning(`${session} - 🔄 Será necessário escanear novo QR Code para reconectar`);
+            sessionExistedBeforeQR = false; // Só logar uma vez
+          }
+          
           customLogger.whatsapp(`${session} - 📱 Novo QR Code gerado`);
           
           // IMPORTANTE - Gerar imagem base64 PRIMEIRO
@@ -347,8 +361,20 @@ module.exports = class WhatsappWebJS {
         });
 
         // ADICIONADO - Eventos de persistência da sessão
-        client.on('auth_failure', (msg) => {
+        client.on('auth_failure', async (msg) => {
           customLogger.error(`${session} - ❌ Falha na autenticação: ${msg}`);
+          
+          // NOVO - Limpar pasta de sessão corrompida para permitir novo QR Code
+          const sessionPathToClean = path.join('.', 'instances', session);
+          if (fs.existsSync(sessionPathToClean)) {
+            customLogger.warning(`${session} - 🧹 Limpando pasta de sessão inválida: ${sessionPathToClean}`);
+            try {
+              fs.rmSync(sessionPathToClean, { recursive: true, force: true });
+              customLogger.success(`${session} - ✅ Pasta de sessão limpa com sucesso`);
+            } catch (cleanError) {
+              customLogger.error(`${session} - ⚠️ Erro ao limpar pasta: ${cleanError.message}`);
+            }
+          }
           
           // ADICIONADO - Atualizar device no banco com erro (seguindo padrão WPPConnect)
           Device.update({

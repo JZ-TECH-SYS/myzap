@@ -1,13 +1,15 @@
 # Instruções do GitHub Copilot - MyZap API
 
+> **Documentação completa da Engine WhatsApp-Web-JS:** [WHATSAPP_WEBJS_TECHNICAL_GUIDE.md](./WHATSAPP_WEBJS_TECHNICAL_GUIDE.md)
+
 ## 📋 Visão Geral do Projeto
 
 MyZap é uma API multi-engine para WhatsApp que suporta **3 engines diferentes**:
-- **WhatsappWebJS** (`whatsapp-web.js`) - Engine principal
+- **WhatsappWebJS** (`whatsapp-web.js`) - Engine principal e mais utilizada
 - **WppConnect** (`@wppconnect-team/wppconnect`)
 - **Venom** (`venom-bot`)
 
-A engine ativa é definida em `config.js` → `config.engine`.
+A engine ativa é definida em `.env` → `ENGINE=1` (1=WhatsappWebJS, 2=WppConnect, 3=Venom).
 
 ---
 
@@ -15,26 +17,52 @@ A engine ativa é definida em `config.js` → `config.engine`.
 
 ```
 myzap/
-├── engines/           # Implementações das 3 engines WhatsApp
-│   ├── WhatsappWebJS.js
+├── engines/                    # Implementações das 3 engines WhatsApp
+│   ├── WhatsappWebJS.js        # 🔴 CORE - Classe principal da engine
 │   ├── WppConnect.js
 │   ├── Venom.js
 │   └── helper/
-├── functions/         # Funções específicas de cada engine
+│       └── wweb.js             # Helper para QR Code e opções do client
+│
+├── functions/                  # Funções específicas de cada engine
 │   ├── WhatsappWebJS/
+│   │   ├── mensagens.js        # Proxy
+│   │   ├── auth.js             # Proxy
+│   │   └── helper/
+│   │       ├── mensagens.js    # 🔴 IMPLEMENTAÇÃO de todas as funções
+│   │       └── auth.js
 │   ├── WPPConnect/
 │   └── Venom/
-├── jobs/              # Tarefas agendadas (setInterval, NÃO node-cron)
-├── services/          # Serviços (email, IA, webhooks)
-├── controllers/       # Controladores das rotas
-├── routers/           # Rotas da API
-├── Models/            # Modelos Sequelize (SQLite)
-├── middlewares/       # Middlewares de autenticação e validação
-├── migrations/        # Migrações do banco de dados
-├── util/              # Utilitários (logger, helpers)
-├── config/            # Arquivos de configuração JSON
-├── instances/         # Dados das sessões WhatsApp
-└── logs/              # Logs diários organizados por data
+│
+├── controllers/                # Controladores das rotas
+│   ├── SessionsController.js   # Gerenciamento de sessões (API)
+│   ├── EventsController.js     # 🔴 Pipeline de processamento de eventos
+│   ├── WebhooksController.js   # Envio de webhooks
+│   └── helper/
+│       ├── core/
+│       │   └── sessions.js     # 🔴 CRÍTICO - Mapa de clients em memória
+│       └── events/
+│           ├── connectionStateManager.js
+│           ├── socketWebhookManager.js
+│           └── statusAckManager.js
+│
+├── jobs/                       # Tarefas agendadas (setInterval nativo)
+│   ├── sessionHealthCheck.js   # 🔴 CRÍTICO - Detecta sessões zumbi
+│   ├── sessionKeepAlive.js     # Reconexão automática
+│   └── ...outros jobs
+│
+├── routers/                    # Rotas da API por engine
+│   ├── WhatsappWebJS.js
+│   ├── WppConnect.js
+│   └── Venom.js
+│
+├── Models/                     # Modelos Sequelize (SQLite)
+├── middlewares/                # Middlewares de autenticação e validação
+├── migrations/                 # Migrações do banco de dados
+├── util/                       # Utilitários (logger, helpers)
+├── config/                     # Arquivos de configuração JSON
+├── instances/                  # 🔴 Dados das sessões WhatsApp (LocalAuth)
+└── logs/                       # Logs diários organizados por data
 ```
 
 ---
@@ -50,15 +78,35 @@ myzap/
 pnpm outdated whatsapp-web.js
 pnpm outdated @wppconnect-team/wppconnect  
 pnpm outdated venom-bot
+
+# Atualizar (SOLUÇÃO MAIS COMUM)
+pnpm update whatsapp-web.js
 ```
 
-As engines WhatsApp dependem de engenharia reversa do WhatsApp Web e **quebram frequentemente** com atualizações do WhatsApp. Sintomas comuns:
-- Sessões desconectando após scan do QR
-- QR code não aparece
-- Mensagens não enviando
-- Timeouts inexplicáveis
+As engines WhatsApp dependem de engenharia reversa do WhatsApp Web e **quebram frequentemente** com atualizações do WhatsApp.
 
-**Solução típica:** `pnpm update whatsapp-web.js` (ou a engine em uso)
+### 🔴 Erros Críticos que Indicam Biblioteca Desatualizada
+
+| Erro | Significado |
+|------|-------------|
+| `Attempted to use detached Frame` | Página Puppeteer perdida |
+| `Execution context was destroyed` | Navegação inesperada no Chrome |
+| `Protocol error (Runtime.callFunctionOn)` | CDP desconectado |
+| `Cannot read properties of undefined (reading 'getChat')` | Client não injetado ou sessão morta |
+| `The browser is already running` | Sessão duplicada - matar Chrome órfão |
+
+### 🧟 Sessões Zumbi
+
+**Definição:** Sessão aparece `CONNECTED` no banco, mas não processa mensagens.
+
+**Causa:** WhatsApp Web desconectou silenciosamente sem disparar evento.
+
+**Detecção:** Job `sessionHealthCheck.js` verifica a cada 30s:
+- `client.getState()` responde?
+- `pupPage.evaluate()` responde?
+- Última mensagem recebida há mais de 15 min?
+
+**Log característico:** `[🧟 ZOMBIE DETECTED]`
 
 ---
 
@@ -81,6 +129,29 @@ config.session_keepalive_interval_ms = 300000  // 5 minutos
 - Arquivo: definido em `config/config.json`
 - Modelos em `Models/`
 
+### 🔴 Configurações Críticas do Puppeteer
+
+```javascript
+// engines/helper/wweb.js - getClientOptions()
+puppeteer: {
+  headless: true,
+  timeout: 120000,              // 2 minutos
+  protocolTimeout: 300000,      // 5 minutos (CRÍTICO - evita timeout)
+  args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--js-flags=--max-old-space-size=512'  // Limite RAM por sessão
+  ]
+},
+qrMaxRetries: 5,
+authTimeoutMs: 120000,
+webVersionCache: {
+  type: 'remote',
+  remotePath: 'https://raw.githubusercontent.com/...'  // Cache externo
+}
+```
+
 ---
 
 ## 📧 Sistema de Email
@@ -101,38 +172,86 @@ config.session_keepalive_interval_ms = 300000  // 5 minutos
 
 **IMPORTANTE:** Todos os jobs usam `setInterval` nativo, **NÃO** usam `node-cron`.
 
-| Job | Arquivo | Função |
-|-----|---------|--------|
-| Memory Monitor | `jobs/memoryMonitor.js` | Monitora uso de memória |
-| Session Keep-Alive | `jobs/sessionKeepAlive.js` | Mantém sessões ativas |
-| Daily Report | `jobs/dailyReport.js` | Email diário com métricas |
-| Instance Metrics | `jobs/instanceMetrics.js` | Coleta métricas das instâncias |
-| Cache Cleanup | `jobs/cacheCleanup.js` | Limpa cache antigo |
-| Logs Cleanup | `jobs/logsCleanup.js` | Remove logs antigos |
-| Database Cleanup | `jobs/databaseCleanup.js` | Limpa dados antigos do DB |
-| Instances Cleanup | `jobs/instancesCleanup.js` | Remove instâncias órfãs |
-| Chat History Cleanup | `jobs/chatHistoryCleanup.js` | Limpa histórico de chat |
+| Job | Arquivo | Função | Intervalo |
+|-----|---------|--------|-----------|
+| Health Check | `jobs/sessionHealthCheck.js` | 🔴 Detecta sessões zumbi | 30s |
+| Session Keep-Alive | `jobs/sessionKeepAlive.js` | Reconexão automática | 5 min |
+| Memory Monitor | `jobs/memoryMonitor.js` | Monitora uso de memória | 5 min |
+| Daily Report | `jobs/dailyReport.js` | Email diário com métricas | 1x/dia |
+| Instance Metrics | `jobs/instanceMetrics.js` | Coleta métricas das instâncias | 1 min |
+| Cache Cleanup | `jobs/cacheCleanup.js` | Limpa cache antigo | 1 hora |
+| Logs Cleanup | `jobs/logsCleanup.js` | Remove logs antigos | 1 hora |
+| Database Cleanup | `jobs/databaseCleanup.js` | Limpa dados antigos do DB | 1 hora |
+| Instances Cleanup | `jobs/instancesCleanup.js` | Remove instâncias órfãs | 1 hora |
+| Chat History Cleanup | `jobs/chatHistoryCleanup.js` | Limpa histórico de chat | 1 hora |
 
 ### Inicialização
 Todos os jobs são iniciados em `startup.js` → `initializeJobs()`.
+
+### 🔴 Session Health Check - Funcionamento
+
+```javascript
+// jobs/sessionHealthCheck.js
+// Verifica a cada 30 segundos:
+1. client.getState()          // Responde 'CONNECTED'?
+2. client.pupPage.evaluate()  // Chrome responde?
+3. lastMessageTime            // Recebeu msg nos últimos 15 min?
+
+// Se detectar zumbi:
+- Frame detached → client.destroy() + removeClientFromMemory()
+- Outro caso → client.pupPage.reload()
+```
 
 ---
 
 ## 🔌 Engines WhatsApp
 
 ### Estrutura de cada Engine
-Cada arquivo em `engines/` exporta funções como:
-- `start(session, options)` - Inicia sessão
-- `close(session)` - Fecha sessão
-- `getQRCode(session)` - Obtém QR code
-- `sendMessage(session, number, message)` - Envia mensagem
+Cada arquivo em `engines/` exporta uma classe com método:
+- `start(req, res, session)` - Inicia sessão e retorna Promise
+
+### Fluxo de Inicialização (WhatsappWebJS)
+```
+WhatsappWebJS.start(req, res, session)
+│
+├─► Device.upsert() - Cria/atualiza registro no banco
+│       state: 'STARTING', status: 'INITIALIZING'
+│
+├─► new Client(clientOptions) - Cria instância whatsapp-web.js
+│       authStrategy: LocalAuth
+│       dataPath: ./instances/{session}
+│
+├─► Registra listeners:
+│       client.on('qr')           → Gera QR, salva no banco, emite Socket.IO
+│       client.on('authenticated') → 🔴 injectClient(session, client)
+│       client.on('ready')        → Device.update(status: 'CONNECTED')
+│       client.on('disconnected') → Device.update(status: 'disconnected')
+│
+└─► client.initialize() - Inicia Puppeteer/Chrome
+```
+
+### 🔴 Ponto Crítico: Injeção do Client
+
+```javascript
+// controllers/helper/core/sessions.js
+SessionsHelper.clients = {}  // Mapa global em memória
+
+// O client é injetado no evento 'authenticated':
+client.on('authenticated', () => {
+  SessionsHelper.injectClient(session, client);
+});
+
+// Funções usam getInjectedClient:
+const client = SessionsHelper.getInjectedClient(session);
+// Se retornar undefined → erro "Cannot read properties"
+```
 
 ### Funções específicas
 As funções de cada engine ficam em `functions/{EngineName}/`:
-- `sendText.js`, `sendImage.js`, `sendFile.js`, etc.
+- `sendText`, `sendImage`, `sendFile`, etc.
 
 ### Troca de Engine
-Para trocar a engine, altere `config.engine` em `config.js` e reinicie.
+Altere `ENGINE=1|2|3` no `.env` e reinicie.
 
 ---
 
@@ -160,6 +279,24 @@ Para trocar a engine, altere `config.engine` em `config.js` e reinicie.
 ### 5. Heap mostrando valor errado
 - Use `v8.getHeapStatistics().heap_size_limit` para heap limit real
 - `process.memoryUsage().heapTotal` mostra apenas heap alocado atual
+
+### 6. Erro "Cannot read properties of undefined (reading 'getChat')"
+- **Causa:** Client não foi injetado em `SessionsHelper.clients`
+- **Verificar:** 
+  1. Evento `authenticated` foi disparado?
+  2. `injectClient()` foi chamado?
+  3. Sessão ainda está conectada?
+- **Log para investigar:** Procurar por `[CLIENT INJECTED]` nos logs
+
+### 7. Erro "The browser is already running"
+- **Causa:** Processo Chrome anterior não foi encerrado
+- **Solução:** `pkill -f "chrome.*{session}"` ou aguardar timeout de 10min
+
+### 8. Sessões Zumbi (CONNECTED mas não recebe mensagens)
+- **Causa:** WhatsApp Web desconectou silenciosamente
+- **Detecção:** Job `sessionHealthCheck.js` verifica automaticamente
+- **Log:** `[🧟 ZOMBIE DETECTED]`
+- **Ação automática:** Destroy + remove da memória
 
 ---
 

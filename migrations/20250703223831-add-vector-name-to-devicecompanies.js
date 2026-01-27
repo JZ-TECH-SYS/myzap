@@ -2,10 +2,13 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('DeviceCompanies', 'vector_name', {
-      type: Sequelize.STRING, // cabe fácil num VARCHAR(255)
-      allowNull: true,
-    });
+    const tableInfo = await queryInterface.describeTable('DeviceCompanies');
+    if (!tableInfo.vector_name) {
+      await queryInterface.addColumn('DeviceCompanies', 'vector_name', {
+        type: Sequelize.STRING,
+        allowNull: true,
+      });
+    }
   },
 
   down: async (queryInterface) => {

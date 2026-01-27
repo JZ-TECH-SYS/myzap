@@ -253,15 +253,15 @@ module.exports = {
       }
     }
 
-    const since = moment().subtract(1, 'hours').toDate();
+    const since = moment().startOf('day').toDate();
     const record = await ChatHistory.findOne({
       where: {
-      session,
-      sessionkey,
-      numero_cliente: numero,
-      role: 'assistant',
-      message_type: 'mensagem_padrao',
-      created_at: { [Op.gte]: since },
+        session,
+        sessionkey,
+        numero_cliente: numero,
+        role: 'assistant',
+        message_type: 'mensagem_padrao',
+        created_at: { [Op.gte]: since },
       },
       order: [['created_at', 'DESC'], ['id', 'DESC']],
     });

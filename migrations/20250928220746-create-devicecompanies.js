@@ -3,6 +3,13 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
+    // Verificar se tabela já existe
+    const tables = await queryInterface.showAllTables();
+    if (tables.includes('DeviceCompanies')) {
+      console.log('[MIGRATION] Tabela DeviceCompanies já existe, pulando...');
+      return;
+    }
+    
     await queryInterface.createTable('DeviceCompanies', {
       id: {
         type: Sequelize.INTEGER,

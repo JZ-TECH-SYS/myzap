@@ -1,5 +1,10 @@
 module.exports = {
-    up: (queryInterface, Sequelize) => {
+    up: async (queryInterface, Sequelize) => {
+      const tables = await queryInterface.showAllTables();
+      if (tables.includes('TokenUsages')) {
+        console.log('[MIGRATION] Tabela TokenUsages já existe, pulando...');
+        return;
+      }
       return queryInterface.createTable('TokenUsages', {
         id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
         session: Sequelize.STRING,

@@ -3,8 +3,9 @@
  * 
  * Detecta sessões "zumbi" que aparecem como conectadas mas não recebem mensagens.
  * 
- * PROBLEMA: Sessão aparece CONNECTED no banco, mas client travou ou parou de processar eventos.
- * SOLUÇÃO: Verificar periodicamente se o client responde e detectar gaps de mensagens.
+ * MELHORADO: Agora também rastreia envios e fornece validação pré-envio.
+ * - registerSendSuccess() / registerSendFailure() - rastreia envios
+ * - isClientHealthy() - valida ANTES de enviar (usar no sendText)
  */
 
 const SessionsHelper = require('../controllers/helper/core/sessions.js');
@@ -14,8 +15,11 @@ const DeviceModel = require('../Models/device.js');
 
 const Device = DeviceModel(config.sequelize);
 
-// Mapa de última mensagem recebida por sessão
-const lastMessageTime = new Map();
+// 📊 Mapas de rastreamento
+const lastMessageTime = new Map();        // Última msg recebida
+const lastSendTime = new Map();           // Último envio OK
+const lastSendError = new Map();          // Último erro de envio
+const sendFailureCount = new Map();       // Falhas consecutivas de envio
 
 // Mapa de último health check por sessão
 const lastHealthCheck = new Map();
@@ -24,19 +28,103 @@ const lastHealthCheck = new Map();
 const HEALTH_CHECK_INTERVAL_MS = 30000; // 30 segundos (era 1 minuto)
 const ZOMBIE_THRESHOLD_MINUTES = 15; // 15 minutos (era 30) - Alertar mais cedo
 const MAX_CONSECUTIVE_FAILURES = 2; // 2 falhas (era 3) - Reagir mais rápido
+const MAX_SEND_FAILURES = 3;         // 3 falhas de envio → marcar como problemático
+const RECOVERY_COOLDOWN_MS = 300000; // 5 min entre recuperações
 
 // Contador de falhas por sessão
 const failureCount = new Map();
 
+// Última recuperação por sessão (para cooldown)
+const lastRecoveryTime = new Map();
+
 let intervalHandle = null;
 
 /**
- * Registra timestamp da última mensagem recebida (chamar do EventsController)
+ * 📩 Registra timestamp da última mensagem recebida (chamar do EventsController)
  */
 function registerMessageReceived(session) {
   lastMessageTime.set(session, Date.now());
   // Reset failure count quando recebe mensagem
   failureCount.set(session, 0);
+  
+  // Atualizar banco em background (não bloqueia)
+  Device.update({ 
+    last_message_received: new Date(),
+    health_status: 'HEALTHY'
+  }, { where: { session } }).catch(() => {});
+}
+
+/**
+ * ✅ Registra envio bem sucedido (chamar do sendText/sendMedia)
+ */
+function registerSendSuccess(session) {
+  lastSendTime.set(session, Date.now());
+  sendFailureCount.set(session, 0);
+  lastSendError.delete(session);
+  
+  // Atualizar banco em background
+  Device.update({ 
+    last_message_sent: new Date(),
+    send_failure_count: 0,
+    last_send_error: null,
+    health_status: 'HEALTHY'
+  }, { where: { session } }).catch(() => {});
+}
+
+/**
+ * ❌ Registra falha de envio (chamar do sendText/sendMedia)
+ */
+function registerSendFailure(session, errorMessage) {
+  const count = (sendFailureCount.get(session) || 0) + 1;
+  sendFailureCount.set(session, count);
+  lastSendError.set(session, { message: errorMessage, at: Date.now() });
+  
+  // Atualizar banco em background
+  Device.update({ 
+    send_failure_count: count,
+    last_send_error: errorMessage,
+    health_status: count >= MAX_SEND_FAILURES ? 'CRITICAL' : 'WARNING'
+  }, { where: { session } }).catch(() => {});
+  
+  customLogger.warning(`[SEND FAILURE] ${session}: ${count} falhas consecutivas - ${errorMessage}`);
+  
+  if (count >= MAX_SEND_FAILURES) {
+    customLogger.error(`[SEND FAILURE] ${session}: Atingiu ${MAX_SEND_FAILURES} falhas - sessão problemática`);
+  }
+}
+
+/**
+ * 🔍 Verifica se client está saudável ANTES de enviar (usar no sendText)
+ * Retorna { healthy: boolean, reason: string|null }
+ */
+async function isClientHealthy(session, client) {
+  if (!client) {
+    return { healthy: false, reason: 'Client não existe na memória' };
+  }
+
+  // Verificar falhas de envio recentes
+  const sendFails = sendFailureCount.get(session) || 0;
+  if (sendFails >= MAX_SEND_FAILURES) {
+    return { healthy: false, reason: `${sendFails} falhas de envio consecutivas` };
+  }
+
+  // Verificação rápida do estado (timeout de 5s para não travar)
+  try {
+    const statePromise = Promise.race([
+      client.getState(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+    ]);
+    
+    const state = await statePromise;
+    
+    if (state !== 'CONNECTED') {
+      return { healthy: false, reason: `Estado: ${state}` };
+    }
+    
+    return { healthy: true, reason: null, state };
+  } catch (error) {
+    return { healthy: false, reason: error.message };
+  }
 }
 
 /**
@@ -49,6 +137,8 @@ async function checkSessionHealth(session, client) {
     getState: null,
     pupPageAlive: null,
     lastMessage: null,
+    lastSend: null,
+    sendFailures: sendFailureCount.get(session) || 0,
     isZombie: false,
     reason: null
   };
@@ -99,6 +189,21 @@ async function checkSessionHealth(session, client) {
         checks.isZombie = true;
         checks.reason = `Sem mensagens há ${Math.round(minutesSinceLastMessage)} minutos`;
       }
+    }
+
+    // 4. Verificar último envio bem sucedido
+    const lastSnd = lastSendTime.get(session);
+    if (lastSnd) {
+      checks.lastSend = {
+        timestamp: new Date(lastSnd).toISOString(),
+        minutesAgo: Math.round((Date.now() - lastSnd) / 60000)
+      };
+    }
+
+    // 5. 🆕 Verificar falhas de envio consecutivas
+    if (checks.sendFailures >= MAX_SEND_FAILURES) {
+      checks.isZombie = true;
+      checks.reason = `${checks.sendFailures} falhas de envio consecutivas`;
     }
 
     // Reset failure count em caso de sucesso
@@ -303,6 +408,8 @@ function stopHealthCheckJob() {
 function getHealthStats() {
   return {
     lastMessageTimes: Object.fromEntries(lastMessageTime),
+    lastSendTimes: Object.fromEntries(lastSendTime),
+    sendFailureCounts: Object.fromEntries(sendFailureCount),
     lastHealthChecks: Object.fromEntries(lastHealthCheck),
     failureCounts: Object.fromEntries(failureCount)
   };
@@ -312,6 +419,9 @@ module.exports = {
   startHealthCheckJob,
   stopHealthCheckJob,
   registerMessageReceived,
+  registerSendSuccess,
+  registerSendFailure,
+  isClientHealthy,
   checkSessionHealth,
   getHealthStats
 };

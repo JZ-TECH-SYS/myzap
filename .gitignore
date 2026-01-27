@@ -5,7 +5,7 @@ tokens/
 teste.js
 instances/
 database/
-logs/
+logs/*
 logs
 promp_capucho.txt
 .wwebjs_cache

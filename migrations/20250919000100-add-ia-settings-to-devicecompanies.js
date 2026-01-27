@@ -2,35 +2,45 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.addColumn('DeviceCompanies', 'ia_ativa', {
-      type: Sequelize.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
-    });
+    const tableInfo = await queryInterface.describeTable('DeviceCompanies');
+    
+    if (!tableInfo.ia_ativa) {
+      await queryInterface.addColumn('DeviceCompanies', 'ia_ativa', {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      });
+    }
 
-    await queryInterface.addColumn('DeviceCompanies', 'tempo_mensagem_padrao', {
-      type: Sequelize.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-    });
+    if (!tableInfo.tempo_mensagem_padrao) {
+      await queryInterface.addColumn('DeviceCompanies', 'tempo_mensagem_padrao', {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      });
+    }
 
     try {
       await queryInterface.removeIndex('DeviceCompanies', ['session', 'sessionkey']);
     } catch (error) {
-      // Ìndice pode n„o existir ou j· ser ˙nico; apenas loga no console para debug local
-      console.warn('[MIGRATION] Õndice session/sessionkey n„o removido:', error?.message);
+      console.warn('[MIGRATION] √çndice session/sessionkey n√£o removido:', error?.message);
     }
 
-    await queryInterface.addIndex('DeviceCompanies', ['session', 'sessionkey'], {
-      unique: true,
-      name: 'device_companies_session_sessionkey_unique',
-    });
+    try {
+      await queryInterface.addIndex('DeviceCompanies', ['session', 'sessionkey'], {
+        unique: true,
+        name: 'device_companies_session_sessionkey_unique',
+      });
+    } catch (error) {
+      console.warn('[MIGRATION] √çndice j√° existe:', error?.message);
+    }
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeIndex('DeviceCompanies', 'device_companies_session_sessionkey_unique');
-
-    await queryInterface.addIndex('DeviceCompanies', ['session', 'sessionkey'], { name: 'device_companies_session_sessionkey' });
+    try {
+      await queryInterface.removeIndex('DeviceCompanies', 'device_companies_session_sessionkey_unique');
+      await queryInterface.addIndex('DeviceCompanies', ['session', 'sessionkey'], { name: 'device_companies_session_sessionkey' });
+    } catch (e) {}
 
     await queryInterface.removeColumn('DeviceCompanies', 'tempo_mensagem_padrao');
     await queryInterface.removeColumn('DeviceCompanies', 'ia_ativa');
