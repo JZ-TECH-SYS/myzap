@@ -485,6 +485,33 @@ module.exports = class WhatsappWebJS {
           await client.initialize();
         } catch (initError) {
           customLogger.error(`${session} - ❌ Erro na inicialização: ${initError.message}`);
+          
+          // 🔴 AUTO-FIX: Se for "browser already running", limpar lock files e tentar novamente
+          if (initError.message.includes('browser is already running')) {
+            customLogger.warning(`${session} - 🔧 Detectado lock de browser, limpando automaticamente...`);
+            
+            const fs = require('fs');
+            const path = require('path');
+            const sessionPath = path.join('./instances', session, 'session');
+            
+            // Remover APENAS lock files do Chrome (NÃO remove tokens de login!)
+            // SingletonLock/Cookie/Socket são travas do Chrome, não dados de sessão
+            const lockFiles = ['SingletonLock', 'SingletonCookie', 'SingletonSocket'];
+            for (const lockFile of lockFiles) {
+              const lockPath = path.join(sessionPath, lockFile);
+              try {
+                if (fs.existsSync(lockPath)) {
+                  fs.unlinkSync(lockPath);
+                  customLogger.info(`${session} - 🗑️ Lock removido: ${lockFile}`);
+                }
+              } catch (e) {
+                customLogger.debug(`${session} - Não foi possível remover ${lockFile}: ${e.message}`);
+              }
+            }
+            
+            customLogger.warning(`${session} - 🔄 Locks limpos - próxima tentativa deve funcionar`);
+          }
+          
           if (!resolved) {
             resolved = true;
             clearCurrentTimeout(); // ADICIONADO - Limpar timeout

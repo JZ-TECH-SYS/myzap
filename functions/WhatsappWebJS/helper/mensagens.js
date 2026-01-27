@@ -334,7 +334,8 @@ module.exports = {
         customLogger.info(`[RECONNECT CHECK] ${session} - Pasta: ${sessionExists} - Status: ${status} - Client ativo: ${!!isClientActive}`);
         
         // CRÍTICO - SE JÁ ESTÁ INICIALIZANDO, NÃO INICIAR NOVAMENTE (evita conflito)
-        if (['INITIALIZING', 'STARTING', 'RECONNECTING'].includes(status) || ['STARTING', 'INITIALIZING'].includes(state)) {
+        // 🔴 ADICIONADO: LOADING também é estado de inicialização!
+        if (['INITIALIZING', 'STARTING', 'RECONNECTING', 'LOADING'].includes(status) || ['STARTING', 'INITIALIZING', 'LOADING'].includes(state)) {
           // Verificar quanto tempo está inicializando
           const lastStart = data.last_start ? new Date(data.last_start) : null;
           const now = new Date();
