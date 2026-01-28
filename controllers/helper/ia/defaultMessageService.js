@@ -19,7 +19,17 @@ async function sendDefault({
   motivo,
   force = false
 }) {
-  if (!mensagemPadrao) return false;
+  console.log('\n========== SEND DEFAULT ==========');
+  console.log('SD1. sendDefault INICIADO');
+  console.log('     numero:', numero);
+  console.log('     motivo:', motivo);
+  console.log('     mensagemPadrao:', mensagemPadrao ? mensagemPadrao.substring(0, 30) + '...' : 'VAZIO!');
+  console.log('     force:', force);
+  
+  if (!mensagemPadrao) {
+    console.log('SD2. ❌ mensagemPadrao VAZIA - retornando false');
+    return false;
+  }
 
   const lockKey = buildLockKey(session, sessionkey, numero);
   
@@ -34,19 +44,26 @@ async function sendDefault({
 
   try {
     if (!force) {
+      console.log('SD3. Verificando se já enviou hoje...');
       const jaEnviouHoje = await ChatHistoryHelper.jaEnvieiMensagemPadraoHoje({ session, sessionkey, numero });
-      console.log('ja enviou hoje?', jaEnviouHoje);
+      console.log('SD4. jaEnviouHoje:', jaEnviouHoje);
       if (jaEnviouHoje) {
+        console.log('SD5. ❌ Já enviou hoje - retornando false');
         sendingLocks.delete(lockKey);
         return false;
       }
+      console.log('SD5. ✅ Ainda não enviou hoje - continuando');
     }
 
     let sent = false;
+    console.log('SD6. Tentando enviar mensagem...');
     try {
       const sender = require('../events/messageSender');
+      console.log('SD7. Chamando sender.sendText...');
       sent = await sender.sendText({ client, to: numero, text: mensagemPadrao });
-    } catch (_) {
+      console.log('SD8. sender.sendText retornou:', sent);
+    } catch (sendErr) {
+      console.log('SD8. ❌ Erro no sender.sendText:', sendErr.message);
       if (client) {
         if (typeof client.sendText === 'function') {
           await client.sendText(numero, mensagemPadrao);

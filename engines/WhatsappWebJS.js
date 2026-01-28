@@ -5,9 +5,9 @@ const Events = require('../controllers/EventsController.js');
 const webhooks = require('../controllers/WebhooksController.js');
 const config = require('../config.js');
 const HelperWhatsappWeb = require('./helper/wweb.js');
-const customLogger = require('../util/customLogger.js'); // ADICIONADO
-const DeviceModel = require('../Models/device.js'); // ADICIONADO
-const UserModel = require('../Models/user.js'); // ADICIONADO
+const customLogger = require('../util/customLogger.js'); // ✅ ADICIONADO
+const DeviceModel = require('../Models/device.js'); // ✅ ADICIONADO
+const UserModel = require('../Models/user.js'); // ✅ ADICIONADO
 
 require('dotenv').config();
 
@@ -16,82 +16,21 @@ const User = UserModel(config.sequelize);
 
 let chromeLauncher = Launcher.Launcher.getInstallations()[0];
 
-// NOVO - Mapa global de timeouts por sessão para evitar timeouts órfãos
-const sessionTimeouts = new Map();
-
-// NOVO - Função para limpar timeout anterior da sessão
-function clearSessionTimeout(session) {
-  if (sessionTimeouts.has(session)) {
-    const oldTimeout = sessionTimeouts.get(session);
-    clearTimeout(oldTimeout);
-    sessionTimeouts.delete(session);
-    customLogger.debug(`${session} - ⏰ Timeout anterior cancelado`);
-  }
-}
-
 module.exports = class WhatsappWebJS {
   static async start(req, res, session) {
     return new Promise(async (resolve, reject) => {
-      let resolved = false; // ADICIONADO - Flag para evitar resolver múltiplas vezes
-      let client = null; // MOVIDO PARA CIMA - Para poder destruir no timeout
-      let timeoutId = null; // Referência do timeout
+      let resolved = false; // ✅ ADICIONADO - Flag para evitar resolver múltiplas vezes
       
-      // CRÍTICO - Limpar timeout anterior desta sessão (evita timeouts órfãos)
-      clearSessionTimeout(session);
-      
-      // FUNÇÃO AUXILIAR - Limpar client no timeout
-      const cleanupOnTimeout = async () => {
-        // Remover do mapa global
-        sessionTimeouts.delete(session);
-        
-        if (client) {
-          try {
-            customLogger.warning(`${session} - ⏰ Timeout: Destruindo client...`);
-            await client.destroy();
-            customLogger.info(`${session} - 🧹 Client destruído por timeout`);
-          } catch (destroyErr) {
-            customLogger.debug(`${session} - Erro ao destruir client: ${destroyErr.message}`);
-          }
-        }
-        // Atualizar status no banco
-        try {
-          await Device.update({
-            state: 'TIMEOUT',
-            status: 'TIMEOUT',
-            updated_at: new Date()
-          }, { where: { session } });
-        } catch (dbErr) {
-          customLogger.debug(`${session} - Erro ao atualizar status timeout: ${dbErr.message}`);
-        }
-      };
-      
-      // FUNÇÃO AUXILIAR - Limpar timeout quando conectar
-      const clearCurrentTimeout = () => {
-        if (timeoutId) {
-          clearTimeout(timeoutId);  // <-- Aqui TEM que ser clearTimeout nativo!
-          timeoutId = null;
-        }
-        if (sessionTimeouts.has(session)) {
-          clearTimeout(sessionTimeouts.get(session));  // <-- Limpa do mapa global também
-          sessionTimeouts.delete(session);
-          customLogger.debug(`${session} - ⏰ Timeout cancelado (sessão conectou)`);
-        }
-      };
-      
-      // 🔧 CORRIGIDO - Timeout aumentado para 10 minutos com cleanup adequado
-      timeoutId = setTimeout(async () => {
+      // 🔧 CORRIGIDO - Timeout aumentado para 10 minutos (Windows precisa de mais tempo)
+      const timeoutId = setTimeout(() => {
         if (!resolved) {
           resolved = true;
-          await cleanupOnTimeout();
           reject(new Error(`Timeout na inicialização da sessão ${session} (10 minutos)`));
         }
-      }, 600000); // 10 minutos
-      
-      // CRÍTICO - Guardar referência no mapa global
-      sessionTimeouts.set(session, timeoutId);
+      }, 600000); // 10 minutos (antes era 5)
       
       try {
-        // ADICIONADO - Criar/atualizar device ANTES de inicializar (igual WPPConnect)
+        // ✅ ADICIONADO - Criar/atualizar device ANTES de inicializar (igual WPPConnect)
         const sessionkey = req.headers['sessionkey'];
         const number = req?.body?.number || '';
         const body = req?.body || [];
@@ -104,13 +43,9 @@ module.exports = class WhatsappWebJS {
         customLogger.whatsapp(`🚀 Starting WhatsApp WebJS - Session: ${session}`);
 
         try {
-          // ADICIONADO - Criar device igual WPPConnect
+          // ✅ ADICIONADO - Criar device igual WPPConnect
           const { empresa_nome, api_url } = body;
           const sysUser = await User.findOne({ where: { email: process.env.EMAIL } });
-          
-          // BUSCAR device existente para incrementar attempts_start
-          const existingDevice = await Device.findOne({ where: { session } });
-          const currentAttemptsStart = existingDevice?.attempts_start || 0;
           
           const devicePayload = {
             user_id: sysUser?.id,
@@ -119,7 +54,7 @@ module.exports = class WhatsappWebJS {
             qrCode: '',
             attempts: 0,
             urlCode: '',
-            attempts_start: currentAttemptsStart + 1, // INCREMENTAR tentativas de start
+            attempts_start: 0,
             last_start: new Date(),
             state: 'STARTING',
             status: 'INITIALIZING',
@@ -133,13 +68,13 @@ module.exports = class WhatsappWebJS {
           };
           
           await Device.upsert(devicePayload, { conflictFields: ['session'] });
-          customLogger.success(`💾 Device criado/atualizado para sessão: ${session} (tentativa ${currentAttemptsStart + 1})`);
+          customLogger.success(`💾 Device criado/atualizado para sessão: ${session}`);
           
         } catch (deviceError) {
           customLogger.error('❌ Erro ao criar/atualizar device:', deviceError);
           if (!resolved) {
             resolved = true;
-            clearCurrentTimeout();
+            clearTimeout(timeoutId);
             reject(new Error(`Erro ao criar device: ${deviceError.message}`));
           }
           return;
@@ -148,12 +83,12 @@ module.exports = class WhatsappWebJS {
         const useHere = config.useHere !== 'true';
 
         customLogger.whatsapp(`${session} - useHere: ${useHere}`);
-        // client já foi declarado no início da Promise
+        let client;
 
-        // REMOVIDO Firebase - agora usa pasta local instances/
+        // ✅ REMOVIDO Firebase - agora usa pasta local instances/
         customLogger.whatsapp(`${session} - Usando tokens da pasta instances/`);
 
-        // ADICIONADO - Verificar se pasta instances existe
+        // ✅ ADICIONADO - Verificar se pasta instances existe
         const fs = require('fs');
         const path = require('path');
         const instancesPath = path.join('.', 'instances');
@@ -167,7 +102,7 @@ module.exports = class WhatsappWebJS {
         customLogger.whatsapp(`${session} - Caminho da sessão: ${sessionPath}`);
         
         if (fs.existsSync(sessionPath)) {
-          customLogger.success(`${session} - Sessão existente encontrada, tentando carregar...`);
+          customLogger.success(`${session} - ✅ Sessão existente encontrada, tentando carregar...`);
         } else {
           customLogger.info(`${session} - ℹ️ Nova sessão, QR Code será necessário`);
         }
@@ -177,42 +112,28 @@ module.exports = class WhatsappWebJS {
         const clientOptions = HelperWhatsappWeb.getClientOptions({
           session,
           useHere,
-          sessionData: null // Não usa mais dados do Firebase
+          sessionData: null // ✅ Não usa mais dados do Firebase
         });
 
-        // ADICIONADO - Definir authStrategy com LocalAuth para persistir sessões (sem prefixo session-)
+        // ✅ ADICIONADO - Definir authStrategy com LocalAuth para persistir sessões (sem prefixo session-)
         clientOptions.authStrategy = new LocalAuth({ 
-          clientId: '', // Deixar vazio para evitar prefixo
-          dataPath: path.join('./instances', session) // Pasta direta com nome da sessão
+          clientId: '', // ✅ Deixar vazio para evitar prefixo
+          dataPath: path.join('./instances', session) // ✅ Pasta direta com nome da sessão
         });
 
         client = new Client(clientOptions);
 
-        // ADICIONADO - Controle de QR Code timeout
+        // ✅ ADICIONADO - Controle de QR Code timeout
         let qrTimeout;
 
-        // MELHORADO - Sempre escuta QR Code (não usa mais sessionData)
-        // Rastrear se já tivemos sessão existente para detectar tokens inválidos
-        let sessionExistedBeforeQR = false;
-        if (fs.existsSync(sessionPath)) {
-          sessionExistedBeforeQR = true;
-        }
-        
+        // ✅ MELHORADO - Sempre escuta QR Code (não usa mais sessionData)
         client.on('qr', async (qr) => {
-          // NOVO - Detectar se sessão existente era inválida
-          if (sessionExistedBeforeQR) {
-            customLogger.warning(`${session} - ⚠️ SESSÃO INVÁLIDA DETECTADA!`);
-            customLogger.warning(`${session} - 📋 Pasta existia mas tokens eram inválidos (provavelmente dispositivo foi removido no celular)`);
-            customLogger.warning(`${session} - 🔄 Será necessário escanear novo QR Code para reconectar`);
-            sessionExistedBeforeQR = false; // Só logar uma vez
-          }
-          
           customLogger.whatsapp(`${session} - 📱 Novo QR Code gerado`);
           
-          // IMPORTANTE - Gerar imagem base64 PRIMEIRO
+          // ✅ IMPORTANTE - Gerar imagem base64 PRIMEIRO
           const qrCodeImage = await HelperWhatsappWeb.generateQRHooksAndEmit({ qr, req, res, session });
           
-          // CORREÇÃO - Salvar a IMAGEM BASE64 no banco, não o texto
+          // ✅ CORREÇÃO - Salvar a IMAGEM BASE64 no banco, não o texto
           Device.findOne({ where: { session, sessionkey } })
             .then(currentDevice => {
               const attempts = (currentDevice?.attempts || 0) + 1;
@@ -220,9 +141,9 @@ module.exports = class WhatsappWebJS {
               return Device.update({
                 state: 'QRCODE',
                 status: 'qrCode',
-                qrCode: qrCodeImage, // IMAGEM BASE64 em vez de texto
+                qrCode: qrCodeImage, // ✅ IMAGEM BASE64 em vez de texto
                 attempts: attempts,
-                urlCode: qr, // Texto original fica no urlCode
+                urlCode: qr, // ✅ Texto original fica no urlCode
                 updated_at: new Date()
               }, { where: { session, sessionkey } });
             })
@@ -238,7 +159,7 @@ module.exports = class WhatsappWebJS {
             clearTimeout(qrTimeout);
           }
           
-          // MELHORADO - Timeout maior para dar tempo de escanear
+          // ✅ MELHORADO - Timeout maior para dar tempo de escanear
           qrTimeout = setTimeout(() => {
             customLogger.warning(`${session} - ⏰ QR Code expirou, mas mantendo sessão ativa...`);
           }, 120000); // 2 minutos
@@ -246,36 +167,21 @@ module.exports = class WhatsappWebJS {
 
         client.on('ready', async () => {
           customLogger.success(`${session} - 🚀 WhatsApp está pronto!`);
-          
-          // CRÍTICO - Cancelar timeout IMEDIATAMENTE quando conectar
-          clearCurrentTimeout();
-          resolved = true; // Marcar como resolvido para evitar timeout posterior
-          
-          // Socket.IO pode não existir (ex: quando Health Check reconecta)
           if (req?.io?.emit) {
             req.io.emit('whatsapp-status', true);
           }
           
-          // ADICIONADO - Limpar qrTimeout quando conectar
-          if (qrTimeout) {
-            clearTimeout(qrTimeout);
-            qrTimeout = null;
-          }
-          
           try {
-            // ADICIONADO - Buscar informações completas do dispositivo (seguindo WPPConnect)
+            // ✅ ADICIONADO - Buscar informações completas do dispositivo (seguindo WPPConnect)
             const info = await client.info;
             const state = await client.getState();
             
-            // CORRIGIDO - NÃO resetar attempts_start imediatamente
-            // O reset será feito após 30 segundos de conexão estável
-            // Isso evita loop infinito quando LOGOUT vem logo após CONNECTED
+            // ✅ ADICIONADO - Atualizar com informações completas no banco
             await Device.update({
               state: 'CONNECTED',
               status: 'CONNECTED',
               qrCode: '',
               attempts: 0,
-              // REMOVIDO: attempts_start: 0 - Não resetar aqui!
               urlCode: '',
               last_connect: new Date(),
               number: info?.wid?.user || info?.me?.user || null,
@@ -288,28 +194,12 @@ module.exports = class WhatsappWebJS {
             }, { where: { session } });
             
             customLogger.database(`${session} - 📱 Informações completas do dispositivo atualizadas no banco`);
-            
-            // NOVO - Resetar attempts_start após 30 segundos de conexão estável
-            setTimeout(async () => {
-              try {
-                const currentDevice = await Device.findOne({ where: { session } });
-                // Só reseta se ainda estiver conectado após 30 segundos
-                if (currentDevice && ['CONNECTED', 'inChat'].includes(currentDevice.status)) {
-                  await Device.update({ attempts_start: 0 }, { where: { session } });
-                  customLogger.success(`${session} - attempts_start resetado (conexão estável por 30s)`);
-                }
-              } catch (resetErr) {
-                customLogger.debug(`${session} - Reset attempts_start falhou: ${resetErr.message}`);
-              }
-            }, 30000); // 30 segundos
-            
           } catch (error) {
             customLogger.error(`${session} - ❌ Erro ao atualizar informações do dispositivo: ${error.message}`);
-            // Fallback update básico - também NÃO reseta attempts_start
+            // ✅ Fallback update básico
             Device.update({
               state: 'CONNECTED',
               status: 'CONNECTED',
-              // REMOVIDO: attempts_start: 0
               updated_at: new Date(),
               last_connect: new Date()
             }, { where: { session } }).catch(err => {
@@ -325,85 +215,35 @@ module.exports = class WhatsappWebJS {
             timestamp: Date.now()
           });
 
-          // ADICIONADO - Resolver Promise quando estiver realmente pronto
+          // ✅ ADICIONADO - Resolver Promise quando estiver realmente pronto
           if (!resolved) {
             resolved = true;
-            clearCurrentTimeout(); // ADICIONADO - Limpar timeout
+            clearTimeout(timeoutId); // ✅ ADICIONADO - Limpar timeout
             resolve({ status: 'CONNECTED', session });
           }
         });
 
         client.on('authenticated', (sessionData) => {
           customLogger.success(`${session} - 🔐 Autenticação bem-sucedida!`);
-          
-          // CRÍTICO - Injetar client IMEDIATAMENTE após autenticação
-          // Isso garante que o client esteja disponível antes do evento 'ready'
-          const sessionHelper = require('../controllers/helper/core/sessions.js');
-          sessionHelper.injectClient(session, client);
-          customLogger.info(`${session} - 💉 Client injetado após autenticação`);
-          
-          // Atualizar status no banco para indicar que está carregando
-          Device.update({
-            status: 'LOADING',
-            state: 'AUTHENTICATED',
-            updated_at: new Date()
-          }, { where: { session } }).catch(() => {});
-          
-          // 🔴 FALLBACK: Se evento 'ready' não disparar em 10s, registrar listeners mesmo assim
-          // Isso resolve casos onde o WhatsApp conecta mas 'ready' nunca vem
-          setTimeout(async () => {
-            try {
-              const state = await client.getState().catch(() => null);
-              if (state === 'CONNECTED' && !resolved) {
-                customLogger.warning(`${session} - ⚠️ Evento 'ready' não disparou, ativando fallback...`);
-                
-                // Registrar listeners de mensagem
-                Events.receiveMessage(session, client, req);
-                Events.statusMessage(session, client, req);
-                
-                // Atualizar status
-                await Device.update({
-                  state: 'CONNECTED',
-                  status: 'CONNECTED',
-                  updated_at: new Date()
-                }, { where: { session } }).catch(() => {});
-                
-                Sessions.addInfoSession(session, { session, client });
-                customLogger.success(`${session} - ✅ Fallback ativado - listeners registrados`);
-              }
-            } catch (e) {
-              customLogger.debug(`${session} - Fallback check falhou: ${e.message}`);
-            }
-          }, 10000); // 10 segundos
+          // ✅ REMOVIDO - Não resolver aqui, apenas no 'ready'
+          // resolve(sessionData);
         });
 
-        // ADICIONADO - Evento para sessão carregada de arquivo (sem QR Code)
+        // ✅ ADICIONADO - Evento para sessão carregada de arquivo (sem QR Code)
         client.on('loading_screen', (percent, message) => {
           customLogger.debug(`${session} - 📥 ${percent}% - ${message}`);
           
-          // ADICIONADO - Se chegou a 100%, provavelmente carregou sessão salva
+          // ✅ ADICIONADO - Se chegou a 100%, provavelmente carregou sessão salva
           if (percent === 100 && message === 'WhatsApp') {
             customLogger.success(`${session} - 💾 Sessão carregada com sucesso (sem QR Code)`);
           }
         });
 
-        // ADICIONADO - Eventos de persistência da sessão
-        client.on('auth_failure', async (msg) => {
+        // ✅ ADICIONADO - Eventos de persistência da sessão
+        client.on('auth_failure', (msg) => {
           customLogger.error(`${session} - ❌ Falha na autenticação: ${msg}`);
           
-          // NOVO - Limpar pasta de sessão corrompida para permitir novo QR Code
-          const sessionPathToClean = path.join('.', 'instances', session);
-          if (fs.existsSync(sessionPathToClean)) {
-            customLogger.warning(`${session} - 🧹 Limpando pasta de sessão inválida: ${sessionPathToClean}`);
-            try {
-              fs.rmSync(sessionPathToClean, { recursive: true, force: true });
-              customLogger.success(`${session} - ✅ Pasta de sessão limpa com sucesso`);
-            } catch (cleanError) {
-              customLogger.error(`${session} - ⚠️ Erro ao limpar pasta: ${cleanError.message}`);
-            }
-          }
-          
-          // ADICIONADO - Atualizar device no banco com erro (seguindo padrão WPPConnect)
+          // ✅ ADICIONADO - Atualizar device no banco com erro (seguindo padrão WPPConnect)
           Device.update({
             state: 'DISCONNECTED',
             status: 'AUTH_FAIL',
@@ -418,16 +258,15 @@ module.exports = class WhatsappWebJS {
             state: 'DISCONNECTED'
           });
           
-          // ADICIONADO - Rejeitar Promise em caso de falha de auth
+          // ✅ ADICIONADO - Rejeitar Promise em caso de falha de auth
           if (!resolved) {
             resolved = true;
-            clearCurrentTimeout(); // Limpar timeout principal
-            if (qrTimeout) clearTimeout(qrTimeout); // Limpar qrTimeout
+            clearTimeout(timeoutId); // ✅ ADICIONADO - Limpar timeout
             reject(new Error(`Falha na autenticação: ${msg}`));
           }
         });
 
-        // ADICIONADO - Detectar quando sessão é carregada
+        // ✅ ADICIONADO - Detectar quando sessão é carregada
         client.on('remote_session_saved', () => {
           customLogger.success(`${session} - 💾 Sessão salva com sucesso!`);
           Sessions.addInfoSession(session, { 
@@ -437,26 +276,12 @@ module.exports = class WhatsappWebJS {
           });
         });
 
-        // REMOVIDO - Eventos duplicados removidos, mantendo apenas os primeiros
+        // ✅ REMOVIDO - Eventos duplicados removidos, mantendo apenas os primeiros
 
-        client.on('disconnected', async (reason) => {
+        client.on('disconnected', (reason) => {
           customLogger.warning(`${session} - 🔌 Desconectado: ${reason}`);
           
-          // NOVO - Log detalhado para diagnóstico de LOGOUT imediato
-          const now = new Date();
-          const device = await Device.findOne({ where: { session } }).catch(() => null);
-          const lastConnect = device?.last_connect ? new Date(device.last_connect) : null;
-          const connectionDuration = lastConnect ? Math.round((now - lastConnect) / 1000) : 'N/A';
-          
-          customLogger.info(`[DISCONNECT ANALYSIS] ${session} - Reason: ${reason} | Duration: ${connectionDuration}s | attempts_start: ${device?.attempts_start || 0}`);
-          
-          // NOVO - Detectar LOGOUT imediato (< 10 segundos após conectar)
-          if (reason === 'LOGOUT' && typeof connectionDuration === 'number' && connectionDuration < 10) {
-            customLogger.error(`[⚠️ LOGOUT IMEDIATO] ${session} - Sessão caiu ${connectionDuration}s após conectar!`);
-            customLogger.error(`[⚠️ DIAGNÓSTICO] ${session} - Possíveis causas: 1) Dispositivo removido no celular 2) Conflito de sessão 3) Cache corrompido`);
-          }
-          
-          // ADICIONADO - Atualizar device no banco quando desconectado (seguindo padrão WPPConnect)
+          // ✅ ADICIONADO - Atualizar device no banco quando desconectado (seguindo padrão WPPConnect)
           Device.update({
             state: 'DISCONNECTED',
             status: 'disconnected',
@@ -484,64 +309,21 @@ module.exports = class WhatsappWebJS {
           }
         });
 
-        // 🔍 MELHORADO - Event para capturar mudanças de estado com mais detalhes
-        client.on('change_state', async (state) => {
-          customLogger.warning(`[STATE CHANGE] ${session}: ${state}`);
-          
-          // Atualizar estado no banco
-          try {
-            await Device.update({
-              state: state,
-              updated_at: new Date()
-            }, { where: { session } });
-          } catch (e) {
-            // Ignorar erros de update
-          }
-          
-          // Detectar estados problemáticos
-          const problematicStates = ['CONFLICT', 'UNLAUNCHED', 'UNPAIRED', 'TIMEOUT'];
-          if (problematicStates.includes(state)) {
-            customLogger.error(`[⚠️ PROBLEMATIC STATE] ${session}: ${state} - Pode indicar sessão zumbi!`);
-          }
+        // ✅ ADICIONADO - Event para capturar erros gerais
+        client.on('change_state', (state) => {
+          customLogger.debug(`${session} - 🔄 Mudança de estado: ${state}`);
         });
 
         customLogger.whatsapp(`${session} - 🚀 Inicializando cliente...`);
         
-        // ADICIONADO - Tratamento de erro na inicialização
+        // ✅ ADICIONADO - Tratamento de erro na inicialização
         try {
           await client.initialize();
         } catch (initError) {
           customLogger.error(`${session} - ❌ Erro na inicialização: ${initError.message}`);
-          
-          // 🔴 AUTO-FIX: Se for "browser already running", limpar lock files e tentar novamente
-          if (initError.message.includes('browser is already running')) {
-            customLogger.warning(`${session} - 🔧 Detectado lock de browser, limpando automaticamente...`);
-            
-            const fs = require('fs');
-            const path = require('path');
-            const sessionPath = path.join('./instances', session, 'session');
-            
-            // Remover APENAS lock files do Chrome (NÃO remove tokens de login!)
-            // SingletonLock/Cookie/Socket são travas do Chrome, não dados de sessão
-            const lockFiles = ['SingletonLock', 'SingletonCookie', 'SingletonSocket'];
-            for (const lockFile of lockFiles) {
-              const lockPath = path.join(sessionPath, lockFile);
-              try {
-                if (fs.existsSync(lockPath)) {
-                  fs.unlinkSync(lockPath);
-                  customLogger.info(`${session} - 🗑️ Lock removido: ${lockFile}`);
-                }
-              } catch (e) {
-                customLogger.debug(`${session} - Não foi possível remover ${lockFile}: ${e.message}`);
-              }
-            }
-            
-            customLogger.warning(`${session} - 🔄 Locks limpos - próxima tentativa deve funcionar`);
-          }
-          
           if (!resolved) {
             resolved = true;
-            clearCurrentTimeout(); // ADICIONADO - Limpar timeout
+            clearTimeout(timeoutId); // ✅ ADICIONADO - Limpar timeout
             reject(new Error(`Erro na inicialização: ${initError.message}`));
           }
           return;
@@ -560,7 +342,7 @@ module.exports = class WhatsappWebJS {
           customLogger.debug(`${session} - 🔋 Battery: ${battery}% - Charging? ${plugged}`);
         });
 
-        // REMOVIDO eventos duplicados (message, change_state, disconnected já tratados acima)
+        // ✅ REMOVIDO eventos duplicados (message, change_state, disconnected já tratados acima)
         client.on('message_ack', () => {});
         client.on('message_create', async (message) => {
           if (!message.fromMe) {
@@ -580,10 +362,10 @@ module.exports = class WhatsappWebJS {
       } catch (error) {
         customLogger.error(`${session} - ❌ Erro geral: ${error.message}`);
         
-        // MELHORADO - Só rejeitar se ainda não foi resolvido
+        // ✅ MELHORADO - Só rejeitar se ainda não foi resolvido
         if (!resolved) {
           resolved = true;
-          clearCurrentTimeout(); // ADICIONADO - Limpar timeout
+          clearTimeout(timeoutId); // ✅ ADICIONADO - Limpar timeout
           reject(error);
         }
       }

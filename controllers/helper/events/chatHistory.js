@@ -243,16 +243,12 @@ module.exports = {
     return Date.now() - createdAt < segundos * 1000;
   },
 
+  /**
+   * Verifica se já enviou mensagem padrão HOJE para este número
+   * SIMPLIFICADO: Sem cache em memória - consulta direto no banco
+   * SQLite é rápido o suficiente para isso
+   */
   async jaEnvieiMensagemPadraoHoje({ session, sessionkey, numero }) {
-    const key = buildKey(session, sessionkey, numero);
-    const cached = recall(lastMensagemPadrao, key);
-    if (cached) {
-      const sameDay = moment(cached.at).isSame(moment(), 'day');
-      if (sameDay) {
-        return true;
-      }
-    }
-
     const since = moment().startOf('day').toDate();
     const record = await ChatHistory.findOne({
       where: {
@@ -266,12 +262,7 @@ module.exports = {
       order: [['created_at', 'DESC'], ['id', 'DESC']],
     });
 
-    if (!record) {
-      return false;
-    }
-
-    remember(lastMensagemPadrao, key, { at: new Date(record.created_at).getTime() });
-    return true;
+    return !!record;
   },
 
   async dentroDoCooldownPadrao({ session, sessionkey, numero, minutos = 0 }) {
@@ -390,5 +381,28 @@ module.exports = {
     const customLogger = require('../../../util/customLogger');
     customLogger.info(`[CHAT HISTORY] ${deleted} mensagens antigas removidas (>${diasRetencao} dias)`);
     return deleted;
+  },
+
+  /**
+   * 🧹 Limpar TODOS os caches em memória
+   * Use após limpar dados do banco para sincronizar
+   */
+  clearMemoryCaches() {
+    assistantEchoCache.clear();
+    lastAgentMessages.clear();
+    lastIaResponses.clear();
+    lastMensagemPadrao.clear();
+    console.log('[CHAT HISTORY] Caches em memória limpos');
+    return true;
+  },
+
+  /**
+   * 🧹 Limpar cache de mensagem padrão para um número específico
+   */
+  clearMensagemPadraoCache({ session, sessionkey, numero }) {
+    const key = buildKey(session, sessionkey, numero);
+    lastMensagemPadrao.delete(key);
+    console.log(`[CHAT HISTORY] Cache mensagem_padrao limpo para: ${key}`);
+    return true;
   }
 };

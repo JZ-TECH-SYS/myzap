@@ -13,44 +13,53 @@ const StatusAckManager = require('./helper/events/statusAckManager.js');
 const ConnectionStateManager = require('./helper/events/connectionStateManager.js');
 const customLogger = require('../util/customLogger.js');
 
-// 🔍 Health Check - Registrar quando mensagens são recebidas
-const { registerMessageReceived } = require('../jobs/sessionHealthCheck.js');
-
-// 🛡️ Cache de deduplicação de mensagens (evita processar mesma msg 2x)
-const processedMessages = new Map();
-const DEDUP_TTL_MS = 30000; // 30 segundos
-const DEDUP_CLEANUP_INTERVAL = 60000; // Limpar a cada 1 minuto
-
-// Limpar cache de deduplicação periodicamente
-setInterval(() => {
-  const now = Date.now();
-  for (const [msgId, timestamp] of processedMessages.entries()) {
-    if (now - timestamp > DEDUP_TTL_MS) {
-      processedMessages.delete(msgId);
-    }
-  }
-}, DEDUP_CLEANUP_INTERVAL);
-
 module.exports = class Events {
   /**
    * Configura listeners de mensagens baseado na engine
    */
   static async receiveMessage(session, client, req) {
+    console.log(`[DEBUG] Configurando receiveMessage para sessão ${session}`);
     if (typeof client?.onAnyMessage === 'function') {
       // WPPConnect & Venom
       client.onAnyMessage(async message => {
-        // 🔍 Registrar mensagem para health check
-        registerMessageReceived(session);
         await this.processMessage(message, session, client, req);
       });
     } else if (typeof client?.on === 'function') {
-      // WhatsApp Web.js
+      // WhatsApp Web.js - usando message_create como fallback
+      console.log(`[DEBUG] Registrando listeners para ${session}`);
+      
+      // Evento message (mensagens recebidas)
       client.on('message', async (message) => {
-        if (message.from === 'status@broadcast') return;
-        // 🔍 Registrar mensagem para health check
-        registerMessageReceived(session);
+        console.log(`[🔔 MESSAGE] ${session}: ${message.from} → ${message.body?.substring(0, 50)}`);
         await this.processMessage(message, session, client, req);
       });
+      
+      // Evento message_create (TODAS as mensagens - enviadas e recebidas)
+      // Usado como fallback caso 'message' não dispare
+      client.on('message_create', async (message) => {
+        console.log(`[🔔 MESSAGE_CREATE] ${session}: fromMe=${message.fromMe} from=${message.from} → ${message.body?.substring(0, 50)}`);
+        // Só processar se NÃO for do próprio bot e se o evento 'message' não disparou
+        if (!message.fromMe) {
+          // Verificar se já foi processado pelo evento 'message'
+          const msgId = message.id?._serialized || message.id?.id;
+          if (!this._processedMessages) this._processedMessages = new Set();
+          if (this._processedMessages.has(msgId)) {
+            console.log(`[SKIP] Mensagem ${msgId} já processada`);
+            return;
+          }
+          this._processedMessages.add(msgId);
+          // Limpar mensagens antigas (manter últimas 100)
+          if (this._processedMessages.size > 100) {
+            const arr = Array.from(this._processedMessages);
+            this._processedMessages = new Set(arr.slice(-50));
+          }
+          await this.processMessage(message, session, client, req);
+        }
+      });
+      
+      // Verificar listeners registrados
+      console.log(`[DEBUG] Listeners 'message': ${client.listenerCount('message')}`);
+      console.log(`[DEBUG] Listeners 'message_create': ${client.listenerCount('message_create')}`);
     }
   }
 
@@ -58,18 +67,6 @@ module.exports = class Events {
    * Pipeline principal de processamento de mensagens
    */
   static async processMessage(message, session, client, req) {
-    // 🛡️ Deduplicação: extrair ID único da mensagem
-    const msgId = message.id?._serialized || message.id?.id || message.id || `${message.from}-${message.timestamp}`;
-    
-    // Verificar se já processamos esta mensagem
-    if (processedMessages.has(msgId)) {
-      customLogger.debug(`[DEDUP] Mensagem ${msgId} já processada, ignorando duplicata`);
-      return;
-    }
-    
-    // Marcar como processada ANTES de iniciar o processamento
-    processedMessages.set(msgId, Date.now());
-    
     // Gerenciador de comunicação socket/webhook
     customLogger.debug(`[IA] processMessage chamada para sessão ${session}`);
     console.log(`[DEBUG] Message isGroupMsg: ${message.isGroupMsg}, from: ${message.from}, type: ${message.type}`);

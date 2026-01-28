@@ -21,9 +21,18 @@ async function process({
   payload,
   responseDefault
 }) {
+  console.log('\n========== DECISION ENGINE ==========');
+  console.log('DE1. DecisionEngine.process INICIADO');
+  console.log('     numero:', numero);
+  console.log('     empresa:', empresa?.id);
+  
   // Configurações da empresa
   const mensagemPadrao = typeof empresa?.mensagem_padrao === 'string' ? empresa.mensagem_padrao.trim() : '';
   const cooldownPadrao = Number.isInteger(empresa?.tempo_mensagem_padrao) ? empresa.tempo_mensagem_padrao : TEMPO_MENSAGEM_PADRAO_DEFAULT;
+  
+  console.log('DE2. Configurações:');
+  console.log('     mensagemPadrao:', mensagemPadrao ? mensagemPadrao.substring(0, 30) + '...' : 'VAZIO!');
+  console.log('     cooldownPadrao:', cooldownPadrao);
 
   customLogger.debug(`${LOG_PREFIX} Iniciando Decision Engine para ${numero}`);    
   // Helper para enviar mensagem padrão
@@ -72,7 +81,11 @@ async function process({
         }
 
         // sempre manda msg padrão se 
-        if (result.reason != 'grupo') await enviarPadrao(result.reason);
+        if (result.reason != 'grupo') {
+          console.log('DE4. Guard bloqueou mas vai enviar msg padrão. Reason:', result.reason);
+          const enviou = await enviarPadrao(result.reason);
+          console.log('DE5. enviarPadrao retornou:', enviou);
+        }
 
         await responseDefault(payload);
         return true; // processado (bloqueado por guard)
