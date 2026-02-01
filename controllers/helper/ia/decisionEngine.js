@@ -129,7 +129,7 @@ async function processIA({
       session,
       sessionkey,
       message,
-      idprompt: empresa.idprompt || 'pmpt_6868664894508195845bb4e01bebf8ed0f5f43edbfd62fee',
+      idprompt: empresa.idprompt || 'pmpt_697f8d2ca1c881948c3746f2ebeef2a30576966ac7b02dd3',
       vetor: empresa.vector_name || null,
     });
 
