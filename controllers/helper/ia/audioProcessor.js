@@ -10,6 +10,13 @@ const { ACEITAR_AUDIO, MAX_AUDIO_SIZE, MAX_AUDIO_DURATION } = require('./iaConfi
  * Retorna: { success: boolean, message?, payload?, skipAudio?: boolean }
  */
 async function processAudio({ message, client, numero, payload, session, sessionkey, empresa }) {
+    // 🚫 Se é mensagem de grupo, não processar áudio (evita responder em grupos)
+    const isGroup = numero?.endsWith('@g.us') || message?.from?.endsWith('@g.us');
+    if (isGroup) {
+        customLogger.debug(`[AUDIO] Ignorando áudio de grupo: ${numero}`);
+        return { success: true, skipAudio: true };
+    }
+
     // 🚫 Se IA não estiver ativa, rejeitar áudio (não há quem transcreva)
     const iaAtiva = empresa?.ia_ativa !== false;
     if (!iaAtiva) {

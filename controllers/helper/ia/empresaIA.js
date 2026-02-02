@@ -69,13 +69,15 @@ module.exports = {
 
       const nomeCliente = extrairNomeDoHistorico(historico);
       const completion = await openai.responses.create({
-        prompt: { id: idprompt },
-        input: inputMsgs,
-        variables: {
-          sessionkey,
-          numero_cliente: numeroCliente,
-          nome_cliente: nomeCliente, // ou o nome salvo no seu banco/cache
+        prompt: { 
+          id: idprompt,
+          variables: {
+            sessionkey,
+            numero_cliente: numeroCliente,
+            nome_cliente: nomeCliente,
+          },
         },
+        input: inputMsgs,
       });
 
       const textoResposta =
