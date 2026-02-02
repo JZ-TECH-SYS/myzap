@@ -68,6 +68,19 @@ module.exports = {
       ];
 
       const nomeCliente = extrairNomeDoHistorico(historico);
+      
+      // Monta tools com MCP se tiver configurado
+      const tools = [];
+      if (process.env.MCP_URL && process.env.MCP_TOKEN) {
+        tools.push({
+          type: "mcp",
+          server_label: "click_express",
+          server_url: process.env.MCP_URL,
+          require_approval: "never",
+          authorization: `Bearer ${process.env.MCP_TOKEN}`,
+        });
+      }
+
       const completion = await openai.responses.create({
         prompt: { 
           id: idprompt,
@@ -78,6 +91,7 @@ module.exports = {
           },
         },
         input: inputMsgs,
+        ...(tools.length > 0 && { tools }),
       });
 
       const textoResposta =
