@@ -1,82 +1,88 @@
-'use strict';
+"use strict";
 
-const eventsHelper = require('./helper/events/events.js');
-const ChatHistoryHelper = require('./helper/events/chatHistory.js');
+const eventsHelper = require("./helper/events/events.js");
+const ChatHistoryHelper = require("./helper/events/chatHistory.js");
+const ContextBuilder = require("./helper/ia/contextBuilder.js");
+const AudioProcessor = require("./helper/ia/audioProcessor.js");
+const DecisionEngine = require("./helper/ia/decisionEngine.js");
+const SocketWebhookManager = require("./helper/events/socketWebhookManager.js");
+const OutboundMessageProcessor = require("./helper/events/outboundMessageProcessor.js");
+const StatusAckManager = require("./helper/events/statusAckManager.js");
+const ConnectionStateManager = require("./helper/events/connectionStateManager.js");
+const customLogger = require("../util/customLogger.js");
+const {
+  registerIAResponse,
+  isIAResponse,
+} = require("./helper/ia/iaResponseCache.js");
 
-// 🔄 Pipeline e helpers especializados
-const ContextBuilder = require('./helper/ia/contextBuilder.js');
-const AudioProcessor = require('./helper/ia/audioProcessor.js');
-const DecisionEngine = require('./helper/ia/decisionEngine.js');
-const SocketWebhookManager = require('./helper/events/socketWebhookManager.js');
-const OutboundMessageProcessor = require('./helper/events/outboundMessageProcessor.js');
-const StatusAckManager = require('./helper/events/statusAckManager.js');
-const ConnectionStateManager = require('./helper/events/connectionStateManager.js');
-const customLogger = require('../util/customLogger.js');
-
+/**
+ * Controlador de eventos do WhatsApp.
+ * Gerencia recebimento, processamento e envio de mensagens.
+ */
 module.exports = class Events {
+  static registerIAResponse = registerIAResponse;
+
   /**
-   * Configura listeners de mensagens baseado na engine
+   * Configura listeners de mensagens baseado na engine.
+   * @param {string} session - ID da sessão
+   * @param {Object} client - Cliente WhatsApp (whatsapp-web.js, WPPConnect ou Venom)
+   * @param {Object} req - Request do Express
    */
   static async receiveMessage(session, client, req) {
-    console.log(`[DEBUG] Configurando receiveMessage para sessão ${session}`);
-    if (typeof client?.onAnyMessage === 'function') {
+    if (typeof client?.onAnyMessage === "function") {
       // WPPConnect & Venom
-      client.onAnyMessage(async message => {
+      client.onAnyMessage(async (message) => {
         await this.processMessage(message, session, client, req);
       });
-    } else if (typeof client?.on === 'function') {
-      // WhatsApp Web.js - usando message_create como fallback
-      console.log(`[DEBUG] Registrando listeners para ${session}`);
-      
-      // Evento message (mensagens recebidas)
-      client.on('message', async (message) => {
-        console.log(`[🔔 MESSAGE] ${session}: ${message.from} → ${message.body?.substring(0, 50)}`);
-        await this.processMessage(message, session, client, req);
-      });
-      
-      // Evento message_create (TODAS as mensagens - enviadas e recebidas)
-      // Usado como fallback caso 'message' não dispare
-      client.on('message_create', async (message) => {
-        console.log(`[🔔 MESSAGE_CREATE] ${session}: fromMe=${message.fromMe} from=${message.from} → ${message.body?.substring(0, 50)}`);
-        // Só processar se NÃO for do próprio bot e se o evento 'message' não disparou
-        if (!message.fromMe) {
-          // Verificar se já foi processado pelo evento 'message'
-          const msgId = message.id?._serialized || message.id?.id;
-          if (!this._processedMessages) this._processedMessages = new Set();
-          if (this._processedMessages.has(msgId)) {
-            console.log(`[SKIP] Mensagem ${msgId} já processada`);
+    } else if (typeof client?.on === "function") {
+      // WhatsApp Web.js - usando APENAS message_create (captura todas as mensagens)
+      client.on("message_create", async (message) => {
+        // Dedupe: evitar processar mesma mensagem 2x
+        const msgId = message.id?._serialized || message.id?.id;
+        if (!this._processedMessages) this._processedMessages = new Set();
+        if (this._processedMessages.has(msgId)) {
+          return;
+        }
+        this._processedMessages.add(msgId);
+        if (this._processedMessages.size > 100) {
+          const arr = Array.from(this._processedMessages);
+          this._processedMessages = new Set(arr.slice(-50));
+        }
+
+        const allowSelfTest = process.env.ALLOW_SELF_TEST === "true";
+
+        // Se for mensagem própria
+        if (message.fromMe) {
+          // Em modo self-test, verificar se é resposta da IA (evitar loop)
+          if (allowSelfTest && isIAResponse(message.body)) {
             return;
           }
-          this._processedMessages.add(msgId);
-          // Limpar mensagens antigas (manter últimas 100)
-          if (this._processedMessages.size > 100) {
-            const arr = Array.from(this._processedMessages);
-            this._processedMessages = new Set(arr.slice(-50));
+          // Fora do self-test, ignorar mensagens próprias
+          if (!allowSelfTest) {
+            await this.processMessage(message, session, client, req);
+            return;
           }
-          await this.processMessage(message, session, client, req);
         }
+
+        await this.processMessage(message, session, client, req);
       });
-      
-      // Verificar listeners registrados
-      console.log(`[DEBUG] Listeners 'message': ${client.listenerCount('message')}`);
-      console.log(`[DEBUG] Listeners 'message_create': ${client.listenerCount('message_create')}`);
     }
   }
 
   /**
-   * Pipeline principal de processamento de mensagens
+   * Pipeline principal de processamento de mensagens.
+   * @param {Object} message - Objeto da mensagem recebida
+   * @param {string} session - ID da sessão
+   * @param {Object} client - Cliente WhatsApp
+   * @param {Object} req - Request do Express
    */
   static async processMessage(message, session, client, req) {
-    // Gerenciador de comunicação socket/webhook
-    customLogger.debug(`[IA] processMessage chamada para sessão ${session}`);
-    console.log(`[DEBUG] Message isGroupMsg: ${message.isGroupMsg}, from: ${message.from}, type: ${message.type}`);
-    
     const socketManager = new SocketWebhookManager(req, session);
 
-    // Construir contexto da mensagem (usar payload mutável)
+    // Construir contexto da mensagem
     const ctx = await ContextBuilder.build({ message, session, client, req });
-    const { sessionkey, numero, msgBody, empresa } = ctx;
-    let payload = ctx.payload; // será atualizado se áudio transcrever
+    const { sessionkey, numero, empresa } = ctx;
+    let payload = ctx.payload;
 
     // 1. Filtrar tipos não permitidos
     if (!eventsHelper.isPermitido(message)) {
@@ -84,40 +90,55 @@ module.exports = class Events {
     }
 
     // 2. Processar mensagens enviadas pelo próprio bot
+    const allowSelfTest = process.env.ALLOW_SELF_TEST === "true";
     if (message.fromMe) {
       await socketManager.notifyMessageSent(payload);
       await OutboundMessageProcessor.processFromMe({
-        message, session, sessionkey, numero, socketManager
+        message,
+        session,
+        sessionkey,
+        numero,
+        socketManager,
       });
-      return;
+
+      if (!allowSelfTest) {
+        return;
+      }
     }
 
     // 3. Notificar recebimento de mensagem
     await socketManager.notifyMessageReceived(payload);
 
-    // 4. Processar áudio se necessário (só se IA ativa)
-    
+    // 4. Processar áudio se necessário
     const audioResult = await AudioProcessor.processAudio({
-      message, client, numero, payload, session, sessionkey, empresa
+      message,
+      client,
+      numero,
+      payload,
+      session,
+      sessionkey,
+      empresa,
     });
-    console.log('process audio', audioResult);
     if (!audioResult.success) {
       await socketManager.responseDefault(payload);
       return;
     }
 
-    // Aplicar modificações do áudio
     if (audioResult.message) message = audioResult.message;
     if (audioResult.payload) payload = audioResult.payload;
 
     // 5. Registrar mensagem do usuário
-    const plainBody = typeof message.body === 'string' ? message.body.trim() : '';
+    const plainBody =
+      typeof message.body === "string" ? message.body.trim() : "";
     if (plainBody) {
-      await ChatHistoryHelper.registerUserMessage({ session, sessionkey, numero, text: plainBody });
+      await ChatHistoryHelper.registerUserMessage({
+        session,
+        sessionkey,
+        numero,
+        text: plainBody,
+      });
     }
 
-
-    customLogger.debug(`[IA] Mensagem de ${numero}: ${plainBody}`);
     // 6. Engine de decisão IA
     await DecisionEngine.process({
       message,
@@ -128,12 +149,15 @@ module.exports = class Events {
       msgBody: plainBody,
       empresa,
       payload,
-      responseDefault: (payload) => socketManager.responseDefault(payload)
+      responseDefault: (p) => socketManager.responseDefault(p),
     });
   }
 
   /**
-   * Configura listeners de status de mensagens (ACK)
+   * Configura listeners de status de mensagens (ACK).
+   * @param {string} session - ID da sessão
+   * @param {Object} client - Cliente WhatsApp
+   * @param {Object} req - Request do Express
    */
   static statusMessage(session, client, req) {
     const socketManager = new SocketWebhookManager(req, session);
@@ -141,22 +165,22 @@ module.exports = class Events {
   }
 
   /**
-   * Emite status simples via Socket.IO
+   * Emite status simples via Socket.IO.
+   * @param {Object} req - Request do Express
+   * @param {string} status - Status a emitir
+   * @param {string} session - ID da sessão
    */
   static StatusMessage(req, status, session) {
     StatusAckManager.emitStatus(req, status, session);
   }
 
   /**
-   * Configura listeners de mudança de estado de conexão
+   * Configura listeners de mudança de estado de conexão.
+   * @param {string} session - ID da sessão
+   * @param {Object} client - Cliente WhatsApp
+   * @param {Object} req - Request do Express
    */
   static async statusConnection(session, client, req) {
     ConnectionStateManager.setupStateChange(session, client, req);
   }
 };
-
-
-
-
-
-

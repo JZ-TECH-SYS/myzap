@@ -1,7 +1,6 @@
 const ChatHistoryHelper = require('../events/chatHistory');
-const TriggersHelper = require('../events/triggers');
 const HumanDetector = require('./humanDetector');
-const { IA_COOLDOWN_SECONDS, HUMAN_PAUSE_MINUTES } = require('./iaConfig');
+const { HUMAN_PAUSE_MINUTES } = require('./iaConfig');
 
 /**
  * Guards/validações para decidir se deve processar IA ou enviar mensagem padrão.
@@ -52,6 +51,12 @@ async function checkHumanRequest({ msgBody, session, sessionkey, numero }) {
 }
 
 async function checkRecentHuman({ session, sessionkey, numero }) {
+  // Se ALLOW_SELF_TEST está ativo, ignorar verificação de agente recente
+  // Isso permite testar a IA enviando mensagem para o próprio número
+  if (process.env.ALLOW_SELF_TEST === 'true') {
+    return { shouldBlock: false };
+  }
+  
   const humanoFalou = await ChatHistoryHelper.humanoFalouRecentemente({
     session,
     sessionkey,
@@ -79,24 +84,24 @@ async function checkClientRequestedHuman({ session, sessionkey, numero }) {
   return { shouldBlock: false };
 }
 
-async function checkIaCooldown({ session, sessionkey, numero }) {
-  const iaEmCooldown = await ChatHistoryHelper.emCooldownDeIA({
+/**
+ * Verifica se é o primeiro contato do dia com este número.
+ * Se for, bloqueia para enviar mensagem padrão antes da IA.
+ * @param {Object} params
+ * @param {string} params.session - ID da sessão
+ * @param {string} params.sessionkey - Chave da sessão  
+ * @param {string} params.numero - Número do cliente
+ * @returns {Promise<{shouldBlock: boolean, reason?: string}>}
+ */
+async function checkFirstContactToday({ session, sessionkey, numero }) {
+  const jaInteragiuHoje = await ChatHistoryHelper.jaInteragiuHoje({
     session,
     sessionkey,
     numero,
-    segundos: IA_COOLDOWN_SECONDS,
   });
   
-  if (iaEmCooldown) {
-    return { shouldBlock: true, reason: 'ia_em_cooldown' };
-  }
-  return { shouldBlock: false };
-}
-
-async function checkTrigger({ msgBody }) {
-  const gatilhoIA = TriggersHelper.necessitaIA(msgBody);
-  if (!gatilhoIA) {
-    return { shouldBlock: true, reason: 'gatilho_nao_acionado' };
+  if (!jaInteragiuHoje) {
+    return { shouldBlock: true, reason: 'primeiro_contato' };
   }
   return { shouldBlock: false };
 }
@@ -108,6 +113,5 @@ module.exports = {
   checkHumanRequest,
   checkRecentHuman,
   checkClientRequestedHuman,
-  checkIaCooldown,
-  checkTrigger
+  checkFirstContactToday,
 };

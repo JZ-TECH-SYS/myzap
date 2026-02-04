@@ -245,8 +245,11 @@ module.exports = {
 
   /**
    * Verifica se já enviou mensagem padrão HOJE para este número
-   * SIMPLIFICADO: Sem cache em memória - consulta direto no banco
-   * SQLite é rápido o suficiente para isso
+   * @param {Object} params
+   * @param {string} params.session - ID da sessão
+   * @param {string} params.sessionkey - Chave da sessão
+   * @param {string} params.numero - Número do cliente
+   * @returns {Promise<boolean>} true se já enviou hoje
    */
   async jaEnvieiMensagemPadraoHoje({ session, sessionkey, numero }) {
     const since = moment().startOf('day').toDate();
@@ -263,6 +266,28 @@ module.exports = {
     });
 
     return !!record;
+  },
+
+  /**
+   * Verifica se já houve qualquer interação HOJE com este número.
+   * Usado para determinar se é o primeiro contato do dia.
+   * @param {Object} params
+   * @param {string} params.session - ID da sessão
+   * @param {string} params.sessionkey - Chave da sessão
+   * @param {string} params.numero - Número do cliente
+   * @returns {Promise<boolean>} true se já houve interação hoje
+   */
+  async jaInteragiuHoje({ session, sessionkey, numero }) {
+    const since = moment().startOf('day').toDate();
+    const count = await ChatHistory.count({
+      where: {
+        session,
+        sessionkey,
+        numero_cliente: numero,
+        created_at: { [Op.gte]: since },
+      },
+    });
+    return count > 0;
   },
 
   async dentroDoCooldownPadrao({ session, sessionkey, numero, minutos = 0 }) {

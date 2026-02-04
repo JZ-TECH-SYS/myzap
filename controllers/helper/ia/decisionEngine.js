@@ -5,6 +5,10 @@ const MessageSender = require('../events/messageSender');
 const ChatHistoryHelper = require('../events/chatHistory');
 const customLogger = require('../../../util/customLogger');
 const { TEMPO_MENSAGEM_PADRAO_DEFAULT, LOG_PREFIX } = require('./iaConfig');
+const processingLock = require('./processingLock');
+
+// Registrar resposta da IA no cache (usado para evitar loop no self-test)
+const { registerIAResponse } = require('./iaResponseCache');
 
 /**
  * Engine de decisão: executa guards em sequência e toma ação apropriada.
@@ -21,20 +25,49 @@ async function process({
   payload,
   responseDefault
 }) {
-  console.log('\n========== DECISION ENGINE ==========');
-  console.log('DE1. DecisionEngine.process INICIADO');
-  console.log('     numero:', numero);
-  console.log('     empresa:', empresa?.id);
+  customLogger.debug(`${LOG_PREFIX} Iniciando para ${numero}`);
   
+  // Evitar race condition: se já tem mensagem sendo processada para este número, ignorar
+  if (!processingLock.acquire({ session, sessionkey, numero })) {
+    customLogger.debug(`${LOG_PREFIX} Lock ativo para ${numero}, ignorando mensagem duplicada`);
+    return true;
+  }
+  
+  try {
+    return await processInternal({
+      message,
+      client,
+      session,
+      sessionkey,
+      numero,
+      msgBody,
+      empresa,
+      payload,
+      responseDefault
+    });
+  } finally {
+    processingLock.release({ session, sessionkey, numero });
+  }
+}
+
+/**
+ * Processamento interno após adquirir o lock
+ */
+async function processInternal({
+  message,
+  client,
+  session,
+  sessionkey,
+  numero,
+  msgBody,
+  empresa,
+  payload,
+  responseDefault
+}) {
   // Configurações da empresa
   const mensagemPadrao = typeof empresa?.mensagem_padrao === 'string' ? empresa.mensagem_padrao.trim() : '';
   const cooldownPadrao = Number.isInteger(empresa?.tempo_mensagem_padrao) ? empresa.tempo_mensagem_padrao : TEMPO_MENSAGEM_PADRAO_DEFAULT;
-  
-  console.log('DE2. Configurações:');
-  console.log('     mensagemPadrao:', mensagemPadrao ? mensagemPadrao.substring(0, 30) + '...' : 'VAZIO!');
-  console.log('     cooldownPadrao:', cooldownPadrao);
 
-  customLogger.debug(`${LOG_PREFIX} Iniciando Decision Engine para ${numero}`);    
   // Helper para enviar mensagem padrão
   const enviarPadrao = (motivo, force = false) => sendDefault({
     client,
@@ -51,12 +84,11 @@ async function process({
   const guardSequence = [
     () => Guards.checkGroupMessage({ message }),
     () => Guards.checkCompanyEnabled({ empresa }),
+    () => Guards.checkFirstContactToday({ session, sessionkey, numero }),
     () => Guards.checkIaEnabled({ empresa }),
     () => Guards.checkHumanRequest({ msgBody, session, sessionkey, numero }),
     () => Guards.checkRecentHuman({ session, sessionkey, numero }),
     () => Guards.checkClientRequestedHuman({ session, sessionkey, numero }),
-    //() => Guards.checkIaCooldown({ session, sessionkey, numero }),
-    //() => Guards.checkTrigger({ msgBody })
   ];
 
   // Executar guards em sequência
@@ -80,11 +112,9 @@ async function process({
           return true; // processado
         }
 
-        // sempre manda msg padrão se 
-        if (result.reason != 'grupo') {
-          console.log('DE4. Guard bloqueou mas vai enviar msg padrão. Reason:', result.reason);
-          const enviou = await enviarPadrao(result.reason);
-          console.log('DE5. enviarPadrao retornou:', enviou);
+        // Sempre manda msg padrão exceto para grupos
+        if (result.reason !== 'grupo') {
+          await enviarPadrao(result.reason);
         }
 
         await responseDefault(payload);
@@ -134,6 +164,9 @@ async function processIA({
     });
 
     if (respostaIA) {
+      // Registrar resposta da IA no cache (evitar loop no self-test)
+      registerIAResponse(respostaIA);
+      
       await MessageSender.stopTyping({ client, to: numero });
       await MessageSender.sendText({ client, to: numero, text: respostaIA });
       await ChatHistoryHelper.registerAssistantMessage({
