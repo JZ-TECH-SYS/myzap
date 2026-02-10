@@ -386,9 +386,13 @@ async function runHealthCheckCycle() {
  */
 function startHealthCheckJob() {
   // Verificar se deve rodar neste processo (PM2 cluster)
+  // 🔧 FIX: Só pular se estiver em CLUSTER mode com múltiplas instâncias
+  // Em modo fork, pm_id pode ser qualquer número (ex: 4) e o job DEVE rodar
+  const pmExecMode = process.env.exec_mode;
+  const pmInstances = parseInt(process.env.instances || '1', 10);
   const pmId = process.env.pm_id ?? process.env.PM_ID;
-  if (pmId && pmId !== '0') {
-    customLogger.info('[HEALTH CHECK] Ignorando neste worker PM2');
+  if (pmExecMode === 'cluster_mode' && pmInstances > 1 && pmId && pmId !== '0') {
+    customLogger.info('[HEALTH CHECK] Ignorando neste worker PM2 (cluster mode)');
     return;
   }
 

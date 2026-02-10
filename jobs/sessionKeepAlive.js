@@ -20,8 +20,15 @@ let running = false;
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function shouldRunOnThisProcess() {
+  // 🔧 FIX: Só pular se estiver em CLUSTER mode com múltiplas instâncias
+  // Em modo fork, pm_id pode ser qualquer número (ex: 4) e o job DEVE rodar
+  const pmExecMode = process.env.exec_mode;
+  const pmInstances = parseInt(process.env.instances || '1', 10);
   const pmId = process.env.pm_id ?? process.env.PM_ID;
-  return !pmId || pmId === '0';
+  if (pmExecMode === 'cluster_mode' && pmInstances > 1 && pmId && pmId !== '0') {
+    return false;
+  }
+  return true;
 }
 
 function resolveBaseUrl() {
