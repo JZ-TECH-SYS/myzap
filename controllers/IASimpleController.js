@@ -160,7 +160,7 @@ module.exports = class IASimpleController {
         sessionkey: sessionkey.trim(),
         empresa_nome: empresa_nome?.trim() || 'Empresa',
         api_url: api_url?.trim() || null,
-        mensagem_padrao: mensagem_padrao?.trim() || 'Olá! Como posso ajudar?',
+        mensagem_padrao: mensagem_padrao?.trim() || null,
         idprompt: idprompt?.trim() || null,
         vector_name: vector_name?.trim() || null,
         ia_ativa: ia_ativa === true || ia_ativa === 'true'
