@@ -79,7 +79,7 @@ class Sessions {
             sessionkey: sessionkey || (data.sessionkey || null),
             empresa_nome: `Empresa ${session}`,
             api_url: null,
-            mensagem_padrao: 'Olá! Como posso ajudar?',
+            mensagem_padrao: null,
             idprompt: null,
             vector_name: null,
             ia_ativa: false
