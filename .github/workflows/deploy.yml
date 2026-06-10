@@ -1,8 +1,12 @@
 name: Deploy MyZap na VPS
 
+# DEPLOY MANUAL (workflow_dispatch): o deploy reinicia o pm2 e DERRUBA as
+# sessoes de WhatsApp conectadas em producao. Com gatilho automatico no push,
+# qualquer commit (ate um fix trivial) desconectava clientes sem aviso —
+# caso real em 10/06/2026: 2 pushes derrubaram a sessao vaqueiropizzaria2,
+# que precisou re-escanear o QR. Agora: Actions -> Deploy MyZap na VPS -> Run.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
