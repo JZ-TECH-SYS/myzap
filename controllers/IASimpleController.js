@@ -330,7 +330,9 @@ module.exports = class IASimpleController {
         mensagem_padrao: mensagem_padrao !== undefined
           ? (String(mensagem_padrao).trim() || null)
           : registro.mensagem_padrao,
-        ia_ativa: ia_ativa ? 1 : 0
+        // campo ausente MANTEM o valor atual (antes, ausente virava 0 e
+        // desligava a IA sem querer a cada update parcial)
+        ia_ativa: ia_ativa !== undefined ? (ia_ativa ? 1 : 0) : registro.ia_ativa
       });
 
       return res.json({ success: true, message: 'Configuração atualizada', data: registro });
