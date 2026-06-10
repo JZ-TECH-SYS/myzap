@@ -213,7 +213,10 @@ module.exports = class IASimpleController {
         sessionkey: sessionkey?.trim() || sessaoExistente.sessionkey,
         empresa_nome: empresa_nome?.trim() || sessaoExistente.empresa_nome,
         api_url: api_url?.trim() || sessaoExistente.api_url,
-        mensagem_padrao: mensagem_padrao?.trim() || sessaoExistente.mensagem_padrao,
+        // campo presente e vazio LIMPA (desliga auto-resposta); ausente mantem
+        mensagem_padrao: mensagem_padrao !== undefined
+          ? (String(mensagem_padrao).trim() || null)
+          : sessaoExistente.mensagem_padrao,
         idprompt: idprompt?.trim() || sessaoExistente.idprompt,
         vector_name: vector_name?.trim() || sessaoExistente.vector_name,
         ia_ativa: ia_ativa !== undefined ? (ia_ativa === true || ia_ativa === 'true') : sessaoExistente.ia_ativa
