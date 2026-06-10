@@ -320,8 +320,14 @@ module.exports = class IASimpleController {
       await registro.update({
         empresa_nome: empresa_nome?.trim() || registro.empresa_nome,
         api_url: api_url?.trim() || registro.api_url,
-        mensagem_padrao: mensagem_padrao?.trim() || registro.mensagem_padrao,
-        ia_ativa: ia_ativa ? 1 : 0 
+        // Campo PRESENTE no body = atualiza; string vazia LIMPA a mensagem
+        // padrao (null -> sendDefault nao responde nada). Campo ausente =
+        // mantem o valor atual. Antes, vazio mantinha a antiga e era
+        // impossivel desligar a auto-resposta.
+        mensagem_padrao: mensagem_padrao !== undefined
+          ? (String(mensagem_padrao).trim() || null)
+          : registro.mensagem_padrao,
+        ia_ativa: ia_ativa ? 1 : 0
       });
 
       return res.json({ success: true, message: 'Configuração atualizada', data: registro });
