@@ -24,11 +24,14 @@ const sendFailureCount = new Map();       // Falhas consecutivas de envio
 // Mapa de último health check por sessão
 const lastHealthCheck = new Map();
 
-// Configurações - AJUSTADAS para detecção mais rápida
-const HEALTH_CHECK_INTERVAL_MS = 30000; // 30 segundos (era 1 minuto)
-const ZOMBIE_THRESHOLD_MINUTES = 15; // 15 minutos (era 30) - Alertar mais cedo
-const MAX_CONSECUTIVE_FAILURES = 2; // 2 falhas (era 3) - Reagir mais rápido
-const MAX_SEND_FAILURES = 3;         // 3 falhas de envio → marcar como problemático
+// ⚖️ AJUSTE (anti-falso-positivo): o health-check vinha DESTRUINDO sessões saudáveis
+// por timeout transitório de getState() durante picos de CPU (envio de mídia). Cada
+// destruição é uma chance de não reconectar e exigir QR. Então afrouxamos os gatilhos:
+// menos polling, timeouts maiores e mais falhas seguidas antes de considerar zumbi.
+const HEALTH_CHECK_INTERVAL_MS = 60000; // 60s (era 30s) - reduz tempestade de getState
+const ZOMBIE_THRESHOLD_MINUTES = 60; // 60 min (era 15) - silêncio de inbound NÃO é zumbi
+const MAX_CONSECUTIVE_FAILURES = 4; // 4 falhas seguidas (era 2) - tolera pico transitório
+const MAX_SEND_FAILURES = 6;         // 6 falhas de envio (era 3) - não zumbifica por azar
 const RECOVERY_COOLDOWN_MS = 300000; // 5 min entre recuperações
 
 // Contador de falhas por sessão
@@ -121,7 +124,7 @@ async function isClientHealthy(session, client) {
   try {
     const statePromise = Promise.race([
       client.getState(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000))
     ]);
     
     const state = await statePromise;
@@ -155,7 +158,7 @@ async function checkSessionHealth(session, client) {
   try {
     // 1. Verificar getState()
     const statePromise = new Promise(async (resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('getState timeout')), 10000);
+      const timeout = setTimeout(() => reject(new Error('getState timeout')), 30000);
       try {
         const state = await client.getState();
         clearTimeout(timeout);
@@ -171,7 +174,7 @@ async function checkSessionHealth(session, client) {
     // 2. Verificar se página do Puppeteer ainda responde
     if (client.pupPage) {
       const pagePromise = new Promise(async (resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error('pupPage timeout')), 10000);
+        const timeout = setTimeout(() => reject(new Error('pupPage timeout')), 30000);
         try {
           const result = await client.pupPage.evaluate(() => 1 + 1);
           clearTimeout(timeout);

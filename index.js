@@ -138,6 +138,15 @@ app.use(chatRouter);
 
 const toPlainDevice = (device) => (device?.get ? device.get({ plain: true }) : device);
 
+// O supervisor do gerenciador mede a saúde por este endpoint e REINICIA o MyZap se
+// ele demorar. Logo, /health não pode ficar preso em I/O de banco (lock do SQLite /
+// checkpoint do WAL): cada espera abaixo tem timeout curto e degrada apenas o CAMPO,
+// nunca a resposta. Assim um banco lento vira "db: slow", não um restart do processo.
+const comTimeout = (promise, ms, rotulo) => Promise.race([
+  promise,
+  new Promise((_, reject) => setTimeout(() => reject(new Error(`${rotulo} timeout`)), ms))
+]);
+
 app.get('/health', async (req, res) => {
   const memoryUsage = process.memoryUsage();
   const os = require('os');
@@ -163,15 +172,15 @@ app.get('/health', async (req, res) => {
   };
 
   try {
-    await config.sequelize.authenticate();
+    await comTimeout(config.sequelize.authenticate(), 3000, 'db authenticate');
     response.db = 'up';
   } catch (error) {
-    response.db = 'down';
+    response.db = /timeout/.test(error?.message || '') ? 'slow' : 'down';
     response.db_error = error?.message || String(error);
   }
 
   try {
-    const devices = await SessionsHelper.listDevices();
+    const devices = await comTimeout(SessionsHelper.listDevices(), 3000, 'listDevices');
     const items = devices.map(toPlainDevice);
     const connected = items.filter((item) => {
       const status = (item?.status || '').toLowerCase();

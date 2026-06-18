@@ -1,6 +1,7 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const Launcher = require('chrome-launcher');
 const Sessions = require('../controllers/SessionsController.js');
+const SessionsHelper = require('../controllers/helper/core/sessions.js');
 const Events = require('../controllers/EventsController.js');
 const webhooks = require('../controllers/WebhooksController.js');
 const config = require('../config.js');
@@ -18,9 +19,36 @@ let chromeLauncher = Launcher.Launcher.getInstallations()[0];
 
 module.exports = class WhatsappWebJS {
   static async start(req, res, session) {
+    let ownsLock = false; // esta invocação é a "dona" da trava global.__wwebInit?
     return new Promise(async (resolve, reject) => {
       let resolved = false; // ✅ ADICIONADO - Flag para evitar resolver múltiplas vezes
-      
+
+      // 🔒 TRAVA DE REENTRÂNCIA: sem isto, dois /start concorrentes (sessionKeepAlive
+      // + fila + supervisor) criam DOIS Client no MESMO perfil instances/<sessão> →
+      // SingletonLock do Chrome → perfil corrompe → cai e pede QR. Espelha o
+      // global.__wppInit que o WppConnect já usa.
+      global.__wwebInit = global.__wwebInit || {};
+      const emAndamento = global.__wwebInit[session];
+      if (emAndamento && (Date.now() - emAndamento) < 11 * 60 * 1000) {
+        customLogger.info(`${session} - ⏳ start já em andamento, ignorando chamada duplicada`);
+        return resolve({ status: 'INITIALIZING', session });
+      }
+
+      // Se já há um client vivo e CONNECTED na memória, não recria (evita 2º Chrome).
+      try {
+        const existing = SessionsHelper.getInjectedClient(session);
+        if (existing && typeof existing.getState === 'function') {
+          const st = await existing.getState().catch(() => null);
+          if (st === 'CONNECTED') {
+            customLogger.info(`${session} - ✅ Já conectado, start duplicado ignorado`);
+            return resolve({ status: 'CONNECTED', session });
+          }
+        }
+      } catch (_) { /* segue para criar */ }
+
+      global.__wwebInit[session] = Date.now();
+      ownsLock = true;
+
       // 🔧 CORRIGIDO - Timeout aumentado para 10 minutos (Windows precisa de mais tempo)
       const timeoutId = setTimeout(() => {
         if (!resolved) {
@@ -280,8 +308,8 @@ module.exports = class WhatsappWebJS {
 
         client.on('disconnected', (reason) => {
           customLogger.warning(`${session} - 🔌 Desconectado: ${reason}`);
-          
-          // ✅ ADICIONADO - Atualizar device no banco quando desconectado (seguindo padrão WPPConnect)
+
+          // Atualiza o banco; o sessionKeepAlive reconecta a partir daqui.
           Device.update({
             state: 'DISCONNECTED',
             status: 'disconnected',
@@ -290,17 +318,28 @@ module.exports = class WhatsappWebJS {
           }, { where: { session, sessionkey } }).catch(err => {
             customLogger.error(`❌ Erro ao atualizar device como DISCONNECTED: ${err.message}`);
           });
-          
-          // 🔧 WINDOWS: Tratar erro EBUSY no logout (arquivo Cookies-journal em uso)
-          // Aguardar 2 segundos para Chrome liberar arquivos antes de limpar
-          setTimeout(() => {
-            // Limpeza será feita pelo job automático, não precisa fazer nada aqui
-          }, 2000);
-          
-          // Se for por associação de dispositivo, limpar cache
+
+          // 🔴 CRÍTICO: destruir o Chrome e SOLTAR o perfil instances/<sessão> antes de
+          // qualquer recriação. Sem isto o cliente velho fica pendurado e, quando o
+          // sessionKeepAlive chama /start, sobe um 2º Chrome no MESMO perfil →
+          // SingletonLock → perfil corrompe → cai de vez e pede QR. Esperamos um pouco
+          // (no Windows o Cookies-journal fica preso/EBUSY) e então destruímos.
+          setTimeout(async () => {
+            try {
+              await client.destroy();
+              customLogger.info(`${session} - 🧹 Cliente destruído e perfil liberado após desconexão`);
+            } catch (e) {
+              customLogger.warning(`${session} - ⚠️ Falha ao destruir cliente desconectado: ${e.message}`);
+            } finally {
+              // Tira a referência morta da memória; o keepAlive recria limpo.
+              SessionsHelper.removeClientFromMemory(session);
+            }
+          }, 2500);
+
+          // Se for por associação de dispositivo, sinaliza limpeza de cache.
           if (reason && reason.includes('Protocol error')) {
             customLogger.error(`${session} - 🧹 Limpando cache por erro de protocolo`);
-            Sessions.addInfoSession(session, { 
+            Sessions.addInfoSession(session, {
               status: 'protocolError',
               reason,
               needsCleanup: true,
@@ -368,6 +407,12 @@ module.exports = class WhatsappWebJS {
           clearTimeout(timeoutId); // ✅ ADICIONADO - Limpar timeout
           reject(error);
         }
+      }
+    }).finally(() => {
+      // Solta a trava em QUALQUER caminho terminal (ready/auth_fail/erro/timeout),
+      // mas só se ESTA invocação foi a dona dela (chamada duplicada não limpa).
+      if (ownsLock) {
+        try { delete global.__wwebInit[session]; } catch (_) { /* noop */ }
       }
     });
   }

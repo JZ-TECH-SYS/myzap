@@ -232,6 +232,22 @@ module.exports = {
   },
 
   getClientOptions({ session, useHere, sessionData }) {
+    // Versão e estratégia de cache do WhatsApp Web.
+    // ANTES: o HTML do WhatsApp Web era baixado de um repositório de TERCEIRO
+    // (github.com/AliAryanTech/...). Se aquele arquivo saísse do ar, mudasse ou
+    // ficasse desatualizado frente ao WhatsApp atual, TODAS as sessões caíam /
+    // viravam "zumbi" (conecta mas o Store não carrega) de uma vez — sem a gente
+    // tocar em nada. Era também risco de segurança (JS de terceiro rodando no
+    // contexto da sessão de WhatsApp do cliente). AGORA o controle é NOSSO, via .env:
+    //   - WHATSAPP_VERSION      -> fixa uma versão testada (ex.: 2.3000.x). Recomendado.
+    //   - WEB_VERSION_CACHE_URL -> cache remoto SOB NOSSO host (nunca de terceiros).
+    //   - nada definido         -> 'local': a lib usa a versão corrente e cacheia em disco.
+    const webVersion = (process.env.WHATSAPP_VERSION || '').trim();
+    const webVersionCacheUrl = (process.env.WEB_VERSION_CACHE_URL || '').trim();
+    const webVersionCache = webVersionCacheUrl
+      ? { type: 'remote', remotePath: webVersionCacheUrl }
+      : { type: 'local' };
+
     const base = {
       // ADICIONADO - Estratégia de autenticação local para persistir sessões
       authStrategy: new (require('whatsapp-web.js').LocalAuth)({ 
@@ -246,12 +262,10 @@ module.exports = {
       qrMaxRetries: 5, // AUMENTADO para 5 tentativas
       authTimeoutMs: 120000, // AUMENTADO para 120 segundos (2 minutos)
       takeoverTimeoutMs: 120000, // AUMENTADO timeout para takeover
-      // 🚀 CRÍTICO - webVersionCache para evitar sessão zumbi
-      // Referência: https://github.com/pedroslopez/whatsapp-web.js/issues/3991
-      webVersionCache: {
-        type: 'remote',
-        remotePath: 'https://raw.githubusercontent.com/AliAryanTech/cache/refs/heads/main/AliAryan-Cache-1.html'
-      },
+      // Versão/cache do WhatsApp Web — agora sob NOSSO controle via .env (ver nota
+      // acima em getClientOptions). Sem dependência de repositório de terceiros.
+      ...(webVersion ? { webVersion } : {}),
+      webVersionCache,
       puppeteer: {
         // CORRIGIDO - headless: true para não abrir navegador automaticamente
         headless: true, // MUDADO: true para evitar abrir navegador visual
