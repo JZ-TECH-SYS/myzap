@@ -242,8 +242,18 @@ module.exports = {
     //   - WHATSAPP_VERSION      -> fixa uma versão testada (ex.: 2.3000.x). Recomendado.
     //   - WEB_VERSION_CACHE_URL -> cache remoto SOB NOSSO host (nunca de terceiros).
     //   - nada definido         -> 'local': a lib usa a versão corrente e cacheia em disco.
-    const webVersion = (process.env.WHATSAPP_VERSION || '').trim();
+    // NAO forcar uma webVersion fixa SOZINHA: ela ENVELHECE. O WhatsApp atualiza o
+    // cliente Web varias vezes por semana; quando a versao fixa fica para tras, a
+    // pagina recarrega/desloga ("Execution context destroyed ... navigation" ->
+    // disconnected:LOGOUT) e a sessao cai logo apos conectar, ficando conectada so
+    // no celular. Caso real (22/06/2026): o .env fixava 2.3000.1017155554 enquanto a
+    // versao CORRENTE ja era 2.3000.1041881976 (~24M de builds a frente).
+    // Por isso WHATSAPP_VERSION so e honrado quando existe um cache SOB NOSSO host
+    // (WEB_VERSION_CACHE_URL), que conseguimos manter atualizado. Sem esse cache,
+    // usamos a versao CORRENTE do WhatsApp Web, apenas cacheando em disco
+    // (type:'local' — NUNCA baixando de repositorio de terceiros).
     const webVersionCacheUrl = (process.env.WEB_VERSION_CACHE_URL || '').trim();
+    const webVersion = webVersionCacheUrl ? (process.env.WHATSAPP_VERSION || '').trim() : '';
     const webVersionCache = webVersionCacheUrl
       ? { type: 'remote', remotePath: webVersionCacheUrl }
       : { type: 'local' };

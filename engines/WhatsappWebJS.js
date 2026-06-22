@@ -309,6 +309,16 @@ module.exports = class WhatsappWebJS {
         client.on('disconnected', (reason) => {
           customLogger.warning(`${session} - 🔌 Desconectado: ${reason}`);
 
+          // 🔒 REARMA a trava de reentrância: da queda até o Chrome antigo morrer e o
+          // perfil instances/<sessão> ser liberado, NENHUM /start (sessionKeepAlive,
+          // fila, supervisor, painel) pode subir um 2º Chrome no MESMO perfil. Esse
+          // duplo-launch era a causa do "browser is already running" → SingletonLock →
+          // sessão ZUMBI presa em "inicializando". A trava só é solta DEPOIS do
+          // destroy concluir (no finally do setTimeout abaixo). O TTL de 11 min do
+          // próprio start cobre o caso de o destroy nunca retornar.
+          global.__wwebInit = global.__wwebInit || {};
+          global.__wwebInit[session] = Date.now();
+
           // Atualiza o banco; o sessionKeepAlive reconecta a partir daqui.
           Device.update({
             state: 'DISCONNECTED',
@@ -333,6 +343,9 @@ module.exports = class WhatsappWebJS {
             } finally {
               // Tira a referência morta da memória; o keepAlive recria limpo.
               SessionsHelper.removeClientFromMemory(session);
+              // 🔓 Libera a trava SÓ AGORA (perfil já liberado): a partir daqui o
+              // próximo /start sobe UM Chrome no perfil livre, sem colidir.
+              try { delete global.__wwebInit[session]; } catch (_) { /* noop */ }
             }
           }, 2500);
 
