@@ -725,7 +725,7 @@ class Sessions {
           diagnostics.storeReady = isReady;
           
           if (isReady) {
-            // Tentar contar chats como teste funcional
+            // chatCount fica apenas como DIAGNOSTICO (NAO e criterio de funcional).
             const chatCount = await client.pupPage.evaluate(() => {
               try {
                 return window.Store.Chat.models?.length || 0;
@@ -735,10 +735,15 @@ class Sessions {
             });
             diagnostics.chatCount = chatCount;
             diagnostics.canGetContacts = chatCount > 0;
-            
-            // Se conseguiu contar chats, está funcional!
-            isFunctional = chatCount > 0;
-            customLogger.info(`[VERIFY REAL STATUS] ${session} - Chat count: ${chatCount}, Funcional: ${isFunctional}`);
+
+            // ⭐ FUNCIONAL = Store CARREGADO (Conn.wid + Chat presentes). NAO exigir
+            // chatCount>0: uma conta nova ou sem conversas tem chatCount=0 e ESTA
+            // funcional (pode enviar normalmente). Exigir chats marcava sessoes
+            // recem-conectadas como "nao funcional"; o gerenciador entao disparava
+            // POST /repairSession -> cleanSessionCache -> fs.rmSync('instances/<sessao>')
+            // que APAGA a autenticacao e DERRUBA a sessao (loop "conecta e cai").
+            isFunctional = true;
+            customLogger.info(`[VERIFY REAL STATUS] ${session} - Store pronto (chats: ${chatCount}) — Funcional: ${isFunctional}`);
           }
         }
       } catch (funcErr) {
