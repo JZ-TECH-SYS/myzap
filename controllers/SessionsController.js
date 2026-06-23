@@ -725,7 +725,8 @@ class Sessions {
           diagnostics.storeReady = isReady;
           
           if (isReady) {
-            // chatCount fica apenas como DIAGNOSTICO (NAO e criterio de funcional).
+            // chatCount/storeReady ficam apenas como DIAGNOSTICO (o criterio de
+            // 'funcional' esta abaixo — NAO dependemos mais so do storeReady).
             const chatCount = await client.pupPage.evaluate(() => {
               try {
                 return window.Store.Chat.models?.length || 0;
@@ -735,15 +736,6 @@ class Sessions {
             });
             diagnostics.chatCount = chatCount;
             diagnostics.canGetContacts = chatCount > 0;
-
-            // ⭐ FUNCIONAL = Store CARREGADO (Conn.wid + Chat presentes). NAO exigir
-            // chatCount>0: uma conta nova ou sem conversas tem chatCount=0 e ESTA
-            // funcional (pode enviar normalmente). Exigir chats marcava sessoes
-            // recem-conectadas como "nao funcional"; o gerenciador entao disparava
-            // POST /repairSession -> cleanSessionCache -> fs.rmSync('instances/<sessao>')
-            // que APAGA a autenticacao e DERRUBA a sessao (loop "conecta e cai").
-            isFunctional = true;
-            customLogger.info(`[VERIFY REAL STATUS] ${session} - Store pronto (chats: ${chatCount}) — Funcional: ${isFunctional}`);
           }
         }
       } catch (funcErr) {
@@ -751,7 +743,16 @@ class Sessions {
         customLogger.error(`[VERIFY REAL STATUS] ${session} - Teste funcional falhou: ${funcErr.message}`);
       }
 
+      // ⭐ FUNCIONAL = a sessao realmente ENVIA. Confiamos na API OFICIAL da lib:
+      // getState()=CONNECTED + WID carregado (client.info.wid). NAO exigimos mais o
+      // storeReady (window.Store.Conn.wid/Store.Chat): essa estrutura INTERNA mudou
+      // em versoes novas do WhatsApp Web e passou a dar FALSO NEGATIVO — a sessao
+      // envia normal (sendMessage/self-test OK) porem storeReady vinha false,
+      // travando a fila do gerenciador (envio bloqueado eterno). storeReady/chatCount
+      // ficam so como diagnostico/reforco positivo.
+      isFunctional = (realState === 'CONNECTED') && (diagnostics.hasWid === true || diagnostics.storeReady === true);
       diagnostics.functional = isFunctional;
+      customLogger.info(`[VERIFY REAL STATUS] ${session} - Funcional: ${isFunctional} (state=${realState}, hasWid=${diagnostics.hasWid}, storeReady=${diagnostics.storeReady})`);
 
       // 4. Determinar status real
       const dbIsConnected = ['CONNECTED', 'inChat', 'isLogged'].includes(device.status);
