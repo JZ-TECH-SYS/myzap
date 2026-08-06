@@ -50,6 +50,32 @@ async function formatNumber(rawNumber) {
   return cleaned + "@c.us";
 }
 
+// ---------------------------------------------------------------------------
+// Leitura DEFENSIVA do retorno do sendMessage.
+//
+// O `sendMessage` do whatsapp-web.js ENTREGA a mensagem e, dependendo da versão
+// do WhatsApp Web, ainda assim devolve `undefined`. Ler `response.id._serialized`
+// direto lança TypeError DENTRO do try — e o catch converte um envio que deu
+// certo em HTTP 500. Foi exatamente assim que uma cobrança entregue virou 9
+// reenvios para a mesma cliente: quem chama a API via 500, achava que tinha
+// falhado, e mandava de novo a cada rodada.
+//
+// Sem o id não há como rastrear o ACK, mas a mensagem SAIU. Estes helpers
+// devolvem null em vez de explodir, e o envio continua valendo 200.
+// ---------------------------------------------------------------------------
+function messageId(response) {
+  return response?.id?._serialized ?? null;
+}
+
+function messagePhone(response, fallback = null) {
+  const to = response?.to;
+  return (
+    response?.id?.remote?._serialized ??
+    (typeof to === "string" ? to : to?.user) ??
+    fallback
+  );
+}
+
 module.exports = {
   async sendText(req, res) {
     const session = req.body.session;
@@ -92,21 +118,13 @@ module.exports = {
       });
     }
 
+    // Só o ENVIO fica dentro do try. Montar a resposta é passo de leitura: se
+    // estourar aqui dentro, o catch marca falha numa mensagem que já chegou no
+    // celular do cliente — e quem chamou reenvia.
+    let response;
     try {
       // Fix para erro markedUnread: usar sendSeen: false
-      const response = await data.client.sendMessage(number, text, { sendSeen: false });
-      
-      // ✅ Registrar envio bem sucedido
-      registerSendSuccess(session);
-      customLogger.info(`[SEND TEXT] ✅ Mensagem enviada: ${session} → ${number}`);
-      
-      return res.status(200).json({
-        result: 200,
-        type: "text",
-        id: response.id._serialized,
-        phone: response.to,
-        content: response.body,
-      });
+      response = await data.client.sendMessage(number, text, { sendSeen: false });
     } catch (error) {
       // ❌ Registrar falha de envio
       registerSendFailure(session, error.message);
@@ -116,12 +134,30 @@ module.exports = {
       const isSessionDead = ['getChat', 'sendMessage', 'detached Frame', 
         'Execution context', 'Target closed', 'Protocol error'].some(k => error.message.includes(k));
       
-      return res.status(500).json({ 
-        status: "FAIL", 
+      return res.status(500).json({
+        status: "FAIL",
         error: { name: error.name, message: error.message },
         needsReconnect: isSessionDead
       });
     }
+
+    // Daqui para baixo a mensagem JÁ FOI ENTREGUE — nada pode mais virar erro.
+    registerSendSuccess(session);
+    customLogger.info(`[SEND TEXT] ✅ Mensagem enviada: ${session} → ${number}`);
+
+    const id = messageId(response);
+    if (!id) {
+      // Entregue, mas sem id: some o rastreio de ACK, não o envio.
+      customLogger.warning(`[SEND TEXT] ⚠️ ${session} → ${number}: WhatsApp Web não devolveu o id da mensagem`);
+    }
+
+    return res.status(200).json({
+      result: 200,
+      type: "text",
+      id,
+      phone: messagePhone(response, number),
+      content: response?.body ?? text,
+    });
   },
 
   async addStatusText(req, res) {
@@ -167,10 +203,10 @@ module.exports = {
       return res.status(200).json({
         result: 200,
         type: "locate",
-        id: response.id._serialized,
+        id: messageId(response),
         session: req.body.session,
-        phone: response.id.remote._serialized,
-        mimetype: response.type,
+        phone: messagePhone(response, number),
+        mimetype: response?.type ?? null,
       });
     } catch (error) {
       return res.status(400).json({ result: 400, status: "FAIL", log: error });
@@ -197,10 +233,10 @@ module.exports = {
       return res.status(200).json({
         result: 200,
         type: "contact",
-        messageId: response.id,
+        messageId: response?.id ?? null,
         session: req.body.session,
-        phone: response.to.user,
-        content: response.content,
+        phone: messagePhone(response, number),
+        content: response?.content ?? null,
       });
     } catch (error) {
       return res.status(400).json({ result: 400, status: "FAIL", log: error });
@@ -227,10 +263,10 @@ module.exports = {
       return res.status(200).json({
         result: 200,
         type: "link",
-        messageId: response.id,
+        messageId: response?.id ?? null,
         session: req.body.session,
-        phone: response.to.user,
-        content: response.content,
+        phone: messagePhone(response, number),
+        content: response?.content ?? null,
       });
     } catch (error) {
       return res.status(400).json({ result: 400, status: "FAIL", log: error });
@@ -271,12 +307,12 @@ module.exports = {
       return res.status(200).json({
         result: 200,
         type,
-        id: response.id._serialized,
+        id: messageId(response),
         session: req.body.session,
-        phone: response.id.remote._serialized,
+        phone: messagePhone(response, number),
         file: filePath,
-        content: response.body,
-        mimetype: response.type,
+        content: response?.body ?? null,
+        mimetype: response?.type ?? null,
       });
     } catch (error) {
       return res.status(500).json({ status: "error", message: error });
@@ -470,11 +506,11 @@ module.exports = {
       return res.status(200).json({
         result: 200,
         type: "file",
-        id: response.id._serialized,
+        id: messageId(response),
         session: req.body.session,
-        phone: response.id.remote._serialized,
-        content: response.body,
-        mimetype: response.type,
+        phone: messagePhone(response, number),
+        content: response?.body ?? null,
+        mimetype: response?.type ?? null,
         filename: filename || 'file'
       });
     } catch (error) {
@@ -519,7 +555,7 @@ module.exports = {
         });
 
         results.push({
-          id: response.id._serialized,
+          id: messageId(response),
           filename: filename || 'file',
           status: "sent"
         });
@@ -555,7 +591,7 @@ module.exports = {
 
     try {
       const data = Sessions.getSession(req.body.session);
-      const number = buildNumber(req);
+      const number = await buildNumber(req);
       const results = [];
 
       for (const file of files) {
@@ -579,7 +615,7 @@ module.exports = {
         if (isURL) fs.unlinkSync(fullPath);
 
         results.push({
-          id: response.id._serialized,
+          id: messageId(response),
           file: filePath,
           status: "sent"
         });
@@ -624,7 +660,7 @@ module.exports = {
 
     try {
       const data = Sessions.getSession(req.body.session);
-      const number = buildNumber(req);
+      const number = await buildNumber(req);
       
       // Criar mensagem de pedido formatada
       let orderText = "🛒 *PEDIDO*\n\n";
@@ -644,9 +680,9 @@ module.exports = {
       return res.status(200).json({
         result: 200,
         type: "order",
-        id: response.id._serialized,
+        id: messageId(response),
         session: req.body.session,
-        phone: response.to,
+        phone: messagePhone(response, number),
         products: products,
         total: total
       });
@@ -672,7 +708,7 @@ module.exports = {
 
     try {
       const data = Sessions.getSession(req.body.session);
-      const number = buildNumber(req);
+      const number = await buildNumber(req);
       
       const poll = new Poll(question, options);
       
@@ -681,9 +717,9 @@ module.exports = {
       return res.status(200).json({
         result: 200,
         type: "poll",
-        id: response.id._serialized,
+        id: messageId(response),
         session: req.body.session,
-        phone: response.to,
+        phone: messagePhone(response, number),
         question: question,
         options: options
       });
@@ -728,10 +764,10 @@ module.exports = {
       return res.status(200).json({
         result: 200,
         type: "text",
-        id: response.id._serialized,
+        id: messageId(response),
         session: req.body.session,
-        phone: response.to,
-        content: response.body
+        phone: messagePhone(response),
+        content: response?.body ?? text
       });
     } catch (error) {
       return res.status(500).json({
@@ -755,7 +791,7 @@ module.exports = {
 
     try {
       const data = Sessions.getSession(req.body.session);
-      const number = buildNumber(req);
+      const number = await buildNumber(req);
       
       // Buscar a mensagem para encaminhar
       const chat = await data.client.getChatById(messageid.split('_')[0] + '@c.us');
@@ -776,9 +812,9 @@ module.exports = {
       return res.status(200).json({
         result: 200,
         type: "forward",
-        id: response.id._serialized,
+        id: messageId(response),
         session: req.body.session,
-        phone: response.to,
+        phone: messagePhone(response, number),
         originalMessageId: messageid
       });
     } catch (error) {
