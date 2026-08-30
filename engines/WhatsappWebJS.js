@@ -70,7 +70,11 @@ module.exports = class WhatsappWebJS {
         try {
           // ✅ ADICIONADO - Criar device igual WPPConnect
           const { empresa_nome, api_url } = body;
-          const sysUser = await User.findOne({ where: { email: process.env.EMAIL } });
+          // findOrCreate: banco novo (semente por migrations) não traz o
+          // usuário do sistema — sem ele o upsert abaixo morria em
+          // user_id NOT NULL e o QR nunca nascia.
+          const { getOrCreateSystemUser } = require('../controllers/helper/core/systemUser.js');
+          const sysUser = await getOrCreateSystemUser();
           
           const devicePayload = {
             user_id: sysUser?.id,
