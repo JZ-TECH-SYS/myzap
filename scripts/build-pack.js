@@ -312,13 +312,11 @@ async function main() {
     if (!okSmoke) fail('smoke falhou: o Node embutido nao carregou sqlite3/whatsapp-web.js');
   }
 
-  // 7) zip + manifest
-  log('compactando pack...');
-  zipDirectory(pkgDir, zipPath);
-  const sizeBytes = fs.statSync(zipPath).size;
-  const zipSha256 = sha256File(zipPath);
-
-  const manifest = {
+  // 7) manifest INTERNO (identidade da instalacao — o gerenciador le
+  // <motor>/manifest.json para saber versao/modo pack) + zip + manifest
+  // EXTERNO do canal (mesmo conteudo + sha256/tamanho do zip, que so
+  // existem depois de compactar).
+  const manifestBase = {
     schema: 1,
     name: 'myzap-pack',
     version,
@@ -327,10 +325,16 @@ async function main() {
     nodeVersion,
     nodeEmbedded: !skipNode,
     chromiumEmbedded: !skipBrowser,
-    sizeBytes,
-    zipSha256,
     generatedAt: new Date().toISOString(),
   };
+  fs.writeFileSync(path.join(pkgDir, 'manifest.json'), `${JSON.stringify(manifestBase, null, 2)}\n`);
+
+  log('compactando pack...');
+  zipDirectory(pkgDir, zipPath);
+  const sizeBytes = fs.statSync(zipPath).size;
+  const zipSha256 = sha256File(zipPath);
+
+  const manifest = { ...manifestBase, sizeBytes, zipSha256 };
   fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
   if (!keepWork) rmrf(workDir);
