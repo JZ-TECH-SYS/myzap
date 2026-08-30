@@ -11,3 +11,5 @@ promp_capucho.txt
 .wwebjs_cache
 .wwebjs_cache/
 .wwebjs_cachedist-pack
+
+dist-pack/
