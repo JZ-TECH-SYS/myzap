@@ -215,6 +215,22 @@ async function main() {
   });
   if (!okInstall) fail('pnpm install falhou');
 
+  // Chromium como passo EXPLICITO e idempotente. Nao dependemos do
+  // postinstall do puppeteer: o side-effects-cache do pnpm marca o pacote
+  // como "ja construido" no store da maquina e PULA o script nas proximas
+  // instalacoes — o Chromium ia para o cache do build anterior (apagado) e o
+  // pack ficava sem browser. O install.mjs re-executa e sai rapido se o
+  // download ja existe no PUPPETEER_CACHE_DIR do pack.
+  if (!skipBrowser) {
+    log('garantindo Chromium no cache do pack...');
+    const okChrome = run('node', [path.join('node_modules', 'puppeteer', 'install.mjs')], {
+      cwd: pkgDir,
+      shell: true,
+      env,
+    });
+    if (!okChrome) fail('download do Chromium (puppeteer install.mjs) falhou');
+  }
+
   // 3) semente do banco GERADA pelas migrations — sempre em dia com o codigo.
   // (era um db.seed.sqlite mantido a mao no repo do gerenciador: cada
   // migration nova invalidava a semente em silencio)
