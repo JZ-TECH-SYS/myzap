@@ -1,0 +1,19 @@
+{
+  "watch": [
+    "index.js",
+    "startup.js",
+    "controllers",
+    "engines",
+    "routers",
+    "Models",
+    "util"
+  ],
+  "ignore": [
+    "instances/*",
+    "logs/*",
+    "database/db.sqlite",
+    "public/*",
+    "*.log"
+  ],
+  "ext": "js,json"
+}

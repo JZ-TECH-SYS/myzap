@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="pt-br">
+
+<%- include('../head.ejs', { pageTitle: pageTitle || 'IA & Empresas' }) %>
+
+<body>
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    <aside class="left-sidebar">
+      <div>
+        <div class="brand-logo d-flex align-items-center justify-content-between">
+          <a href="/dashboard" class="text-nowrap logo-img">
+            <img src="<%= logo ? logo : 'https://upload.wikimedia.org/wikipedia/commons/f/f7/WhatsApp_logo.svg' %>" alt="logo" class="img-fluid" />
+          </a>
+          <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+            <i class="ti ti-x fs-8"></i>
+          </div>
+        </div>
+        <%- include('../sidebar.ejs', { token }) %>
+      </div>
+    </aside>
+
+    <div class="body-wrapper">
+      <%- include('../header.ejs') %>
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                  <div>
+                    <h5 class="card-title fw-semibold">Configuracoes de IA por empresa</h5>
+                    <p class="mb-0 text-muted">Defina prompts, mensagem padrao e ativacao da IA por sessao.</p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <input id="searchInput" type="text" class="form-control" placeholder="Buscar por sessao ou empresa" style="min-width: 240px;" />
+                    <button id="btnSearch" class="btn btn-outline-primary">Buscar</button>
+                    <button id="btnNew" class="btn btn-primary">Nova configuracao</button>
+                  </div>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle" id="deviceCompaniesTable">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Sessao</th>
+                        <th>SessionKey</th>
+                        <th>Empresa</th>
+                        <th>API URL</th>
+                        <th>IA ativa</th>
+                        <th>Prompt ID</th>
+                        <th>Vector</th>
+                        <th>Mensagem padrao</th>
+                        <th>Cooldown (min)</th>
+                        <th>Atualizado</th>
+                        <th class="text-end">Acoes</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                  <div id="paginationInfo" class="text-muted small"></div>
+                  <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-secondary" id="btnPrev">Anterior</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnNext">Proximo</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <%- include('../footer.ejs') %>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="companyModal" tabindex="-1" aria-labelledby="companyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="companyModalLabel">Nova configuracao</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="companyForm" novalidate>
+            <input type="hidden" id="companyId" />
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="sessionInput" class="form-label">Sessao *</label>
+                <input type="text" id="sessionInput" class="form-control" required />
+              </div>
+              <div class="col-md-6">
+                <label for="sessionkeyInput" class="form-label">SessionKey *</label>
+                <input type="text" id="sessionkeyInput" class="form-control" required />
+              </div>
+              <div class="col-md-6">
+                <label for="empresaNomeInput" class="form-label">Empresa</label>
+                <input type="text" id="empresaNomeInput" class="form-control" />
+              </div>
+              <div class="col-md-6">
+                <label for="apiUrlInput" class="form-label">API URL</label>
+                <input type="url" id="apiUrlInput" class="form-control" placeholder="https://" />
+              </div>
+              <div class="col-md-6">
+                <label for="idpromptInput" class="form-label">Prompt ID</label>
+                <input type="text" id="idpromptInput" class="form-control" />
+              </div>
+              <div class="col-md-6">
+                <label for="vectorNameInput" class="form-label">Vector name</label>
+                <input type="text" id="vectorNameInput" class="form-control" />
+              </div>
+              <div class="col-12">
+                <label for="mensagemPadraoInput" class="form-label">Mensagem padrao (somente resposta)</label>
+                <textarea id="mensagemPadraoInput" class="form-control" rows="4" maxlength="1000"></textarea>
+                <div class="form-text">
+                  <span id="mensagemPadraoCount">0</span>/1000 caracteres
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="cooldownInput" class="form-label">Cooldown padrao (min)</label>
+                <input type="number" id="cooldownInput" class="form-control" min="0" step="1" value="0" />
+              </div>
+              <div class="col-md-4">
+                <label for="iaAtivaInput" class="form-label">IA ativa</label>
+                <select id="iaAtivaInput" class="form-select">
+                  <option value="true">Ligada</option>
+                  <option value="false">Desligada</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnSaveCompany">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../scripts.ejs') %>
+
+  <script>
+    const TABLE_LIMIT = 20;
+
+    const state = { page: 1, limit: TABLE_LIMIT, search: '', totalPages: 1, items: [] };
+
+    const tableBody = document.querySelector('#deviceCompaniesTable tbody');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const searchInput = document.getElementById('searchInput');
+    const btnSearch = document.getElementById('btnSearch');
+    const btnNew = document.getElementById('btnNew');
+    const mensagemPadraoInput = document.getElementById('mensagemPadraoInput');
+    const mensagemPadraoCount = document.getElementById('mensagemPadraoCount');
+
+    const modalElement = document.getElementById('companyModal');
+    const modal = new bootstrap.Modal(modalElement);
+
+    mensagemPadraoInput.addEventListener('input', () => {
+      mensagemPadraoCount.textContent = mensagemPadraoInput.value.length;
+    });
+
+    function maskLink(url) {
+      if (!url) return '-';
+      try {
+        const target = new URL(url);
+        return `<a href="${target.href}" target="_blank" rel="noopener">${target.hostname}</a>`;
+      } catch (err) {
+        return '-';
+      }
+    }
+
+    function formatDate(value) {
+      if (!value) return '-';
+      return new Date(value).toLocaleString();
+    }
+
+    function resetForm() {
+      document.getElementById('companyForm').reset();
+      document.getElementById('companyId').value = '';
+      document.getElementById('iaAtivaInput').value = 'true';
+      document.getElementById('cooldownInput').value = 0;
+      mensagemPadraoInput.value = '';
+      mensagemPadraoCount.textContent = '0';
+    }
+
+    function fillForm(item) {
+      document.getElementById('companyId').value = item.id;
+      document.getElementById('sessionInput').value = item.session || '';
+      document.getElementById('sessionkeyInput').value = item.sessionkey || '';
+      document.getElementById('empresaNomeInput').value = item.empresa_nome || '';
+      document.getElementById('apiUrlInput').value = item.api_url || '';
+      document.getElementById('idpromptInput').value = item.idprompt || '';
+      document.getElementById('vectorNameInput').value = item.vector_name || '';
+      document.getElementById('mensagemPadraoInput').value = item.mensagem_padrao || '';
+      document.getElementById('cooldownInput').value = item.tempo_mensagem_padrao || 0;
+      document.getElementById('iaAtivaInput').value = item.ia_ativa ? 'true' : 'false';
+      mensagemPadraoCount.textContent = (item.mensagem_padrao || '').length;
+    }
+
+    async function loadCompanies() {
+      const params = new URLSearchParams({ page: state.page, limit: state.limit, format: 'json' });
+      if (state.search) params.set('search', state.search);
+
+      tableBody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">Carregando...</td></tr>';
+
+      try {
+        const response = await axios.get(`/admin/device-companies?${params.toString()}`);
+        const payload = response.data?.data || {};
+        const items = payload.items || [];
+        const pagination = payload.pagination || { page: 1, pages: 1, total: 0 };
+
+        state.items = items;
+        state.totalPages = pagination.pages || 1;
+
+        if (!items.length) {
+          tableBody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">Nenhum registro encontrado.</td></tr>';
+          paginationInfo.textContent = '0 registros';
+          btnPrev.disabled = true;
+          btnNext.disabled = true;
+          return;
+        }
+
+        tableBody.innerHTML = items.map((item) => {
+          const mensagemPreview = item.mensagem_padrao ? `${item.mensagem_padrao.slice(0, 60)}${item.mensagem_padrao.length > 60 ? '...' : ''}` : '-';
+          const iaBadge = item.ia_ativa ? '<span class="badge bg-success">Ligada</span>' : '<span class="badge bg-secondary">Desligada</span>';
+          const sessionkeyMasked = item.sessionkey_masked || (item.sessionkey ? `${'*'.repeat(Math.max(item.sessionkey.length - 4, 0))}${item.sessionkey.slice(-4)}` : '-');
+
+          return `
+            <tr>
+              <td>${item.session}</td>
+              <td><code>${sessionkeyMasked}</code></td>
+              <td>${item.empresa_nome || '-'}</td>
+              <td>${maskLink(item.api_url)}</td>
+              <td>${iaBadge}</td>
+              <td>${item.idprompt || '-'}</td>
+              <td>${item.vector_name || '-'}</td>
+              <td>${mensagemPreview}</td>
+              <td>${item.tempo_mensagem_padrao || 0}</td>
+              <td>${formatDate(item.updatedAt)}</td>
+              <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary me-1" data-action="edit" data-id="${item.id}"><i class="ti ti-edit"></i></button>
+                <button class="btn btn-sm btn-outline-warning" data-action="toggle" data-id="${item.id}" data-active="${item.ia_ativa}"><i class="ti ti-power"></i></button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        paginationInfo.textContent = `Pagina ${pagination.page} de ${pagination.pages} • ${pagination.total} registros`;
+        btnPrev.disabled = pagination.page <= 1;
+        btnNext.disabled = pagination.page >= pagination.pages;
+      } catch (error) {
+        console.error('[ADMIN] Erro ao carregar device companies', error);
+        tableBody.innerHTML = '<tr><td colspan="11" class="text-center text-danger">Erro ao carregar registros.</td></tr>';
+      }
+    }
+
+    async function saveCompany() {
+      const id = document.getElementById('companyId').value;
+      const payload = {
+        session: document.getElementById('sessionInput').value.trim(),
+        sessionkey: document.getElementById('sessionkeyInput').value.trim(),
+        empresa_nome: document.getElementById('empresaNomeInput').value.trim(),
+        api_url: document.getElementById('apiUrlInput').value.trim(),
+        idprompt: document.getElementById('idpromptInput').value.trim(),
+        vector_name: document.getElementById('vectorNameInput').value.trim(),
+        mensagem_padrao: document.getElementById('mensagemPadraoInput').value,
+        tempo_mensagem_padrao: document.getElementById('cooldownInput').value,
+        ia_ativa: document.getElementById('iaAtivaInput').value,
+      };
+
+      if (!payload.session || !payload.sessionkey) {
+        Swal.fire('Campos obrigatorios', 'Informe sessao e sessionkey.', 'warning');
+        return;
+      }
+
+      try {
+        if (id) {
+          await axios.put(`/admin/device-companies/${id}`, payload);
+        } else {
+          await axios.post('/admin/device-companies', payload);
+        }
+
+        modal.hide();
+        await loadCompanies();
+        Swal.fire('Sucesso', 'Configuracao salva com sucesso.', 'success');
+      } catch (error) {
+        console.error('[ADMIN] Erro ao salvar device company', error);
+        const message = error?.response?.data?.reason || 'Erro ao salvar configuracao';
+        Swal.fire('Erro', message, 'error');
+      }
+    }
+
+    async function toggleIA(id, active) {
+      try {
+        await axios.patch(`/admin/device-companies/${id}/toggle-ia`, { ia_ativa: !active });
+        await loadCompanies();
+      } catch (error) {
+        console.error('[ADMIN] Erro ao alternar IA', error);
+        const message = error?.response?.data?.reason || 'Erro ao alternar IA';
+        Swal.fire('Erro', message, 'error');
+      }
+    }
+
+    document.getElementById('btnSaveCompany').addEventListener('click', saveCompany);
+    btnNew.addEventListener('click', () => {
+      resetForm();
+      document.getElementById('companyModalLabel').textContent = 'Nova configuracao';
+      modal.show();
+    });
+
+    btnPrev.addEventListener('click', () => {
+      if (state.page > 1) {
+        state.page -= 1;
+        loadCompanies();
+      }
+    });
+
+    btnNext.addEventListener('click', () => {
+      if (state.page < state.totalPages) {
+        state.page += 1;
+        loadCompanies();
+      }
+    });
+
+    btnSearch.addEventListener('click', () => {
+      state.search = searchInput.value.trim();
+      state.page = 1;
+      loadCompanies();
+    });
+
+    searchInput.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        btnSearch.click();
+      }
+    });
+
+    tableBody.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const id = button.getAttribute('data-id');
+      const action = button.getAttribute('data-action');
+      const item = state.items.find((entry) => String(entry.id) === String(id));
+      if (!item) return;
+
+      if (action === 'edit') {
+        document.getElementById('companyModalLabel').textContent = 'Editar configuracao';
+        fillForm(item);
+        modal.show();
+      }
+
+      if (action === 'toggle') {
+        const current = button.getAttribute('data-active') === 'true';
+        toggleIA(id, current);
+      }
+    });
+
+    modalElement.addEventListener('hidden.bs.modal', resetForm);
+
+    loadCompanies();
+  </script>
+</body>
+
+</html>

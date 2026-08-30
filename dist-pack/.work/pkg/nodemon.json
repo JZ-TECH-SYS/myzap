@@ -1,0 +1,20 @@
+{
+  "verbose": false,
+  "ignore": [
+    "public/*",
+    "temp/*",
+    "Logs/*",
+    "logs/*",
+    "**/instances/*",
+    "**/*.log"
+  ],
+  "watch": [
+    "index.js",
+    "startup.js",
+    "controllers/**/*.js",
+    "engines/**/*.js",
+    "routers/**/*.js",
+    "Models/**/*.js",
+    "util/**/*.js"
+  ]
+}
