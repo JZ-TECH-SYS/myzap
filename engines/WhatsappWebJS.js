@@ -1,5 +1,4 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const Launcher = require('chrome-launcher');
 const Sessions = require('../controllers/SessionsController.js');
 const SessionsHelper = require('../controllers/helper/core/sessions.js');
 const Events = require('../controllers/EventsController.js');
@@ -14,8 +13,6 @@ require('dotenv').config();
 
 const Device = DeviceModel(config.sequelize);
 const User = UserModel(config.sequelize);
-
-let chromeLauncher = Launcher.Launcher.getInstallations()[0];
 
 module.exports = class WhatsappWebJS {
   static async start(req, res, session) {

@@ -23,6 +23,15 @@ if (!fs.existsSync("./instances")) {
   fs.mkdirSync("./instances");
 }
 
+// database/ tambem precisa existir ANTES do Sequelize abrir o sqlite: sem a
+// pasta, o authenticate() do config.js so loga o erro, o servidor sobe assim
+// mesmo e cada endpoint falha depois com um erro confuso de banco. Relativo ao
+// CWD de proposito — e o CWD (junto com instances/ e .env) que define onde
+// moram os DADOS da instalacao.
+if (!fs.existsSync("./database")) {
+  fs.mkdirSync("./database", { recursive: true });
+}
+
 // Inicialização do servidor Express
 const app = express();
 const server = require("http").Server(app);
@@ -71,8 +80,8 @@ app.use(
   })
 );
 
-// Configuração da pasta de arquivos estáticos
-app.use(express.static("public"));
+// Configuração da pasta de arquivos estáticos (sempre relativa ao codigo —
+// o CWD agora pode ser o diretorio de DADOS, separado do de instalacao)
 app.use(express.static(path.join(__dirname, "/public")));
 
 // Configuração do view engine e da pasta de views
@@ -118,12 +127,18 @@ const engine = config.engine;
 if (engine === '1') {
   router = require("./routers/WhatsappWebJS");
   customLogger.success('🚀 Engine selecionada: WhatsApp-Web-JS');
-} else if (engine === '2') {
-  router = require("./routers/WppConnect");
-  customLogger.success('🚀 Engine selecionada: WPPConnect');
-} else if (engine === '3') {
-  router = require("./routers/Venom");
-  customLogger.success('🚀 Engine selecionada: Venom');
+} else if (engine === '2' || engine === '3') {
+  // Build enxuto (v3) so embarca a engine 1. As engines 2/3 continuam no
+  // codigo, mas as dependencias delas (wppconnect/venom) sairam do pacote —
+  // um require direto estouraria MODULE_NOT_FOUND sem explicacao.
+  try {
+    router = engine === '2' ? require("./routers/WppConnect") : require("./routers/Venom");
+    customLogger.success(`🚀 Engine selecionada: ${engine === '2' ? 'WPPConnect' : 'Venom'}`);
+  } catch (err) {
+    customLogger.error(`Engine ${engine} não está incluída neste pacote (build enxuto, ENGINE=1). ` +
+      'Reinstale as dependências da engine desejada ou use ENGINE=1. Detalhe: ' + err.message);
+    process.exit(1);
+  }
 } else {
   customLogger.error('Engine não reconhecida. Use 1 (WhatsappWebJS), 2 (WppConnect) ou 3 (Venom).');
   process.exit(1);
@@ -294,12 +309,53 @@ process.on("exit", handleProcessExit);
 process.on("uncaughtException", handleUncaughtException);
 process.on("unhandledRejection", handleUnhandledRejection);
 
-function gracefulShutdown(signal) {
-  customLogger.info(`Received ${signal}. Starting graceful shutdown...`);
-  server.close(() => {
-    customLogger.info("Server closed. Exiting process...");
-    process.exit(0);
+// Encerramento LIMPO: destruir os clients ANTES de sair. Sem isso o Chrome de
+// cada sessão ficava órfão segurando o SingletonLock do perfil (instances/) e
+// a porta — no Windows isso travava o restart/update e podia corromper a
+// sessão. O gerenciador compensava com kill de árvore; agora o próprio MyZap
+// solta tudo em até ~8s e o supervisor não precisa de força bruta.
+let shuttingDown = false;
+async function destroyAllClientsSafe(timeoutMs = 8000) {
+  const entries = Object.entries(SessionsHelper.clients || {});
+  if (entries.length === 0) return;
+  customLogger.info(`Encerrando ${entries.length} sessão(ões) antes de sair...`);
+  const teardown = entries.map(async ([sessionName, client]) => {
+    try {
+      if (client && typeof client.destroy === "function") {
+        await client.destroy(); // whatsapp-web.js
+      } else if (client && typeof client.close === "function") {
+        await client.close(); // wppconnect / venom
+      }
+      customLogger.info(`Sessão ${sessionName} encerrada.`);
+    } catch (err) {
+      customLogger.error(`Falha ao encerrar sessão ${sessionName}: ${err.message}`);
+    }
   });
+  await Promise.race([
+    Promise.allSettled(teardown),
+    new Promise((resolve) => setTimeout(resolve, timeoutMs)),
+  ]);
+}
+
+function gracefulShutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  customLogger.info(`Received ${signal}. Starting graceful shutdown...`);
+
+  // Deadline dura: mesmo que um destroy pendure, o processo sai.
+  const hardExit = setTimeout(() => process.exit(0), 12000);
+  hardExit.unref();
+
+  destroyAllClientsSafe()
+    .catch(() => {})
+    .finally(() => {
+      server.close(() => {
+        customLogger.info("Server closed. Exiting process...");
+        process.exit(0);
+      });
+      // server.close espera conexões keep-alive; não seguramos mais que 3s.
+      setTimeout(() => process.exit(0), 3000).unref();
+    });
 }
 
 function handleProcessExit(code) {
