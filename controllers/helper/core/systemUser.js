@@ -7,6 +7,10 @@
  * reset) o lookup voltava null, o upsert do device ia sem user_id e TODO
  * /start morria em SQLITE_CONSTRAINT antes de abrir o navegador — "o QR
  * nunca aparecia". Agora o usuário do sistema é criado sob demanda.
+ *
+ * A criação é por SQL direto (INSERT OR IGNORE) de propósito: o model User
+ * não mapeia created_at (NOT NULL na tabela), então um findOrCreate do
+ * Sequelize descarta o campo e estoura a constraint do mesmo jeito.
  */
 
 const UserModel = require('../../../Models/user.js');
@@ -21,18 +25,25 @@ async function getOrCreateSystemUser() {
     if (cachedUser) return cachedUser;
 
     const email = String(process.env.EMAIL || 'admin@local.myzap').trim();
-    const [user, created] = await User.findOrCreate({
-        where: { email },
-        defaults: {
-            first_name: 'Sistema',
-            last_name: 'MyZap',
-            email,
-            created_at: new Date()
-        }
-    });
 
-    if (created) {
-        customLogger.info(`👤 Usuário do sistema criado automaticamente (${email})`);
+    let user = await User.findOne({ where: { email } });
+    if (!user) {
+        // created_at E updated_at sao NOT NULL na tabela; o OR IGNORE engole
+        // violacao de constraint em silencio — por isso TODAS as colunas
+        // obrigatorias vao explicitas aqui.
+        await config.sequelize.query(
+            'INSERT OR IGNORE INTO `Users` (`first_name`, `last_name`, `email`, `created_at`, `updated_at`) '
+            + "VALUES ('Sistema', 'MyZap', :email, datetime('now'), datetime('now'))",
+            { replacements: { email } }
+        );
+        user = await User.findOne({ where: { email } });
+        if (user) {
+            customLogger.info(`👤 Usuário do sistema criado automaticamente (${email})`);
+        }
+    }
+
+    if (!user) {
+        throw new Error(`Não foi possível criar o usuário do sistema (${email}).`);
     }
 
     cachedUser = user;
