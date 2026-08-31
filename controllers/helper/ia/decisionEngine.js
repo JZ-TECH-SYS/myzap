@@ -170,17 +170,39 @@ async function processIA({
     // .env dava undefined e TODA mensagem morria com "Cannot read properties
     // of undefined (reading 'IA_PROVIDER')" antes de chegar ao agente.
     if (globalThis.process.env.IA_PROVIDER === 'agente') {
-      respostaIA = await AgenteClient.atender({
-        sessionkey,
-        numero,
-        nome: message?.notifyName || message?.sender?.pushname || null,
-        texto: msgBody,
-        audioBase64: message?.agenteAudioBase64 || null,
-        audioMime: message?.agenteAudioMime || null,
-        // modo local: a config do agente pode vir da API da empresa (api_url do
-        // DeviceCompany) — a máquina do lojista não precisa de .env
-        apiUrlEmpresa: empresa?.api_url || null,
-      });
+      // Turno longo (pedido completo por áudio: ouvir + criar pedido + TTS)
+      // não pode parecer travado: renova o chatstate a cada 20s (o WhatsApp
+      // expira o "digitando..." sozinho em ~25s) e manda avisos de progresso
+      // aos 18s e 50s. Turno normal (3–7s) não dispara nada disso.
+      const ehAudio = Boolean(message?.agenteAudioBase64);
+      const renovarEstado = setInterval(() => {
+        const mostrar = ehAudio ? MessageSender.startRecording : MessageSender.startTyping;
+        mostrar({ client, to: numero });
+      }, 20000);
+      const avisosProgresso = [
+        setTimeout(() => {
+          MessageSender.sendText({ client, to: numero, text: 'Só um momento, estou montando tudo aqui… 😊' });
+        }, 18000),
+        setTimeout(() => {
+          MessageSender.sendText({ client, to: numero, text: 'Quase pronto! Finalizando os últimos detalhes… 😉' });
+        }, 50000),
+      ];
+      try {
+        respostaIA = await AgenteClient.atender({
+          sessionkey,
+          numero,
+          nome: message?.notifyName || message?.sender?.pushname || null,
+          texto: msgBody,
+          audioBase64: message?.agenteAudioBase64 || null,
+          audioMime: message?.agenteAudioMime || null,
+          // modo local: a config do agente pode vir da API da empresa (api_url
+          // do DeviceCompany) — a máquina do lojista não precisa de .env
+          apiUrlEmpresa: empresa?.api_url || null,
+        });
+      } finally {
+        clearInterval(renovarEstado);
+        avisosProgresso.forEach(clearTimeout);
+      }
     } else {
       respostaIA = await EmpresaIA.processarMensagem({
         session,
