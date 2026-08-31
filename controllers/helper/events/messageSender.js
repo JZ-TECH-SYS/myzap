@@ -99,16 +99,27 @@ async function sendText({ client, to, text }) {
   }
 }
 
+// webjs: chatstate DIRETO na página (window.WWebJS.sendChatstate), sem passar
+// pelo getChatById — o lookup do Chat quebra a cada atualização do WhatsApp
+// Web ("Evaluation failed: r", 31/08) e o cliente ficava sem o "digitando...".
+// É exatamente o que Chat.sendStateTyping faz por dentro, menos o lookup.
+async function chatstateWebjs(client, to, estado) {
+  if (!client?.pupPage) return;
+  await client.pupPage.evaluate(
+    (state, chatId) => window.WWebJS?.sendChatstate?.(state, chatId),
+    estado,
+    to
+  );
+}
+
 async function startTyping({ client, to }) {
   if (!client || !to) return;
   const engine = await detectEngine(client);
   try {
     switch (engine) {
-      case 'webjs': {
-        if (!client.getChatById) return; // silencioso
-        const chat = await client.getChatById(to);
-        if (chat && chat.sendStateTyping) await chat.sendStateTyping();
-        break; }
+      case 'webjs':
+        await chatstateWebjs(client, to, 'typing');
+        break;
       case 'wppconnect':
       case 'venom':
         if (typeof client.startTyping === 'function') {
@@ -124,16 +135,26 @@ async function startTyping({ client, to }) {
   }
 }
 
+/** "gravando áudio..." — usado quando a resposta ao cliente vem em voz (TTS) */
+async function startRecording({ client, to }) {
+  if (!client || !to) return;
+  const engine = await detectEngine(client);
+  try {
+    if (engine === 'webjs') await chatstateWebjs(client, to, 'recording');
+    else if (typeof client.startRecording === 'function') await client.startRecording(to);
+  } catch (err) {
+    customLogger.warning(`[MessageSender] Erro startRecording (${engine}): ${err.message}`);
+  }
+}
+
 async function stopTyping({ client, to }) {
   if (!client || !to) return;
   const engine = await detectEngine(client);
   try {
     switch (engine) {
-      case 'webjs': {
-        if (!client.getChatById) return; // silencioso
-        const chat = await client.getChatById(to);
-        if (chat && chat.sendStatePaused) await chat.sendStatePaused();
-        break; }
+      case 'webjs':
+        await chatstateWebjs(client, to, 'stop');
+        break;
       case 'wppconnect':
       case 'venom':
         if (typeof client.stopTyping === 'function') {
@@ -181,4 +202,4 @@ async function sendPtt({ client, to, base64, mimetype }) {
   }
 }
 
-module.exports = { sendText, sendPtt, startTyping, stopTyping, detectEngine, verifyNumber };
+module.exports = { sendText, sendPtt, startTyping, startRecording, stopTyping, detectEngine, verifyNumber };

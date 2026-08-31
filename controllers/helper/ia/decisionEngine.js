@@ -154,7 +154,13 @@ async function processIA({
   enviarPadrao
 }) {
   try {
-    await MessageSender.startTyping({ client, to: numero });
+    // Cliente mandou áudio -> a resposta virá em voz: mostrar "gravando
+    // áudio..."; texto -> "digitando...". Segura a expectativa nos turnos longos.
+    if (message?.agenteAudioBase64) {
+      await MessageSender.startRecording({ client, to: numero });
+    } else {
+      await MessageSender.startTyping({ client, to: numero });
+    }
 
     // IA_PROVIDER=agente -> serviço do agente (Gemini/Vertex + MCP no GKE).
     // Qualquer outro valor mantém a rota OpenAI intacta (rollback = trocar env).
