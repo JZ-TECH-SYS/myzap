@@ -15,9 +15,44 @@ const customLogger = require('../../../util/customLogger');
 const AGENT_URL = (process.env.AGENT_URL || '').replace(/\/+$/, '');
 const AGENT_AUTH_TOKEN = process.env.AGENT_AUTH_TOKEN || '';
 
-async function atender({ sessionkey, numero, nome, texto, audioBase64, audioMime, origem }) {
-    if (!AGENT_URL) {
-        customLogger.error('[AGENTE] AGENT_URL não configurada com IA_PROVIDER=agente');
+// ── Config remota (modo LOCAL, máquina do lojista): sem env configurada, o
+// worker busca a config na API do ClickExpress usando a sessionkey que ele já
+// tem — mesmo modelo de confiança do MCP. Cache de 10 min por sessionkey.
+const API_CLICKEXPRESS =
+    (process.env.API_CLICKEXPRESS_URL || 'https://api-clickexpress.jztech.com.br/public').replace(/\/+$/, '');
+const configCache = new Map(); // sessionkey -> { cfg, ate }
+
+async function resolverConfig(sessionkey, apiUrlEmpresa) {
+    if (AGENT_URL && AGENT_AUTH_TOKEN) {
+        return { url: AGENT_URL, token: AGENT_AUTH_TOKEN };
+    }
+
+    const agora = Date.now();
+    const emCache = configCache.get(sessionkey);
+    if (emCache && emCache.ate > agora) return emCache.cfg;
+
+    const base = (apiUrlEmpresa || API_CLICKEXPRESS).replace(/\/+$/, '');
+    try {
+        const resp = await fetch(`${base}/myzap/agente-config/${encodeURIComponent(sessionkey)}`, {
+            signal: AbortSignal.timeout(10000),
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const dados = await resp.json();
+        const r = dados.result || dados;
+        if (!r.agent_url || !r.agent_auth_token) throw new Error('config incompleta');
+        const cfg = { url: String(r.agent_url).replace(/\/+$/, ''), token: r.agent_auth_token };
+        configCache.set(sessionkey, { cfg, ate: agora + 10 * 60 * 1000 });
+        return cfg;
+    } catch (err) {
+        customLogger.error(`[AGENTE] falha ao buscar config remota: ${err.message}`);
+        return null;
+    }
+}
+
+async function atender({ sessionkey, numero, nome, texto, audioBase64, audioMime, origem, apiUrlEmpresa }) {
+    const cfg = await resolverConfig(sessionkey, apiUrlEmpresa);
+    if (!cfg) {
+        customLogger.error('[AGENTE] sem AGENT_URL (env ou config remota) com IA_PROVIDER=agente');
         return null;
     }
 
@@ -34,11 +69,11 @@ async function atender({ sessionkey, numero, nome, texto, audioBase64, audioMime
     }
 
     try {
-        const resp = await fetch(`${AGENT_URL}/atender`, {
+        const resp = await fetch(`${cfg.url}/atender`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                ...(AGENT_AUTH_TOKEN ? { Authorization: `Bearer ${AGENT_AUTH_TOKEN}` } : {}),
+                Authorization: `Bearer ${cfg.token}`,
             },
             body: JSON.stringify(corpo),
             signal: AbortSignal.timeout(120000),

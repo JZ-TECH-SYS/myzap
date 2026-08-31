@@ -167,6 +167,9 @@ async function processIA({
         texto: msgBody,
         audioBase64: message?.agenteAudioBase64 || null,
         audioMime: message?.agenteAudioMime || null,
+        // modo local: a config do agente pode vir da API da empresa (api_url do
+        // DeviceCompany) — a máquina do lojista não precisa de .env
+        apiUrlEmpresa: empresa?.api_url || null,
       });
     } else {
       respostaIA = await EmpresaIA.processarMensagem({
