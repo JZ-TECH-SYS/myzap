@@ -120,7 +120,7 @@ async function startTyping({ client, to }) {
         break;
     }
   } catch (err) {
-    customLogger.warning(`[MessageSender] Erro startTyping (${engine}): ${err.message}`);
+    customLogger.warning(`[MessageSender] Erro startTyping (${engine}): ${err.message} ${(err.stack || '').split('\n')[1]?.trim() || ''}`);
   }
 }
 
@@ -144,7 +144,7 @@ async function stopTyping({ client, to }) {
         break; // no-op
     }
   } catch (err) {
-    customLogger.warning(`[MessageSender] Erro stopTyping (${engine}): ${err.message}`);
+    customLogger.warning(`[MessageSender] Erro stopTyping (${engine}): ${err.message} ${(err.stack || '').split('\n')[1]?.trim() || ''}`);
   }
 }
 
