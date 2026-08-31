@@ -188,10 +188,26 @@ async function processIA({
           MessageSender.sendText({ client, to: numero, text: 'Quase pronto! Finalizando os últimos detalhes… 😉' });
         }, 65000),
       ];
+      // WhatsApp novo esconde o telefone atrás de @lid — sem traduzir, o
+      // pedido era gravado com o ID interno (caso real: #73067) e a loja não
+      // conseguia ligar de volta. getContactById resolve LID -> número; se a
+      // página do WA quebrar (o famoso "r"), segue sem — igual antes.
+      let celularReal = null;
+      if (String(numero).endsWith('@lid') && typeof client?.getContactById === 'function') {
+        try {
+          const contato = await client.getContactById(numero);
+          const n = String(contato?.number || '').replace(/\D/g, '');
+          if (n.length >= 10) celularReal = n;
+        } catch (e) {
+          customLogger.warning(`${LOG_PREFIX} lid->numero falhou: ${e.message}`);
+        }
+      }
+
       try {
         respostaIA = await AgenteClient.atender({
           sessionkey,
           numero,
+          celular: celularReal,
           nome: message?.notifyName || message?.sender?.pushname || null,
           texto: msgBody,
           audioBase64: message?.agenteAudioBase64 || null,
