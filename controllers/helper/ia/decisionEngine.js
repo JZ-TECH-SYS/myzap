@@ -193,11 +193,24 @@ async function processIA({
       // conseguia ligar de volta. getContactById resolve LID -> número; se a
       // página do WA quebrar (o famoso "r"), segue sem — igual antes.
       let celularReal = null;
-      if (String(numero).endsWith('@lid') && typeof client?.getContactById === 'function') {
+      if (String(numero).endsWith('@lid')) {
+        // aceita só um telefone DIFERENTE do lid: getContactById devolvia o
+        // próprio lid como "number" (15 dígitos passavam no filtro — pedido
+        // #73072 saiu com o ID de novo). getContactLidAndPhone é a API certa.
+        const validar = (bruto) => {
+          const n = String(bruto || '').replace(/@.*$/, '').replace(/\D/g, '');
+          return n.length >= 10 && !String(numero).includes(n) ? n : null;
+        };
         try {
-          const contato = await client.getContactById(numero);
-          const n = String(contato?.number || '').replace(/\D/g, '');
-          if (n.length >= 10) celularReal = n;
+          if (typeof client?.getContactLidAndPhone === 'function') {
+            const [r] = (await client.getContactLidAndPhone([numero])) || [];
+            celularReal = validar(r?.pn);
+          }
+          if (!celularReal && typeof client?.getContactById === 'function') {
+            const contato = await client.getContactById(numero);
+            celularReal = validar(contato?.number);
+          }
+          if (!celularReal) customLogger.warning(`${LOG_PREFIX} lid sem telefone resolvível: ${numero}`);
         } catch (e) {
           customLogger.warning(`${LOG_PREFIX} lid->numero falhou: ${e.message}`);
         }
