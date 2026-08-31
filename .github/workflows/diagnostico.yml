@@ -14,6 +14,10 @@ on:
         description: "Quantas linhas recentes de log ler"
         required: false
         default: "400"
+      comando:
+        description: "Comando shell extra (roda na VPS depois dos logs); vazio = nenhum"
+        required: false
+        default: ""
 
 jobs:
   logs:
@@ -24,6 +28,7 @@ jobs:
         env:
           FILTRO: ${{ inputs.filtro }}
           LINHAS: ${{ inputs.linhas }}
+          COMANDO: ${{ inputs.comando }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -31,7 +36,7 @@ jobs:
           port: 22022
           timeout: 2m
           command_timeout: 5m
-          envs: FILTRO,LINHAS
+          envs: FILTRO,LINHAS,COMANDO
           script: |
             echo "== pm2 status =="
             pm2 status || true
@@ -48,3 +53,7 @@ jobs:
                 tail -n "$LINHAS" "$F" 2>/dev/null | tail -n 120
               fi
             done
+            if [ -n "$COMANDO" ]; then
+              echo "== comando extra =="
+              bash -c "$COMANDO" || true
+            fi
