@@ -87,9 +87,16 @@ async function processInternal({
     () => Guards.checkCompanyEnabled({ empresa }),
     () => Guards.checkFirstContactToday({ session, sessionkey, numero }),
     () => Guards.checkIaEnabled({ empresa, sessionkey }),
-    () => Guards.checkHumanRequest({ msgBody, session, sessionkey, numero }),
+    // Modo agente: a detecção de "quero falar com humano" mora no AGENTE
+    // (detector melhor, pausa própria e registro do chamado no painel) — os
+    // guards de cliente-pediu-humano só valem na rota OpenAI antiga.
+    ...(globalThis.process.env.IA_PROVIDER === 'agente'
+      ? []
+      : [
+          () => Guards.checkHumanRequest({ msgBody, session, sessionkey, numero }),
+          () => Guards.checkClientRequestedHuman({ session, sessionkey, numero }),
+        ]),
     () => Guards.checkRecentHuman({ session, sessionkey, numero }),
-    () => Guards.checkClientRequestedHuman({ session, sessionkey, numero }),
   ];
 
   // Executar guards em sequência
@@ -245,6 +252,30 @@ async function processIA({
 
     // AgenteClient devolve objeto {texto, audioBase64?}; EmpresaIA, string.
     const r = typeof respostaIA === 'string' ? { texto: respostaIA } : (respostaIA || null);
+
+    // Cliente pediu atendente: manda um aviso pro PRÓPRIO número da loja
+    // (conversa "Você" no WhatsApp) com o telefone clicável — quem está no
+    // celular cai direto na conversa. Complementa o sino do painel web.
+    if (r?.motivo === 'pedido_humano') {
+      try {
+        const donoWid = client?.info?.wid?._serialized;
+        if (donoWid) {
+          const foneCliente = (typeof celularReal !== 'undefined' && celularReal)
+            ? celularReal
+            : String(numero).replace(/@.*$/, '');
+          const aviso = [
+            '🔔 *Cliente pediu atendimento humano!*',
+            `📱 wa.me/${foneCliente.length <= 11 ? '55' + foneCliente : foneCliente}`,
+            `💬 "${String(msgBody || '').slice(0, 120)}"`,
+            '',
+            '_Toque no link para abrir a conversa. O bot já pausou para este cliente._',
+          ].join('\n');
+          await MessageSender.sendText({ client, to: donoWid, text: aviso });
+        }
+      } catch (e) {
+        customLogger.warning(`${LOG_PREFIX} aviso à loja falhou: ${e.message}`);
+      }
+    }
 
     if (r?.texto) {
       // Registrar resposta da IA no cache (evitar loop no self-test)

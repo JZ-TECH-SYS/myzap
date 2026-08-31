@@ -103,10 +103,12 @@ async function atender({ sessionkey, numero, celular, nome, texto, audioBase64, 
         if (!dados.resposta) return null;
         // audio_base64: quando o cliente manda áudio, o agente pode responder
         // em áudio (TTS) — o texto vem junto como fallback e para o histórico.
+        // motivo: 'pedido_humano' faz o myzap avisar a própria loja no WhatsApp.
         return {
             texto: dados.resposta,
             audioBase64: dados.audio_base64 || null,
             audioMime: dados.audio_mime || null,
+            motivo: dados.motivo || null,
         };
     } catch (err) {
         customLogger.error(`[AGENTE] erro na chamada: ${err.message}`);
