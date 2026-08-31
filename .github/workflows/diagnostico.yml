@@ -1,0 +1,52 @@
+# Diagnóstico remoto (workflow_dispatch): imprime logs recentes do pm2 da VPS
+# SEM reiniciar nada. Usa os mesmos secrets de SSH do deploy. Criado para
+# rastrear o fluxo do Atendente IA (guards/decisionEngine) em produção.
+name: Diagnostico MyZap (logs)
+
+on:
+  workflow_dispatch:
+    inputs:
+      filtro:
+        description: "Filtro (grep -E) aplicado aos logs; vazio = tudo"
+        required: false
+        default: "GUARD|IA|AGENTE|atender|Guard|processIA|silencio|default"
+      linhas:
+        description: "Quantas linhas recentes de log ler"
+        required: false
+        default: "400"
+
+jobs:
+  logs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ler logs via SSH (sem restart)
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          FILTRO: ${{ inputs.filtro }}
+          LINHAS: ${{ inputs.linhas }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22022
+          timeout: 2m
+          command_timeout: 5m
+          envs: FILTRO,LINHAS
+          script: |
+            echo "== pm2 status =="
+            pm2 status || true
+            echo "== env IA no .env (sem valores sensiveis) =="
+            grep -E '^(IA_PROVIDER|AGENT_URL|API_CLICKEXPRESS_URL)=' /var/www/myzap/.env || echo "(nenhuma env IA no .env)"
+            echo "== ultimas ${LINHAS} linhas (out+err) filtradas =="
+            OUT=$(pm2 info myzap | grep -oP 'out log path\s+\K\S+' || true)
+            ERR=$(pm2 info myzap | grep -oP 'error log path\s+\K\S+' || true)
+            [ -z "$OUT" ] && OUT=/root/.pm2/logs/myzap-out.log
+            [ -z "$ERR" ] && ERR=/root/.pm2/logs/myzap-error.log
+            for F in "$OUT" "$ERR"; do
+              echo "---- $F ----"
+              if [ -n "$FILTRO" ]; then
+                tail -n "$LINHAS" "$F" 2>/dev/null | grep -E "$FILTRO" | tail -n 120 || echo "(sem match)"
+              else
+                tail -n "$LINHAS" "$F" 2>/dev/null | tail -n 120
+              fi
+            done
