@@ -21,7 +21,22 @@ permissions:
   contents: write
 
 jobs:
+  # Gate: o pack da tag chega em TODA a frota (releases/latest, ciclo 6h) e
+  # nada obriga a tag a ter passado pela main — um pack quebrado custa um
+  # ciclo inteiro de frota pra corrigir, o smoke custa segundos. Roda o
+  # decisionEngine real de ponta a ponta com IA_PROVIDER=agente (Node puro).
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Smoke IA (bloqueia pack quebrado)
+        run: node test/smoke-ia.js
+
   build-pack:
+    needs: smoke
     runs-on: windows-latest
     steps:
       - name: Checkout
