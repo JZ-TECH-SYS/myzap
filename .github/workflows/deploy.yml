@@ -18,6 +18,11 @@ jobs:
       - name: Deploy via SSH
         # Recomendo usar pelo menos a última patch da v1.x
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          # Agente IA (atendente do WhatsApp) — Variables/Secrets do repositório
+          IA_PROVIDER: ${{ vars.IA_PROVIDER }}
+          AGENT_URL: ${{ vars.AGENT_URL }}
+          AGENT_AUTH_TOKEN: ${{ secrets.AGENT_AUTH_TOKEN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -26,7 +31,7 @@ jobs:
           timeout: 2m            # tempo para CONECTAR via SSH (default 30s)
           command_timeout: 40m   # tempo para rodar os comandos (default 10m)
           # Se você quiser controlar updates (pnpm update) pelo Actions:
-          envs: PNPM_UPDATE
+          envs: PNPM_UPDATE,IA_PROVIDER,AGENT_URL,AGENT_AUTH_TOKEN
           script: |
             set -e
 
@@ -67,6 +72,23 @@ jobs:
             fi
 
             pnpm prune
+
+            # ── Envs do Agente IA (vindas das Variables/Secrets do Actions) ──
+            # Upsert no .env da VPS: o painel do ClickExpress liga/desliga por
+            # empresa; estas envs só apontam o myzap para o serviço do agente.
+            # Deixar AGENT_URL vazio nas Variables desativa a gravação (rollback
+            # = apagar IA_PROVIDER da Variable e rodar o deploy).
+            touch .env
+            for KV in "IA_PROVIDER=${IA_PROVIDER}" "AGENT_URL=${AGENT_URL}" "AGENT_AUTH_TOKEN=${AGENT_AUTH_TOKEN}"; do
+              K="${KV%%=*}"; V="${KV#*=}"
+              if [ -z "$V" ]; then continue; fi
+              if grep -q "^${K}=" .env; then
+                sed -i "s|^${K}=.*|${K}=${V}|" .env
+              else
+                printf '%s\n' "$KV" >> .env
+              fi
+              echo "[INFO] .env: ${K} configurado"
+            done
 
             echo "[INFO] Reiniciando aplicação via PM2"
             if command -v pm2 >/dev/null 2>&1; then

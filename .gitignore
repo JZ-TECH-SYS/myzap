@@ -10,6 +10,7 @@ logs
 promp_capucho.txt
 .wwebjs_cache
 .wwebjs_cache/
-.wwebjs_cachedist-pack
-
+.wwebjs_cache
 dist-pack/
+# knowledge graph do graphify (local, reconstruível)
+graphify-out/
