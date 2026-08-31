@@ -173,7 +173,8 @@ async function processIA({
       // Turno longo (pedido completo por áudio: ouvir + criar pedido + TTS)
       // não pode parecer travado: renova o chatstate a cada 20s (o WhatsApp
       // expira o "digitando..." sozinho em ~25s) e manda avisos de progresso
-      // aos 18s e 50s. Turno normal (3–7s) não dispara nada disso.
+      // aos 30s e 65s — turno de áudio normal (9s + TTS ~10s) NÃO dispara
+      // (aos 18s o aviso chegava colado na resposta, parecendo bug).
       const ehAudio = Boolean(message?.agenteAudioBase64);
       const renovarEstado = setInterval(() => {
         const mostrar = ehAudio ? MessageSender.startRecording : MessageSender.startTyping;
@@ -182,10 +183,10 @@ async function processIA({
       const avisosProgresso = [
         setTimeout(() => {
           MessageSender.sendText({ client, to: numero, text: 'Só um momento, estou montando tudo aqui… 😊' });
-        }, 18000),
+        }, 30000),
         setTimeout(() => {
           MessageSender.sendText({ client, to: numero, text: 'Quase pronto! Finalizando os últimos detalhes… 😉' });
-        }, 50000),
+        }, 65000),
       ];
       try {
         respostaIA = await AgenteClient.atender({
