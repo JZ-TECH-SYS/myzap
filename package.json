@@ -14,7 +14,8 @@
     "start": "node index.js",
     "dev": "nodemon --config nodemon.json index.js",
     "release": "release-it",
-    "postinstall": "node scripts/patch-whatsapp.js"
+    "postinstall": "node scripts/patch-whatsapp.js",
+    "smoke:ia": "node test/smoke-ia.js"
   },
   "repository": {
     "type": "git",
