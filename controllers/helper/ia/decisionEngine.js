@@ -1,6 +1,7 @@
 const Guards = require('./guards');
 const { sendDefault } = require('./defaultMessageService');
 const EmpresaIA = require('./empresaIA');
+const AgenteClient = require('./agenteClient');
 const MessageSender = require('../events/messageSender');
 const ChatHistoryHelper = require('../events/chatHistory');
 const customLogger = require('../../../util/customLogger');
@@ -155,13 +156,27 @@ async function processIA({
   try {
     await MessageSender.startTyping({ client, to: numero });
 
-    const respostaIA = await EmpresaIA.processarMensagem({
-      session,
-      sessionkey,
-      message,
-      idprompt: empresa.idprompt || 'pmpt_697f8d2ca1c881948c3746f2ebeef2a30576966ac7b02dd3',
-      vetor: empresa.vector_name || null,
-    });
+    // IA_PROVIDER=agente -> serviço do agente (Gemini/Vertex + MCP no GKE).
+    // Qualquer outro valor mantém a rota OpenAI intacta (rollback = trocar env).
+    let respostaIA;
+    if (process.env.IA_PROVIDER === 'agente') {
+      respostaIA = await AgenteClient.atender({
+        sessionkey,
+        numero,
+        nome: message?.notifyName || message?.sender?.pushname || null,
+        texto: msgBody,
+        audioBase64: message?.agenteAudioBase64 || null,
+        audioMime: message?.agenteAudioMime || null,
+      });
+    } else {
+      respostaIA = await EmpresaIA.processarMensagem({
+        session,
+        sessionkey,
+        message,
+        idprompt: empresa.idprompt || 'pmpt_697f8d2ca1c881948c3746f2ebeef2a30576966ac7b02dd3',
+        vetor: empresa.vector_name || null,
+      });
+    }
 
     if (respostaIA) {
       // Registrar resposta da IA no cache (evitar loop no self-test)
