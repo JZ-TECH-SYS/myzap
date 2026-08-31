@@ -63,6 +63,18 @@ async function processAudio({ message, client, numero, payload, session, session
             return { success: false };
         }
 
+        // Modo agente: o Gemini entende o áudio nativamente — segue o OGG cru
+        // em base64 e a transcrição (Whisper) fica de fora do caminho.
+        if (process.env.IA_PROVIDER === 'agente') {
+            message.agenteAudioBase64 = Buffer.from(mediaBuffer).toString('base64');
+            message.agenteAudioMime = message.mimetype || 'audio/ogg';
+            message.body = '';
+            message.type = 'chat';
+            payload.body = '';
+            payload.type = 'chat';
+            return { success: true, message, payload };
+        }
+
         const textoTranscrito = await transcribe({ buffer: mediaBuffer, session, sessionkey });
         if (!textoTranscrito) throw new Error('transcrição vazia');
 
