@@ -37,11 +37,15 @@ async function processAudio({ message, client, numero, payload, session, session
         return { success: false, skipAudio: true };
     }
 
-    await MessageSender.sendText({
-        client,
-        to: numero,
-        text: 'Recebi seu áudio. Só um instante enquanto o escuto, já te respondo! 😊🚀'
-    });
+    // Modo agente: sem mensagem intermediária — o "digitando..." e a resposta
+    // em segundos bastam; o aviso só atrapalhava (pedido do JV, 31/08).
+    if (process.env.IA_PROVIDER !== 'agente') {
+        await MessageSender.sendText({
+            client,
+            to: numero,
+            text: 'Recebi seu áudio. Só um instante enquanto o escuto, já te respondo! 😊🚀'
+        });
+    }
 
     if (message.duration && message.duration > MAX_AUDIO_DURATION) {
         await MessageSender.sendText({

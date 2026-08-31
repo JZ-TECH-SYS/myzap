@@ -148,4 +148,37 @@ async function stopTyping({ client, to }) {
   }
 }
 
-module.exports = { sendText, startTyping, stopTyping, detectEngine, verifyNumber };
+/**
+ * Envia áudio como mensagem de voz (PTT). Usado pela resposta em áudio do
+ * Atendente IA (cliente mandou áudio -> agente devolve TTS em ogg/opus).
+ * Falhou? O chamador cai para sendText — nunca deixar o cliente sem resposta.
+ */
+async function sendPtt({ client, to, base64, mimetype }) {
+  if (!client || !to || !base64) return false;
+  const engine = await detectEngine(client);
+  try {
+    switch (engine) {
+      case 'webjs': {
+        const { MessageMedia } = require('whatsapp-web.js');
+        const media = new MessageMedia(mimetype || 'audio/ogg; codecs=opus', base64, 'resposta.ogg');
+        await client.sendMessage(to, media, { sendAudioAsVoice: true, sendSeen: false });
+        break; }
+      case 'wppconnect':
+      case 'venom':
+        if (typeof client.sendPttFromBase64 === 'function') {
+          await client.sendPttFromBase64(to, `data:audio/ogg;base64,${base64}`, 'resposta');
+        } else {
+          throw new Error('sendPttFromBase64 indisponível');
+        }
+        break;
+      default:
+        throw new Error('engine sem suporte a PTT');
+    }
+    return true;
+  } catch (err) {
+    customLogger.error(`[MessageSender] Falha ao enviar PTT (${engine}) -> ${err.message}`);
+    return false;
+  }
+}
+
+module.exports = { sendText, sendPtt, startTyping, stopTyping, detectEngine, verifyNumber };

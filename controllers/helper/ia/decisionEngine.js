@@ -185,17 +185,33 @@ async function processIA({
       });
     }
 
-    if (respostaIA) {
+    // AgenteClient devolve objeto {texto, audioBase64?}; EmpresaIA, string.
+    const r = typeof respostaIA === 'string' ? { texto: respostaIA } : (respostaIA || null);
+
+    if (r?.texto) {
       // Registrar resposta da IA no cache (evitar loop no self-test)
-      registerIAResponse(respostaIA);
-      
+      registerIAResponse(r.texto);
+
       await MessageSender.stopTyping({ client, to: numero });
-      await MessageSender.sendText({ client, to: numero, text: respostaIA });
+      // Cliente falou por áudio -> agente pode responder em áudio (TTS).
+      // PTT falhou (engine/codec)? Texto salva a conversa.
+      let enviado = false;
+      if (r.audioBase64) {
+        enviado = await MessageSender.sendPtt({
+          client,
+          to: numero,
+          base64: r.audioBase64,
+          mimetype: r.audioMime || 'audio/ogg; codecs=opus',
+        });
+      }
+      if (!enviado) {
+        await MessageSender.sendText({ client, to: numero, text: r.texto });
+      }
       await ChatHistoryHelper.registerAssistantMessage({
         session,
         sessionkey,
         numero,
-        text: respostaIA,
+        text: r.texto,
         messageType: 'ia',
       });
       customLogger.info(`${LOG_PREFIX} Resposta IA enviada`, { session, numero });

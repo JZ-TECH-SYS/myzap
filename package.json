@@ -1,7 +1,7 @@
 {
   "name": "myzap",
   "description": "<h1 align=\"center\">\r     <a href=\"\">🔗 MyZAP</a>\r </h1>\r <p align=\"center\">🚀 Permite a integração do WhatsApp com qualquer aplicação por meio de requisições POST/GET</p>",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "main": "index.js",
   "packageManager": "pnpm@9.15.4",
   "engines": {
@@ -76,7 +76,7 @@
     "sqlite3": "^5.1.7",
     "tmp": "^0.2.5",
     "url-exists": "^1.0.3",
-    "whatsapp-web.js": "^1.34.6",
+    "whatsapp-web.js": "^1.34.7",
     "yoo-hoo": "^1.3.1"
   },
   "//dieta": "v3: build enxuto ENGINE=1 (whatsapp-web.js). Removidos por nunca serem requeridos pelo codigo: sharp, pm2, bull, request(+promise), swagger-*, ffmpeg, file-type, form-data, package-json, pino-tee, valid-url, boxen, await-sleep, zip-lib, assert (o require('assert') resolve o builtin do Node). Removidos por serem das engines 2/3: @wppconnect-team/wppconnect, venom-bot, chrome-launcher. Os arquivos engines/WppConnect.js e engines/Venom.js continuam no repo; rodar com ENGINE=2/3 exige reinstalar essas deps.",

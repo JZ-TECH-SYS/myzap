@@ -98,7 +98,14 @@ async function atender({ sessionkey, numero, nome, texto, audioBase64, audioMime
             customLogger.debug(`[AGENTE] silêncio (${dados.motivo || 's/ motivo'})`);
             return null;
         }
-        return dados.resposta || null;
+        if (!dados.resposta) return null;
+        // audio_base64: quando o cliente manda áudio, o agente pode responder
+        // em áudio (TTS) — o texto vem junto como fallback e para o histórico.
+        return {
+            texto: dados.resposta,
+            audioBase64: dados.audio_base64 || null,
+            audioMime: dados.audio_mime || null,
+        };
     } catch (err) {
         customLogger.error(`[AGENTE] erro na chamada: ${err.message}`);
         return null;
