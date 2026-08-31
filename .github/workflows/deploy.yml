@@ -15,6 +15,14 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      # Trava de segurança: se o fluxo da IA não atravessa de ponta a ponta,
+      # o deploy nem conecta na VPS (o smoke roda com Node puro, sem install).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Smoke IA (bloqueia deploy quebrado)
+        run: node test/smoke-ia.js
+
       - name: Deploy via SSH
         # Recomendo usar pelo menos a última patch da v1.x
         uses: appleboy/ssh-action@v1.0.3
