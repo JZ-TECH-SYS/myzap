@@ -38,11 +38,9 @@ jobs:
             echo "== env IA no .env (sem valores sensiveis) =="
             grep -E '^(IA_PROVIDER|AGENT_URL|API_CLICKEXPRESS_URL)=' /var/www/myzap/.env || echo "(nenhuma env IA no .env)"
             echo "== ultimas ${LINHAS} linhas (out+err) filtradas =="
-            OUT=$(pm2 info myzap | grep -oP 'out log path\s+\K\S+' || true)
-            ERR=$(pm2 info myzap | grep -oP 'error log path\s+\K\S+' || true)
-            [ -z "$OUT" ] && OUT=/root/.pm2/logs/myzap-out.log
-            [ -z "$ERR" ] && ERR=/root/.pm2/logs/myzap-error.log
-            for F in "$OUT" "$ERR"; do
+            echo "== arquivos de log do pm2 =="
+            ls -la "$HOME/.pm2/logs/" 2>/dev/null || true
+            for F in "$HOME"/.pm2/logs/myzap-out*.log "$HOME"/.pm2/logs/myzap-error*.log; do
               echo "---- $F ----"
               if [ -n "$FILTRO" ]; then
                 tail -n "$LINHAS" "$F" 2>/dev/null | grep -E "$FILTRO" | tail -n 120 || echo "(sem match)"
