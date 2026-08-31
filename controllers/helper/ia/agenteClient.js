@@ -76,7 +76,10 @@ async function atender({ sessionkey, numero, nome, texto, audioBase64, audioMime
                 Authorization: `Bearer ${cfg.token}`,
             },
             body: JSON.stringify(corpo),
-            signal: AbortSignal.timeout(120000),
+            // 90s (acordado com a sessão dos gerenciadores): cliente de WhatsApp
+            // não espera 2min — melhor a mensagem padrão da loja aos 90s do que
+            // silêncio prolongado. Folga confortável sobre o Gemini com tools.
+            signal: AbortSignal.timeout(90000),
         });
 
         if (!resp.ok) {
