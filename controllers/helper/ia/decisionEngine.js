@@ -159,7 +159,11 @@ async function processIA({
     // IA_PROVIDER=agente -> serviço do agente (Gemini/Vertex + MCP no GKE).
     // Qualquer outro valor mantém a rota OpenAI intacta (rollback = trocar env).
     let respostaIA;
-    if (process.env.IA_PROVIDER === 'agente') {
+    // globalThis.process: a funcao exportada deste modulo chama-se "process"
+    // (linha 18) e SOMBREIA o global do Node — process.env aqui era a funcao,
+    // .env dava undefined e TODA mensagem morria com "Cannot read properties
+    // of undefined (reading 'IA_PROVIDER')" antes de chegar ao agente.
+    if (globalThis.process.env.IA_PROVIDER === 'agente') {
       respostaIA = await AgenteClient.atender({
         sessionkey,
         numero,
@@ -200,7 +204,7 @@ async function processIA({
       await enviarPadrao('ia_sem_resposta');
     }
   } catch (error) {
-    customLogger.error(`${LOG_PREFIX} Erro ao processar IA`, error?.message || error);
+    customLogger.error(`${LOG_PREFIX} Erro ao processar IA`, error?.stack || error?.message || error);
     await MessageSender.stopTyping({ client, to: numero });
     await enviarPadrao('erro_ia');
   }
