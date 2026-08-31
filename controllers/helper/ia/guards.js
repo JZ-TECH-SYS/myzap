@@ -1,5 +1,6 @@
 const ChatHistoryHelper = require('../events/chatHistory');
 const HumanDetector = require('./humanDetector');
+const AgenteClient = require('./agenteClient');
 const { HUMAN_PAUSE_MINUTES } = require('./iaConfig');
 
 /**
@@ -29,7 +30,19 @@ async function checkCompanyEnabled({ empresa }) {
   return { shouldBlock: false };
 }
 
-async function checkIaEnabled({ empresa }) {
+async function checkIaEnabled({ empresa, sessionkey }) {
+  // Fonte da verdade = toggle do painel do ClickExpress. No modo local a
+  // config remota espelha o toggle (cache <=10min no agenteClient) — assim
+  // ativar pela web liga o worker da maquina sem mexer no banco local.
+  // null (env AGENT_URL setada, API fora, campo ausente) = cai no banco local.
+  if ((process.env.IA_PROVIDER || '').toLowerCase() === 'agente') {
+    const painel = await AgenteClient
+      .iaAtivaRemota(sessionkey, empresa?.api_url || null)
+      .catch(() => null);
+    if (painel === true) return { shouldBlock: false };
+    if (painel === false) return { shouldBlock: true, reason: 'ia_desligada' };
+  }
+
   const iaAtiva = empresa.ia_ativa !== false;
   if (!iaAtiva) {
     return { shouldBlock: true, reason: 'ia_desligada' };

@@ -86,7 +86,7 @@ async function processInternal({
     () => Guards.checkGroupMessage({ message }),
     () => Guards.checkCompanyEnabled({ empresa }),
     () => Guards.checkFirstContactToday({ session, sessionkey, numero }),
-    () => Guards.checkIaEnabled({ empresa }),
+    () => Guards.checkIaEnabled({ empresa, sessionkey }),
     () => Guards.checkHumanRequest({ msgBody, session, sessionkey, numero }),
     () => Guards.checkRecentHuman({ session, sessionkey, numero }),
     () => Guards.checkClientRequestedHuman({ session, sessionkey, numero }),

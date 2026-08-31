@@ -40,7 +40,13 @@ async function resolverConfig(sessionkey, apiUrlEmpresa) {
         const dados = await resp.json();
         const r = dados.result || dados;
         if (!r.agent_url || !r.agent_auth_token) throw new Error('config incompleta');
-        const cfg = { url: String(r.agent_url).replace(/\/+$/, ''), token: r.agent_auth_token };
+        const cfg = {
+            url: String(r.agent_url).replace(/\/+$/, ''),
+            token: r.agent_auth_token,
+            // Espelho do toggle do painel (Parametrizacao > Site > Integracoes).
+            // API antiga nao manda o campo -> null = desconhecido.
+            iaAtiva: typeof r.ia_ativa === 'boolean' ? r.ia_ativa : null,
+        };
         configCache.set(sessionkey, { cfg, ate: agora + 10 * 60 * 1000 });
         return cfg;
     } catch (err) {
@@ -99,4 +105,17 @@ async function atender({ sessionkey, numero, nome, texto, audioBase64, audioMime
     }
 }
 
-module.exports = { atender };
+/**
+ * Toggle do painel visto pela config remota (modo LOCAL).
+ *
+ * true/false = valor do painel; null = desconhecido (env AGENT_URL setada —
+ * modo online, quem manda e o push no DeviceCompany — API fora do ar ou
+ * antiga sem o campo). O guard usa o banco local como fallback no null.
+ */
+async function iaAtivaRemota(sessionkey, apiUrlEmpresa) {
+    if (AGENT_URL && AGENT_AUTH_TOKEN) return null;
+    const cfg = await resolverConfig(sessionkey, apiUrlEmpresa);
+    return cfg ? cfg.iaAtiva : null;
+}
+
+module.exports = { atender, iaAtivaRemota };
