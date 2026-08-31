@@ -8,10 +8,11 @@ module.exports = {
   IA_COOLDOWN_SECONDS: 0,
   
   // Tempo que a IA fica pausada após um HUMANO da loja responder o cliente
-  // (minutos). Regra de negócio (JV, 31/08/2026): humano assumiu a conversa,
-  // o bot sai de cena pela janela de atendimento — 24h por padrão, renovada
-  // a cada nova mensagem do atendente. Ajustável por env sem release.
-  HUMAN_PAUSE_MINUTES: Number(process.env.HUMAN_PAUSE_MINUTES || 1440),
+  // (minutos). Regra de negócio (JV, revisada 31/08/2026 à noite): humano
+  // assumiu, o bot pausa por 2 HORAS (renovada a cada mensagem do atendente)
+  // — 24h derrubava a IA o dia inteiro em loja que também atende à mão
+  // (caso real: Capucho). Ajustável por env sem release.
+  HUMAN_PAUSE_MINUTES: Number(process.env.HUMAN_PAUSE_MINUTES || 120),
   
   // Tempo padrão para mensagem padrão (minutos) - fallback quando não configurado
   TEMPO_MENSAGEM_PADRAO_DEFAULT: 30,
