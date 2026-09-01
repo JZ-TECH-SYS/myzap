@@ -15,6 +15,13 @@ const { registerIAResponse } = require('./iaResponseCache');
  * Engine de decisão: executa guards em sequência e toma ação apropriada.
  * Centraliza toda a lógica de quando processar IA vs mensagem padrão.
  */
+// Mensagens que chegam ENQUANTO o bot processa outra (turno leva 5–20s) eram
+// DESCARTADAS — cliente que manda rajada perdia 3 de 4 mensagens e achava que
+// o bot morreu (caso real: Capucho, 31/08). Agora entram numa fila por número
+// e são drenadas como UMA mensagem combinada ao fim do turno.
+const filaPendentes = new Map();
+const FILA_MAX = 5;
+
 async function process({
   message,
   client,
@@ -27,13 +34,20 @@ async function process({
   responseDefault
 }) {
   customLogger.debug(`${LOG_PREFIX} Iniciando para ${numero}`);
-  
-  // Evitar race condition: se já tem mensagem sendo processada para este número, ignorar
+
+  const chaveFila = `${session || ''}::${sessionkey || ''}::${numero || ''}`;
+
   if (!processingLock.acquire({ session, sessionkey, numero })) {
-    customLogger.debug(`${LOG_PREFIX} Lock ativo para ${numero}, ignorando mensagem duplicada`);
+    const texto = typeof msgBody === 'string' ? msgBody.trim() : '';
+    if (texto) {
+      const fila = filaPendentes.get(chaveFila) || [];
+      if (fila.length < FILA_MAX) fila.push(texto);
+      filaPendentes.set(chaveFila, fila);
+      customLogger.debug(`${LOG_PREFIX} Em atendimento; mensagem enfileirada (${fila.length}) para ${numero}`);
+    }
     return true;
   }
-  
+
   try {
     return await processInternal({
       message,
@@ -48,6 +62,26 @@ async function process({
     });
   } finally {
     processingLock.release({ session, sessionkey, numero });
+
+    const fila = filaPendentes.get(chaveFila);
+    if (fila && fila.length) {
+      filaPendentes.delete(chaveFila);
+      const combinado = fila.join('\n');
+      customLogger.info(`${LOG_PREFIX} Drenando ${fila.length} mensagem(ns) enfileirada(s) de ${numero}`);
+      setImmediate(() => {
+        process({
+          message: { ...message, body: combinado, agenteAudioBase64: null, agenteAudioMime: null },
+          client,
+          session,
+          sessionkey,
+          numero,
+          msgBody: combinado,
+          empresa,
+          payload: { ...payload, body: combinado },
+          responseDefault
+        }).catch((e) => customLogger.error(`${LOG_PREFIX} Erro ao drenar fila`, e?.message || e));
+      });
+    }
   }
 }
 
