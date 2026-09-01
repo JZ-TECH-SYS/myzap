@@ -7,9 +7,9 @@ name: Smoke IA
 on:
   push:
     branches: [main]
-    paths: ['controllers/**', 'engines/**', 'util/**', 'test/**', 'package.json']
+    paths: ['index.js', 'startup.js', 'config.js', 'routers/**', 'controllers/**', 'engines/**', 'util/**', 'test/**', 'package.json']
   pull_request:
-    paths: ['controllers/**', 'engines/**', 'util/**', 'test/**', 'package.json']
+    paths: ['index.js', 'startup.js', 'config.js', 'routers/**', 'controllers/**', 'engines/**', 'util/**', 'test/**', 'package.json']
 
 jobs:
   smoke:
@@ -20,3 +20,20 @@ jobs:
         with:
           node-version: 20
       - run: node test/smoke-ia.js
+
+  # Regressão do boot (incidente de frota 01/09): porta em <5s prova que o
+  # listen-early continua antes dos requires pesados; health completo em
+  # <120s prova que o carregarNucleo() sobe sem virar zumbi "starting".
+  boot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "1"
+      - run: node test/boot-test.js
