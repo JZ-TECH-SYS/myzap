@@ -90,7 +90,8 @@ module.exports = {
     const type = this.normalizarTipo(message);   // text, image, …
   const base64 = await this.baixarMidia(type, client, message);
     const timestamp = this.formatarData(message.timestamp);
-    const nome = message?.sender?.pushname
+    const nome = message?._data?.notifyName   // whatsapp-web.js
+      || message?.sender?.pushname
       || message?.sender?.verifiedName
       || message?.sender?.shortName
       || message?.sender?.name

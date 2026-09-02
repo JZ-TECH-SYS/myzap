@@ -22,6 +22,40 @@ const { registerIAResponse } = require('./iaResponseCache');
 const filaPendentes = new Map();
 const FILA_MAX = 5;
 
+/**
+ * Nome exibido do cliente (pushname), independente do engine.
+ * Nunca lança: sem nome o agente pergunta, como sempre fez.
+ */
+const resolverNomeCliente = async (message, client, numero) => {
+  const limpar = (v) => {
+    const n = String(v || '').trim();
+    // número disfarçado de nome não serve
+    return n && !/^\+?[\d\s()-]{8,}$/.test(n) ? n.slice(0, 80) : null;
+  };
+  const direto =
+    limpar(message?._data?.notifyName) ||
+    limpar(message?.notifyName) ||
+    limpar(message?.sender?.pushname) ||
+    limpar(message?.sender?.verifiedName) ||
+    limpar(message?.sender?.name);
+  if (direto) return direto;
+  try {
+    if (typeof message?.getContact === 'function') {
+      const c = await message.getContact();
+      const n = limpar(c?.pushname) || limpar(c?.name) || limpar(c?.shortName);
+      if (n) return n;
+    }
+    if (typeof client?.getContactById === 'function') {
+      const c = await client.getContactById(numero);
+      const n = limpar(c?.pushname) || limpar(c?.name) || limpar(c?.shortName);
+      if (n) return n;
+    }
+  } catch (e) {
+    customLogger.warning(`${LOG_PREFIX} nome do contato indisponível: ${e.message}`);
+  }
+  return null;
+};
+
 async function process({
   message,
   client,
@@ -234,6 +268,11 @@ async function processIA({
       // conseguia ligar de volta. getContactById resolve LID -> número; se a
       // página do WA quebrar (o famoso "r"), segue sem — igual antes.
       let celularReal = null;
+      // Nome do cliente: no whatsapp-web.js o pushname vem em `_data.notifyName`
+      // (message.notifyName/sender.pushname são campos do Venom/WPPConnect) —
+      // por isso o agente perguntava o nome em TODA conversa (01/09: 37 de 37
+      // conversas sem nome). Fallback: o contato do WhatsApp.
+      const nomeCliente = await resolverNomeCliente(message, client, numero);
       if (String(numero).endsWith('@lid')) {
         // aceita só um telefone DIFERENTE do lid: getContactById devolvia o
         // próprio lid como "number" (15 dígitos passavam no filtro — pedido
@@ -262,7 +301,7 @@ async function processIA({
           sessionkey,
           numero,
           celular: celularReal,
-          nome: message?.notifyName || message?.sender?.pushname || null,
+          nome: nomeCliente,
           texto: msgBody,
           audioBase64: message?.agenteAudioBase64 || null,
           audioMime: message?.agenteAudioMime || null,

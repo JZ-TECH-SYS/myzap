@@ -52,10 +52,12 @@ stub('util/customLogger.js', new Proxy({}, {
   get: (_alvo, metodo) => (...args) => console.log(`[${String(metodo)}]`, ...args.map(String)),
 }));
 
+const recebidos = [];
 const servidor = http.createServer((req, res) => {
   let corpo = '';
   req.on('data', (c) => (corpo += c));
   req.on('end', () => {
+    try { recebidos.push(JSON.parse(corpo)); } catch (_) { recebidos.push({ corpo }); }
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ resposta: 'pong do agente' }));
   });
@@ -72,7 +74,9 @@ const main = async () => {
   const decisionEngine = require(resolver('controllers/helper/ia/decisionEngine.js'));
 
   const ok = await decisionEngine.process({
-    message: { from: '5599000000000@c.us', body: 'bom dia (smoke)' },
+    // whatsapp-web.js entrega o pushname em _data.notifyName — é daí que o
+    // agente tem de receber o nome (v3.0.18: antes ia sempre null)
+    message: { from: '5599000000000@c.us', body: 'bom dia (smoke)', _data: { notifyName: 'Fulano Smoke' } },
     client: {},
     session: 'smoke',
     sessionkey: 'smoke',
@@ -91,7 +95,12 @@ const main = async () => {
     console.error('SMOKE FALHOU: a resposta do agente não chegou ao sendText — o fluxo morreu no meio.');
     process.exit(1);
   }
-  console.log('SMOKE OK: mensagem atravessou guards -> agente -> sendText.');
+  const nome = recebidos[0]?.nome;
+  if (nome !== 'Fulano Smoke') {
+    console.error(`SMOKE FALHOU: nome do cliente não chegou ao agente (recebido: ${JSON.stringify(nome)}).`);
+    process.exit(1);
+  }
+  console.log('SMOKE OK: mensagem atravessou guards -> agente -> sendText, com nome do cliente.');
   process.exit(0);
 };
 
