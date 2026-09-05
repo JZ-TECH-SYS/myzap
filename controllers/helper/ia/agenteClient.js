@@ -55,7 +55,7 @@ async function resolverConfig(sessionkey, apiUrlEmpresa) {
     }
 }
 
-async function atender({ sessionkey, numero, celular, nome, texto, audioBase64, audioMime, origem, apiUrlEmpresa }) {
+async function atender({ sessionkey, numero, celular, nome, texto, audioBase64, audioMime, origem, apiUrlEmpresa, vozDepois }) {
     const cfg = await resolverConfig(sessionkey, apiUrlEmpresa);
     if (!cfg) {
         customLogger.error('[AGENTE] sem AGENT_URL (env ou config remota) com IA_PROVIDER=agente');
@@ -74,6 +74,10 @@ async function atender({ sessionkey, numero, celular, nome, texto, audioBase64, 
     if (audioBase64) {
         corpo.audio_base64 = audioBase64;
         corpo.audio_mime = audioMime || 'audio/ogg';
+        // Voz depois: o agente devolve o TEXTO sem esperar a sintese (que leva
+        // de 6 a 12s) e o PTT vem numa segunda chamada. O cliente le a resposta
+        // em ~5s em vez de encarar "gravando audio..." por 15 a 30 segundos.
+        if (vozDepois) corpo.voz_depois = true;
     }
 
     try {
@@ -117,6 +121,39 @@ async function atender({ sessionkey, numero, celular, nome, texto, audioBase64, 
 }
 
 /**
+ * Pede ao agente a versao falada de um texto ja enviado (rota /falar).
+ *
+ * Devolve null em qualquer problema: a conversa ja seguiu com o texto, entao
+ * ficar sem o audio e so perder o carisma, nunca a resposta.
+ */
+async function falar({ sessionkey, texto, apiUrlEmpresa }) {
+    const cfg = await resolverConfig(sessionkey, apiUrlEmpresa);
+    if (!cfg || !texto) return null;
+
+    try {
+        const resp = await fetch(`${cfg.url}/falar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${cfg.token}`,
+            },
+            body: JSON.stringify({ texto }),
+            signal: AbortSignal.timeout(60000),
+        });
+        if (!resp.ok) {
+            customLogger.warning(`[AGENTE] /falar HTTP ${resp.status}`);
+            return null;
+        }
+        const dados = await resp.json();
+        if (!dados.ok || !dados.audio_base64) return null;
+        return { audioBase64: dados.audio_base64, audioMime: dados.audio_mime || 'audio/ogg; codecs=opus', ttsMs: dados.tts_ms || null };
+    } catch (err) {
+        customLogger.warning(`[AGENTE] /falar falhou: ${err.message}`);
+        return null;
+    }
+}
+
+/**
  * Toggle do painel visto pela config remota (modo LOCAL).
  *
  * true/false = valor do painel; null = desconhecido (env AGENT_URL setada —
@@ -129,4 +166,4 @@ async function iaAtivaRemota(sessionkey, apiUrlEmpresa) {
     return cfg ? cfg.iaAtiva : null;
 }
 
-module.exports = { atender, iaAtivaRemota };
+module.exports = { atender, falar, iaAtivaRemota };

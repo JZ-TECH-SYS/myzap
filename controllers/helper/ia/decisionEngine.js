@@ -305,6 +305,8 @@ async function processIA({
           texto: msgBody,
           audioBase64: message?.agenteAudioBase64 || null,
           audioMime: message?.agenteAudioMime || null,
+          // texto primeiro, voz logo atras (ver envio abaixo)
+          vozDepois: Boolean(message?.agenteAudioBase64),
           // modo local: a config do agente pode vir da API da empresa (api_url
           // do DeviceCompany) — a máquina do lojista não precisa de .env
           apiUrlEmpresa: empresa?.api_url || null,
@@ -357,17 +359,39 @@ async function processIA({
       await MessageSender.stopTyping({ client, to: numero });
       // Cliente falou por áudio -> agente pode responder em áudio (TTS).
       // PTT falhou (engine/codec)? Texto salva a conversa.
-      let enviado = false;
+      // Cliente que fala por audio recebia SO o PTT, e depois de esperar a
+      // sintese inteira: 5s de modelo + 9 a 12s de voz olhando "gravando
+      // audio...". Pior, link e chave PIX chegavam ditados, sem nada para
+      // tocar ou copiar. Agora o texto sai assim que fica pronto e a voz vem
+      // atras, como um complemento.
+      await MessageSender.sendText({ client, to: numero, text: r.texto });
+
       if (r.audioBase64) {
-        enviado = await MessageSender.sendPtt({
+        // agente ja mandou a voz junto (fluxo antigo / voz_depois desligado)
+        await MessageSender.sendPtt({
           client,
           to: numero,
           base64: r.audioBase64,
           mimetype: r.audioMime || 'audio/ogg; codecs=opus',
         });
-      }
-      if (!enviado) {
-        await MessageSender.sendText({ client, to: numero, text: r.texto });
+      } else if (message?.agenteAudioBase64) {
+        // sintese sob demanda: falhou? a conversa ja seguiu no texto
+        MessageSender.startRecording({ client, to: numero });
+        const voz = await AgenteClient.falar({
+          sessionkey,
+          texto: r.texto,
+          apiUrlEmpresa: empresa?.api_url || null,
+        });
+        await MessageSender.stopTyping({ client, to: numero });
+        if (voz) {
+          await MessageSender.sendPtt({
+            client,
+            to: numero,
+            base64: voz.audioBase64,
+            mimetype: voz.audioMime,
+          });
+          customLogger.info(`${LOG_PREFIX} PTT enviado depois do texto`, { session, numero, tts_ms: voz.ttsMs });
+        }
       }
       await ChatHistoryHelper.registerAssistantMessage({
         session,
