@@ -4,6 +4,19 @@ Todas as mudanças notáveis neste fork serão documentadas neste arquivo.
 
 ---
 
+## [3.0.19] - 2026-09-06
+
+### ✨ Anexos na mensagem padrão
+
+- A mensagem padrão do primeiro contato pode vir acompanhada de fotos ou PDF
+  (cardápio, promoção) configurados no painel do ClickExpress. O myzap busca a
+  lista em `GET /myzap/anexos-padrao/{sessionkey}` na hora de mandar (cache de
+  60 s) e só envia com a loja aberta — a API é quem decide "aberto".
+- `messageSender.sendFileFromUrl`: imagem vai como foto, PDF como documento
+  (webjs, wppconnect e venom).
+- Um anexo que falhar não segura os outros nem o texto.
+- `npm test` roda o smoke da IA e o teste dos anexos (`test/anexos-padrao.js`).
+
 ## [2.0.0] - 2025-11-16
 
 ### 🎉 Fork Inicial - JZ-TECH-SYS

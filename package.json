@@ -1,7 +1,7 @@
 {
   "name": "myzap",
   "description": "<h1 align=\"center\">\r     <a href=\"\">🔗 MyZAP</a>\r </h1>\r <p align=\"center\">🚀 Permite a integração do WhatsApp com qualquer aplicação por meio de requisições POST/GET</p>",
-  "version": "3.0.18",
+  "version": "3.0.19",
   "main": "index.js",
   "packageManager": "pnpm@9.15.4",
   "engines": {
@@ -9,7 +9,8 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node test/smoke-ia.js && node test/anexos-padrao.js",
+    "test:anexos": "node test/anexos-padrao.js",
     "swagger-autogen": "node swagger.js",
     "start": "node index.js",
     "dev": "nodemon --config nodemon.json index.js",

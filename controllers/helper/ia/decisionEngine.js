@@ -146,7 +146,8 @@ async function processInternal({
     mensagemPadrao,
     cooldownPadrao,
     motivo,
-    force
+    force,
+    apiUrlEmpresa: empresa?.api_url || null
   });
 
   // Sequência de guards (ordem importa!)

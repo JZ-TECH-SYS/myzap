@@ -202,4 +202,53 @@ async function sendPtt({ client, to, base64, mimetype }) {
   }
 }
 
-module.exports = { sendText, sendPtt, startTyping, startRecording, stopTyping, detectEngine, verifyNumber };
+async function baixarComoBase64(url) {
+  const resp = await fetch(url, { signal: AbortSignal.timeout(20000) });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status} ao baixar ${url}`);
+  const buffer = Buffer.from(await resp.arrayBuffer());
+  return { base64: buffer.toString('base64'), mimetype: resp.headers.get('content-type') || null };
+}
+
+/**
+ * Manda um arquivo (imagem ou documento) a partir de uma URL pública.
+ * Imagem vai como foto; qualquer outro mime (PDF) vai como documento.
+ */
+async function sendFileFromUrl({ client, to, url, filename, mimetype, caption }) {
+  if (!client || !to || !url) return false;
+  const engine = await detectEngine(client);
+  try {
+    const baixado = await baixarComoBase64(url);
+    const mime = mimetype || baixado.mimetype || 'application/octet-stream';
+    const nome = filename || url.split('/').pop() || 'arquivo';
+    switch (engine) {
+      case 'webjs': {
+        const { MessageMedia } = require('whatsapp-web.js');
+        const media = new MessageMedia(mime, baixado.base64, nome);
+        await client.sendMessage(to, media, {
+          sendSeen: false,
+          caption: caption || undefined,
+          sendMediaAsDocument: !mime.startsWith('image/'),
+        });
+        break; }
+      case 'wppconnect':
+      case 'venom': {
+        const dataUrl = `data:${mime};base64,${baixado.base64}`;
+        if (typeof client.sendFileFromBase64 === 'function') {
+          await client.sendFileFromBase64(to, dataUrl, nome, caption || '');
+        } else if (typeof client.sendFile === 'function') {
+          await client.sendFile(to, dataUrl, nome, caption || '');
+        } else {
+          throw new Error('sendFileFromBase64 indisponível');
+        }
+        break; }
+      default:
+        throw new Error('engine sem suporte a arquivo');
+    }
+    return true;
+  } catch (err) {
+    customLogger.error(`[MessageSender] Falha ao enviar arquivo (${engine}) -> ${err.message}`);
+    return false;
+  }
+}
+
+module.exports = { sendText, sendPtt, sendFileFromUrl, startTyping, startRecording, stopTyping, detectEngine, verifyNumber };
