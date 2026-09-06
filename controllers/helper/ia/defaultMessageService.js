@@ -58,7 +58,7 @@ async function sendDefault({
     
     customLogger.info(`${LOG_PREFIX} Mensagem padrao enviada`, { session, numero, motivo });
 
-    await enviarAnexos({ client, sessionkey, numero, apiUrlEmpresa, sender });
+    await enviarAnexos({ client, session, sessionkey, numero, apiUrlEmpresa, sender });
     return true;
   } catch (err) {
     customLogger.error(`${LOG_PREFIX} Erro ao enviar mensagem padrão`, err.message || err);
@@ -71,7 +71,7 @@ async function sendDefault({
  * aberta (a API decide). Um anexo que falhar não derruba os outros nem o
  * fluxo: o cliente já recebeu a mensagem padrão.
  */
-async function enviarAnexos({ client, sessionkey, numero, apiUrlEmpresa, sender }) {
+async function enviarAnexos({ client, session, sessionkey, numero, apiUrlEmpresa, sender }) {
   const { aberto, anexos } = await buscarAnexosPadrao({ sessionkey, apiUrlEmpresa });
   if (!aberto || !anexos.length) return 0;
 
@@ -79,6 +79,7 @@ async function enviarAnexos({ client, sessionkey, numero, apiUrlEmpresa, sender 
   for (const anexo of anexos) {
     const ok = await sender.sendFileFromUrl({
       client,
+      session,
       to: numero,
       url: anexo.url,
       filename: anexo.nome,

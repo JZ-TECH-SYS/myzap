@@ -189,8 +189,9 @@ async function processInternal({
           return true; // processado
         }
 
-        // Sempre manda msg padrão exceto para grupos
-        if (result.reason !== 'grupo') {
+        // Manda msg padrão exceto para grupos e quando um humano está na
+        // conversa (a saudação automática no meio do atendimento confunde)
+        if (!['grupo', 'agente_recente', 'aguardando_humano'].includes(result.reason)) {
           await enviarPadrao(result.reason);
         }
 
@@ -258,9 +259,11 @@ async function processIA({
       }, 20000);
       const avisosProgresso = [
         setTimeout(() => {
+          registerIAResponse('Só um momento, estou montando tudo aqui… 😊');
           MessageSender.sendText({ client, to: numero, text: 'Só um momento, estou montando tudo aqui… 😊' });
         }, 30000),
         setTimeout(() => {
+          registerIAResponse('Quase pronto! Finalizando os últimos detalhes… 😉');
           MessageSender.sendText({ client, to: numero, text: 'Quase pronto! Finalizando os últimos detalhes… 😉' });
         }, 65000),
       ];
@@ -371,6 +374,7 @@ async function processIA({
         // agente ja mandou a voz junto (fluxo antigo / voz_depois desligado)
         await MessageSender.sendPtt({
           client,
+          session,
           to: numero,
           base64: r.audioBase64,
           mimetype: r.audioMime || 'audio/ogg; codecs=opus',
@@ -387,6 +391,7 @@ async function processIA({
         if (voz) {
           await MessageSender.sendPtt({
             client,
+            session,
             to: numero,
             base64: voz.audioBase64,
             mimetype: voz.audioMime,

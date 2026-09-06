@@ -3,6 +3,7 @@
  * compatível com: WPPConnect, Venom, whatsapp-web.js.
  */
 const customLogger = require('../../../util/customLogger');
+const { registerSystemMedia } = require('../ia/iaResponseCache');
 
 async function detectEngine(client) {
   if (!client || typeof client !== 'object') return 'desconhecido';
@@ -174,8 +175,9 @@ async function stopTyping({ client, to }) {
  * Atendente IA (cliente mandou áudio -> agente devolve TTS em ogg/opus).
  * Falhou? O chamador cai para sendText — nunca deixar o cliente sem resposta.
  */
-async function sendPtt({ client, to, base64, mimetype }) {
+async function sendPtt({ client, to, base64, mimetype, session }) {
   if (!client || !to || !base64) return false;
+  registerSystemMedia(session, to);
   const engine = await detectEngine(client);
   try {
     switch (engine) {
@@ -213,8 +215,9 @@ async function baixarComoBase64(url) {
  * Manda um arquivo (imagem ou documento) a partir de uma URL pública.
  * Imagem vai como foto; qualquer outro mime (PDF) vai como documento.
  */
-async function sendFileFromUrl({ client, to, url, filename, mimetype, caption }) {
+async function sendFileFromUrl({ client, to, url, filename, mimetype, caption, session }) {
   if (!client || !to || !url) return false;
+  registerSystemMedia(session, to);
   const engine = await detectEngine(client);
   try {
     const baixado = await baixarComoBase64(url);

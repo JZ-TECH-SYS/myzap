@@ -1,4 +1,5 @@
 const Sessions = require("../../../controllers/SessionsController");
+const { registerSystemMedia } = require('../../../controllers/helper/ia/iaResponseCache');
 const get = require("async-get-file");
 const fs = require("fs");
 const whatsappweb = require("whatsapp-web.js");
@@ -80,7 +81,8 @@ module.exports = {
   async sendText(req, res) {
     const session = req.body.session;
     const data = Sessions.getSession(session);
-    const number = await buildNumber(req); // AWAIT adicionado
+    const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente' // AWAIT adicionado
     const text = req.body.text;
 
     if (!text) {
@@ -188,7 +190,8 @@ module.exports = {
 
   async sendLocation(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = await buildNumber(req); // CORRIGIDO - Usar buildNumber()
+    const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente' // CORRIGIDO - Usar buildNumber()
     const { lat, log, title, description } = req.body;
 
     if (!lat || !log || !title || !description) {
@@ -215,7 +218,8 @@ module.exports = {
 
   async sendContact(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = await buildNumber(req); // CORRIGIDO - Usar buildNumber()
+    const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente' // CORRIGIDO - Usar buildNumber()
 
     if (!req.body.contact || !req.body.name) {
       return res
@@ -245,7 +249,8 @@ module.exports = {
 
   async sendLink(req, res) {
     const data = Sessions.getSession(req.body.session);
-    const number = await buildNumber(req); // AWAIT adicionado
+    const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente' // AWAIT adicionado
 
     if (!req.body.url) {
       return res
@@ -275,7 +280,8 @@ module.exports = {
 
   async sendMedia(req, res, type) {
     const data = Sessions.getSession(req.body.session);
-    const number = await buildNumber(req); // CORRIGIDO - Usar buildNumber()
+    const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente' // CORRIGIDO - Usar buildNumber()
     const filePath = req.body.path;
     const isURL = await urlExists(filePath);
     const name = filePath?.split(/[\/]/).pop();
@@ -457,7 +463,8 @@ module.exports = {
 
     try {
       const data = Sessions.getSession(req.body.session);
-      const number = await buildNumber(req); // AWAIT adicionado
+      const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente' // AWAIT adicionado
       
       // LIMPAR E VALIDAR BASE64
       let cleanBase64 = base64Data;
@@ -535,7 +542,8 @@ module.exports = {
 
     try {
       const data = Sessions.getSession(req.body.session);
-      const number = await buildNumber(req); // AWAIT adicionado
+      const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente' // AWAIT adicionado
       const results = [];
 
       for (const file of files) {
@@ -592,6 +600,7 @@ module.exports = {
     try {
       const data = Sessions.getSession(req.body.session);
       const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente'
       const results = [];
 
       for (const file of files) {
@@ -661,6 +670,7 @@ module.exports = {
     try {
       const data = Sessions.getSession(req.body.session);
       const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente'
       
       // Criar mensagem de pedido formatada
       let orderText = "🛒 *PEDIDO*\n\n";
@@ -709,6 +719,7 @@ module.exports = {
     try {
       const data = Sessions.getSession(req.body.session);
       const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente'
       
       const poll = new Poll(question, options);
       
@@ -792,6 +803,7 @@ module.exports = {
     try {
       const data = Sessions.getSession(req.body.session);
       const number = await buildNumber(req);
+    registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente'
       
       // Buscar a mensagem para encaminhar
       const chat = await data.client.getChatById(messageid.split('_')[0] + '@c.us');

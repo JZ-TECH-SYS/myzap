@@ -4,6 +4,28 @@ Todas as mudanças notáveis neste fork serão documentadas neste arquivo.
 
 ---
 
+## [3.0.20] - 2026-09-06
+
+### 🛠️ Loja assumiu a conversa: a IA agora pausa de verdade
+
+- Mensagem enviada pela loja (fromMe) era gravada no histórico do número da
+  PRÓPRIA loja (`message.from`), então a pausa "atendente humano falou" nunca
+  disparava para o cliente e o bot seguia respondendo em cima do atendente.
+  `contextBuilder` passa a usar o destinatário quando a mensagem é fromMe.
+- Texto/caption que sai pela API (confirmação de pedido, NF-e, teste do painel)
+  é marcado como saída do sistema (`registerIAResponse`) antes de enviar, e
+  `processFromMe` ignora eco do bot e saída do sistema — só o atendente de
+  verdade registra e pausa. O texto do atendente vai ao agente só como contexto.
+- Bloqueio por humano na conversa (`agente_recente`/`aguardando_humano`) não
+  manda mais a mensagem padrão.
+- `HUMAN_PAUSE_MINUTES` padrão 120 → 30 (igual ao agente), renovado a cada
+  mensagem do atendente.
+- Áudio, foto ou figurinha que a loja manda pelo celular também conta como
+  "atendente na conversa" (caso real: o Vaqueiro respondeu por áudio e o bot
+  seguiu falando por cima). A voz do bot, os anexos da mensagem padrão e a mídia
+  enviada pela API são marcados como saída do sistema por destino (2 min).
+- `test/loja-assumiu.js` cobre tudo isso; `npm test` roda os três testes.
+
 ## [3.0.19] - 2026-09-06
 
 ### ✨ Anexos na mensagem padrão

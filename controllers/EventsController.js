@@ -99,6 +99,7 @@ module.exports = class Events {
         sessionkey,
         numero,
         socketManager,
+        empresa,
       });
 
       if (!allowSelfTest) {
