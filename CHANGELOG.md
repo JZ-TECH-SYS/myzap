@@ -4,6 +4,18 @@ Todas as mudanças notáveis neste fork serão documentadas neste arquivo.
 
 ---
 
+## [3.0.21] - 2026-09-09
+
+### 🛠️ Imagem, vídeo e figurinha não chegam mais ao agente como base64
+
+No whatsapp-web.js o `body` de uma mensagem de mídia é o thumbnail em base64.
+Em 08/09 um cliente do Capucho mandou uma foto e o agente recebeu 3,4 KB de
+`/9j/4AAQ...` como se fosse texto do cliente (gastou token e não entendeu nada).
+Agora `textoDaMensagem()` entrega a legenda ou um marcador — `[imagem]`,
+`[vídeo]`, `[figurinha]` — e o agente sabe o que fazer (comprovante em imagem
+vira chamado para a equipe). Documento continua com o nome do arquivo.
+Teste: `PORT=1 node test/midia-marcador.js`.
+
 ## [3.0.20] - 2026-09-06
 
 ### 🛠️ Loja assumiu a conversa: a IA agora pausa de verdade
