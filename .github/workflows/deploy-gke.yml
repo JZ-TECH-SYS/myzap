@@ -17,10 +17,11 @@
 #   var  GCP_PROJECT_ID                 = jztech-490722
 #   var  GCP_WORKLOAD_IDENTITY_PROVIDER = projects/.../providers/...  (igual aos outros apps da frota)
 #   var  GCP_SERVICE_ACCOUNT            = github-actions-prod@jztech-490722.iam.gserviceaccount.com
-#   sec  MYZAP_ENV_FILE                 = .env do MyZap. A chave que importa é o TOKEN:
-#                                         ele é a chave-MESTRA do servidor (quem a tem
-#                                         administra e apaga TODAS as sessões). NUNCA use o
-#                                         valor de exemplo do `.envcopy` do upstream — é público.
+#
+# NÃO há secret do GitHub aqui, e é deliberado: este repositório é PÚBLICO. O `TOKEN` do
+# MyZap é chave-MESTRA do servidor, então ele vive só no cluster, no secret `myzap-secrets`
+# criado à mão (ver o passo "Confere que o secret existe"). NUNCA use o valor de exemplo do
+# `.envcopy` do upstream — é público.
 name: Deploy MyZap to GKE
 
 on:
@@ -80,14 +81,26 @@ jobs:
       - name: Namespace
         run: kubectl create namespace "$NS" --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Secret (a partir do MYZAP_ENV_FILE)
-        env:
-          MYZAP_ENV_FILE: ${{ secrets.MYZAP_ENV_FILE }}
+      # O secret `myzap-secrets` NÃO é criado aqui — ele é gerido À MÃO no cluster, e é
+      # de propósito. Este repositório é PÚBLICO: uma GitHub Variable com o `TOKEN` seria a
+      # chave-mestra do servidor (quem a tem administra e apaga TODAS as sessões) legível por
+      # qualquer pessoa na internet, e nem os logs a mascarariam. Mantendo a credencial só no
+      # cluster, ela não passa pelo GitHub em forma alguma — é o mesmo padrão do
+      # `apizap-secrets` do JZ TECH ZAP.
+      #
+      #   kubectl -n myzap create secret generic myzap-secrets --from-env-file=myzap.env
+      #
+      # Chaves em docs/jztech/deploy-no-gke.md. As que fazem o motor falhar CALADO se
+      # faltarem: TOKEN, CORS_ORIGIN, EMAIL e OPENAI_API_KEY.
+      - name: Confere que o secret existe (o pod não sobe sem ele)
         run: |
-          printf '%s' "$MYZAP_ENV_FILE" > /tmp/myzap.env
-          kubectl -n "$NS" create secret generic myzap-secrets --from-env-file=/tmp/myzap.env \
-            --dry-run=client -o yaml | kubectl apply -f -
-          rm -f /tmp/myzap.env
+          kubectl -n "$NS" get secret myzap-secrets >/dev/null 2>&1 || {
+            echo "::error::Secret 'myzap-secrets' não existe no namespace $NS."
+            echo "Crie-o no cluster (ele NÃO vem do GitHub — ver comentário acima):"
+            echo "  kubectl -n $NS create secret generic myzap-secrets --from-env-file=myzap.env"
+            exit 1
+          }
+          echo ">>> myzap-secrets encontrado."
 
       - name: Aplica manifests
         run: |
