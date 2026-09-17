@@ -1,0 +1,228 @@
+# MyZap da JZ Tech — StatefulSet, e o motivo de não ser Deployment.
+#
+# O estado da sessão de WhatsApp Web vive em DISCO (`instances/<sessao>/`: perfil
+# do Chrome + tokens) e o banco é um SQLite em `database/`. Com Deployment +
+# RollingUpdate, o pod novo sobe ANTES de o antigo morrer: os dois abririam o
+# mesmo perfil do Chrome e a mesma sessão, e o WhatsApp derruba o número.
+#
+# Por isso:
+#   - StatefulSet com 1 réplica (nunca 2 — não escala horizontal por desenho)
+#   - volumeClaimTemplates (o disco é a identidade do pod)
+#   - updateStrategy OnDelete: subir imagem nova NÃO reinicia sozinho. A sessão
+#     só cai quando alguém apagar o pod de propósito. É a mesma lição que o
+#     upstream aprendeu com o pm2 (deploy derrubava chip conectado).
+apiVersion: v1
+kind: Service
+metadata:
+  name: myzap
+  namespace: myzap
+  labels: { app: myzap }
+spec:
+  type: ClusterIP
+  selector: { app: myzap }
+  ports:
+    - name: http
+      port: 3333
+      targetPort: 3333
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: myzap
+  namespace: myzap
+  labels: { app: myzap }
+spec:
+  serviceName: myzap
+  replicas: 1
+  updateStrategy:
+    type: OnDelete
+  selector:
+    matchLabels: { app: myzap }
+  template:
+    metadata:
+      labels: { app: myzap }
+    spec:
+      # SEM ServiceAccount especial, e é de propósito: o MyZap não fala com nenhuma API
+      # do Google (o estado dele é SQLite + disco). A SA padrão do namespace basta, e a
+      # imagem vem do Artifact Registry do mesmo projeto, que a SA dos NÓS já lê.
+      # MÁQUINA DEDICADA — o MyZap não divide nó com ninguém.
+      #
+      # Cada sessão de WhatsApp aqui é um Chrome inteiro, e este serviço vaza
+      # memória com o tempo (a doc do próprio upstream manda reiniciá-lo todo
+      # dia às 3h). O dono já opera isso numa VPS isolada, e o motivo é esse:
+      # "ele bate o recurso da máquina, é perigoso, vai derrubar todos nossos
+      # projetos; ele fica criando instância com o navegador, vai inchando".
+      #
+      # E não é zelo com ele: no pool compartilhado (`jztech-nodepool-prod`, e2-medium)
+      # um vazamento aqui não derrubaria só ele. Sob pressão de memória o kubelet
+      # despeja pod ALHEIO também, e os vizinhos seriam a API do próprio zap, o
+      # ClickRH, o Conecta e os CronJobs da frota — o motor derrubaria justamente
+      # quem depende dele.
+      #
+      # Por isso o par abaixo, e os dois são necessários:
+      #   - nodeSelector: sem ele o pod PODE voltar para o pool compartilhado
+      #     (o taint impede que outros entrem aqui, não que ele saia).
+      #   - tolerations: sem ela o pod NÃO ENTRA no nó, que tem taint
+      #     `workload=myzap:NoSchedule`, e fica Pending para sempre.
+      # O pool está declarado em jztech-infra/myzap.tf, com o taint `workload=myzap`
+      # (convenção desta casa, a mesma do `jztechkyc-pool`).
+      nodeSelector:
+        workload: myzap
+      tolerations:
+        - key: workload
+          operator: Equal
+          value: myzap
+          effect: NoSchedule
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: myzap
+          image: __REGISTRY__/myzap:__TAG__
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3333
+          envFrom:
+            - secretRef:
+                name: myzap-secrets
+          env:
+            - name: PORT
+              value: "3333"
+            - name: PRODUCTION
+              value: "true"
+            # Reconecta as sessões salvas no volume ao subir — é o que evita QR
+            # novo depois de um restart.
+            - name: START_ALL_SESSIONS
+              value: "true"
+            - name: USE_CHROME
+              value: "true"
+            # Engine 1 = whatsapp-web.js — O MESMO da VPS que opera estável (o .env
+            # de lá crava ENGINE=1; o "wppconnect" que alguém lê no package.json é
+            # só o pacote, que traz os 3 engines). E não é só paridade:
+            # sessionHealthCheck/keepalive chamam client.getState(), API que só
+            # existe no whatsapp-web.js. Com ENGINE=2 toda sessão era declarada
+            # zumbi ("client.getState is not a function") e o auto-reconnect a
+            # derrubava no meio do pareamento — QR renovando sem nunca conectar.
+            - name: ENGINE
+              value: "1"
+            # A versão do WhatsApp Web fixada na VPS (engines/helper/wweb.js lê
+            # esta variável e recomenda fixar uma versão testada; ausente, a lib
+            # segue a corrente — que muda sob nossos pés).
+            - name: WHATSAPP_VERSION
+              value: "2.3001.70"
+            # ─── O MECANISMO NATIVO DE RECONEXÃO. NÃO DESLIGUE. ───
+            #
+            # É ESTE job, e não o START_ALL_SESSIONS, que faz a sessão voltar sem
+            # QR depois de um restart — é o que já rodava na VPS do upstream, onde
+            # o dono diz que "reconecta mesmo se reiniciar".
+            #
+            # A diferença é o CAMINHO. O START_ALL_SESSIONS (startup.js) fabrica um
+            # `req` de mentira e chama a engine direto, por dentro do processo. O
+            # keepalive faz `POST /start` em si mesmo, por HTTP: a requisição entra
+            # pelo Express, ganha o Socket.IO e o body de verdade, e por isso passa
+            # onde o caminho de dentro tropeça.
+            #
+            # Ele veio no código desde o começo, mas sem esta variável nascia
+            # desligado — `config.session_keepalive_enabled` é
+            # `SESSION_KEEPALIVE_ENABLED === "true"`, então AUSENTE é false, e o
+            # boot logava "[SESSION KEEPALIVE] Job desabilitado nas configuracoes".
+            # Ficamos com a única rota que estava quebrada e sem a que funciona.
+            #
+            # Ele NÃO atropela ninguém (jobs/sessionKeepAlive.js:45): pula sessão
+            # sem `session`, pula quem está esperando QR (a menos que parada há mais
+            # de 10 min), respeita teto de 10 tentativas e só age em quem estava
+            # conectado ou caiu. Com os chips ainda por parear, ele roda em vazio.
+            - name: SESSION_KEEPALIVE_ENABLED
+              value: "true"
+            # 3 min — o valor rodando na VPS, que é a referência de estabilidade.
+            # (A "tempestade de /start" que temíamos não acontece: o job pula quem
+            # está esperando QR e respeita o teto de tentativas.)
+            - name: SESSION_KEEPALIVE_INTERVAL_MS
+              value: "180000"
+            # false, como na VPS: revive QUALQUER sessão salva no volume, não só
+            # quem estava conectado na hora da queda — é o "reconecta sozinho"
+            # que conhecemos de lá.
+            - name: SESSION_KEEPALIVE_ONLY_CONNECTED
+              value: "false"
+          # RESERVA IGUAL AO TETO, de propósito (QoS Guaranteed).
+          #
+          # Com request == limit o pod nunca cresce além do que reservou: ao passar,
+          # o container é morto (OOMKill) e reinicia SÓ ele. Num nó dedicado isso
+          # deixa de ser proteção do vizinho e passa a ser o freio do vazamento —
+          # o teto é o que transforma "inchou até travar a máquina" em "reiniciou
+          # a si mesmo".
+          #
+          # A CONTA (nó e2-standard-4, exclusivo deste pod), medida em 11/08/2026
+          # com `kubectl describe node`:
+          #   alocável p/ pods ....... 3920m CPU / 13.273 MiB   (de 4 vCPU / 16 GB;
+          #                                                      o resto é kubelet
+          #                                                      + reserva do GKE)
+          #   já reservado por DaemonSet  349m CPU /   594 MiB   (fluentbit, netd,
+          #                                                      metadata, metrics,
+          #                                                      pdcsi, collector)
+          #   sobra real ............. 3571m CPU / 12.679 MiB
+          #
+          # Pedimos 3 CPU / 10 GiB. Cabe de verdade e ainda deixa ~571m e ~2,4 GiB
+          # livres — folga que existe de propósito: o pod precisa CABER de novo a
+          # cada recriação (upgrade de nó, OnDelete), e upgrade de GKE costuma
+          # trazer DaemonSet novo. Pod que não agenda é pior que pod apertado.
+          #
+          # Por que 10 GiB e não 3-4: o estudo dimensionou ~700 MiB–1 GiB por
+          # sessão, então 3 chips em regime somam ~3 GB. O que consome o resto não
+          # é o regime, é o VAZAMENTO ao longo do dia — é justamente o que faz o
+          # upstream reiniciar às 3h. Com 10 GiB o serviço aguenta o dia inteiro
+          # sem bater no teto, em vez de ser OOMKill no meio da tarde.
+          # Referência do dono, comparando com o servidor MyZap da VPS
+          # (8 vCPU / 31 GB): "pelo menos metade disso ele precisa ter de folga" —
+          # daí o e2-standard-4, e daí dar a ele quase tudo o que o nó tem.
+          resources:
+            requests:
+              cpu: "3"
+              memory: "10Gi"
+            limits:
+              cpu: "3"
+              memory: "10Gi"
+          # /health responde sem depender de I/O de banco (o upstream tomou
+          # cuidado com isso de propósito), então serve de liveness sem risco de
+          # matar o pod por SQLite lento.
+          livenessProbe:
+            httpGet: { path: /health, port: 3333 }
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 6
+          readinessProbe:
+            httpGet: { path: /health, port: 3333 }
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 10
+          volumeMounts:
+            - name: dados
+              mountPath: /app/instances
+              subPath: instances
+            - name: dados
+              mountPath: /app/database
+              subPath: database
+            # O Chromium quer memória compartilhada; sem isto ele cai com
+            # "Target closed" na primeira aba.
+            - name: dshm
+              mountPath: /dev/shm
+      volumes:
+        - name: dshm
+          emptyDir:
+            # Sobe de 512Mi para 1Gi junto com o teto do pod: é daqui que o
+            # Chromium tira memória compartilhada, e estourar o sizeLimit
+            # despeja o pod. Isto conta DENTRO do limite de 10 GiB acima, não
+            # além dele.
+            medium: Memory
+            sizeLimit: 1Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: dados
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 20Gi
