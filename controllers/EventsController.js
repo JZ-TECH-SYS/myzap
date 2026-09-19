@@ -129,8 +129,16 @@ module.exports = class Events {
     if (audioResult.payload) payload = audioResult.payload;
 
     // 5. Registrar mensagem do usuário
-    const plainBody =
-      typeof message.body === "string" ? message.body.trim() : "";
+    // O texto que segue para a IA é o LEGÍVEL (textoMensagem): imagem/vídeo/
+    // figurinha viram "[imagem]"/"[vídeo]"/"[figurinha]" e a legenda entra
+    // junto. Usar message.body cru aqui anulava o marcador desde 09/09/2026 —
+    // foto sem legenda chegava vazia e o agente devolvia "mensagem_vazia" sem
+    // responder nada (WG lenha, Capucho 17/09 19:58: dois comprovantes em foto,
+    // zero resposta, pedido de R$ 45 digitado à mão), e foto COM thumbnail
+    // chegava como 3,4 KB de base64 no lugar do texto do cliente.
+    // Recalculado aqui (e não reaproveitado do contextBuilder) porque o passo
+    // 4 pode trocar `message` pela versão com áudio transcrito/anexado.
+    const plainBody = ContextBuilder.textoDaMensagem(message).trim();
     if (plainBody) {
       await ChatHistoryHelper.registerUserMessage({
         session,

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "test": "node test/smoke-ia.js && node test/anexos-padrao.js && node test/loja-assumiu.js",
+    "test": "node test/smoke-ia.js && node test/anexos-padrao.js && node test/loja-assumiu.js && node test/midia-marcador.js && node test/midia-para-agente.js",
     "test:loja": "node test/loja-assumiu.js",
     "test:anexos": "node test/anexos-padrao.js",
     "swagger-autogen": "node swagger.js",
@@ -17,7 +17,8 @@
     "dev": "nodemon --config nodemon.json index.js",
     "release": "release-it",
     "postinstall": "node scripts/patch-whatsapp.js",
-    "smoke:ia": "node test/smoke-ia.js"
+    "smoke:ia": "node test/smoke-ia.js",
+    "test:midia": "node test/midia-marcador.js && node test/midia-para-agente.js"
   },
   "repository": {
     "type": "git",
