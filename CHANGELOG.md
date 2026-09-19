@@ -4,6 +4,26 @@ Todas as mudanças notáveis neste fork serão documentadas neste arquivo.
 
 ---
 
+## [3.0.22] - 2026-09-19
+
+### 🛠️ O marcador de mídia finalmente chega ao agente
+
+A v3.0.21 traduziu imagem/vídeo/figurinha em `[imagem]`/`[vídeo]`/`[figurinha]`,
+mas o `EventsController` montava o texto da IA com `message.body` cru e jogava o
+marcador fora — o conserto nunca valeu em campo. Foto SEM legenda chegava vazia
+ao agente, que respondia `mensagem_vazia`, ou seja, silêncio: em 17/09 um cliente
+do Capucho mandou dois comprovantes em foto, não recebeu nada e o pedido de R$ 45
+foi digitado à mão pela loja. Foto COM thumbnail chegava como 3,4 KB de base64 no
+lugar da fala do cliente. Em 30 dias de produção: zero turnos com `[imagem]` e 17
+com base64.
+
+Agora o texto que segue para a IA sai de `textoDaMensagem()`, recalculado depois
+do passo de áudio (que pode trocar a mensagem pela versão transcrita). PDF
+continua chegando pelo nome do arquivo.
+
+Teste: `node test/midia-para-agente.js` — percorre o EventsController real com as
+bordas stubadas e reprova sem o conserto. Entrou no `pnpm test`.
+
 ## [3.0.21] - 2026-09-09
 
 ### 🛠️ Imagem, vídeo e figurinha não chegam mais ao agente como base64
