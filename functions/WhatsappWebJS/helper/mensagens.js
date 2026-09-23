@@ -13,6 +13,9 @@ const customLogger = require('../../../util/customLogger.js'); // Logger padroni
 const { registerSendSuccess, registerSendFailure, isClientHealthy } = require('../../../jobs/sessionHealthCheck.js');
 
 const mimeTypes = require("mime-types");
+const { spawn } = require("child_process");
+const os = require("os");
+const path = require("path");
 
 const urlExists = util.promisify(urlExistsImport);
 const { MessageMedia, Location, Poll } = whatsappweb;
@@ -49,6 +52,39 @@ async function midiaDoPath(filePath, filename) {
     throw new Error("Caminho local desligado neste motor: envie URL http(s) ou data-URI");
   }
   return MessageMedia.fromFilePath(filePath);
+}
+
+// Nota de voz (PTT) no WhatsApp é ogg/opus. O navegador grava webm/opus (Chrome, Android), mp4/aac
+// (Safari, iPhone) ou ogg/opus (Firefox), e a IA pode mandar mp3: o que não é ogg vira ogg/opus
+// aqui, no ffmpeg da imagem (Dockerfile). Sem ffmpeg (máquina da frota) ou se a conversão falhar,
+// segue o áudio original — como era antes.
+async function comoVoz(media) {
+  if (/^audio\/ogg/i.test(media.mimetype || "")) return media;
+  const dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "voz-"));
+  const entrada = path.join(dir, "entrada"); // arquivo, não pipe: mp4 do Safari pode ter o índice no fim
+  try {
+    await fs.promises.writeFile(entrada, Buffer.from(media.data, "base64"));
+    const ogg = await new Promise((ok, falha) => {
+      const p = spawn("ffmpeg", ["-hide_banner", "-loglevel", "error", "-i", entrada, "-vn",
+        "-c:a", "libopus", "-b:a", "32k", "-ac", "1", "-ar", "48000", "-f", "ogg", "pipe:1"]);
+      const partes = [];
+      const relogio = setTimeout(() => p.kill("SIGKILL"), 15000); // o zap desiste do motor em 30 s
+      p.stdout.on("data", (c) => partes.push(c));
+      p.stderr.resume();
+      p.on("error", (e) => { clearTimeout(relogio); falha(e); });
+      p.on("close", (codigo) => {
+        clearTimeout(relogio);
+        codigo === 0 && partes.length ? ok(Buffer.concat(partes)) : falha(new Error(`ffmpeg saiu com ${codigo}`));
+      });
+    });
+    const nome = String(media.filename || "voz").replace(/\.[^.]*$/, "") + ".ogg";
+    return new MessageMedia("audio/ogg; codecs=opus", ogg.toString("base64"), nome);
+  } catch (e) {
+    customLogger.warning(`[VOZ] ${media.mimetype} não virou ogg/opus (${e.message}) — segue o original`);
+    return media;
+  } finally {
+    fs.promises.rm(dir, { recursive: true, force: true }).catch(() => {});
+  }
 }
 
 // CORRIGIDO - Usar Cache.get() igual WPPConnect
@@ -325,7 +361,8 @@ module.exports = {
     }
 
     try {
-      const media = await midiaDoPath(filePath, req.body.filename);
+      let media = await midiaDoPath(filePath, req.body.filename);
+      if (type === "audio") media = await comoVoz(media); // nota de voz só toca como ogg/opus
       const sendOptions =
         type === "sticker"
           ? { sendMediaAsSticker: true, sendSeen: false }

@@ -10,6 +10,9 @@ const http = require('http');
 const path = require('path');
 const assert = require('assert');
 const Module = require('module');
+const fs = require('fs');
+const os = require('os');
+const { spawnSync } = require('child_process');
 
 const raiz = path.join(__dirname, '..');
 const resolver = (rel) => require.resolve(path.join(raiz, rel));
@@ -109,7 +112,44 @@ servidor.listen(0, async () => {
     assert.match(String(r.corpo.message), /Caminho local desligado/);
     assert.strictEqual(enviados.length, 0);
 
-    console.log('ok: midia-por-path (6 casos)');
+    // 7) nota de voz: ogg passa direto; webm (Chrome) e mp4 (Safari) viram ogg/opus no ffmpeg
+    r = await chamar('sendAudio', { path: `data:audio/ogg;codecs=opus;base64,${b64('OggS-original')}` });
+    e = enviados.pop();
+    assert.deepStrictEqual([r.statusCode, e.media.mimetype, e.media.data], [200, 'audio/ogg', b64('OggS-original')]);
+
+    const temFfmpeg = spawnSync('ffmpeg', ['-version']).status === 0;
+    let casos = 8;
+    if (temFfmpeg) {
+      const tom = ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=1'];
+      const noPipe = (args) => spawnSync('ffmpeg', [...tom, ...args, 'pipe:1'], { maxBuffer: 1e7 }).stdout.toString('base64');
+      const tmp = `${os.tmpdir()}/voz-teste-${process.pid}.mp4`; // mp4 com o índice (moov) no FIM
+      spawnSync('ffmpeg', [...tom, '-c:a', 'aac', '-y', tmp]);
+      const amostras = {
+        'webm/opus (Chrome)': ['audio/webm;codecs=opus', noPipe(['-c:a', 'libopus', '-f', 'webm'])],
+        'mp4/aac (Safari)': ['audio/mp4', noPipe(['-c:a', 'aac', '-f', 'mp4', '-movflags', 'frag_keyframe+empty_moov'])],
+        'mp4 com o índice no fim': ['audio/mp4', fs.readFileSync(tmp).toString('base64')],
+      };
+      fs.rmSync(tmp, { force: true });
+      for (const [nome, [mime, dados]] of Object.entries(amostras)) {
+        r = await chamar('sendAudio', { path: `data:${mime};base64,${dados}`, filename: 'gravacao.webm' });
+        e = enviados.pop();
+        assert.strictEqual(r.statusCode, 200, nome);
+        assert.strictEqual(e.media.mimetype, 'audio/ogg; codecs=opus', nome);
+        assert.ok(Buffer.from(e.media.data, 'base64').subarray(0, 4).toString() === 'OggS', `${nome}: não virou ogg`);
+        assert.strictEqual(e.media.filename, 'gravacao.ogg', nome);
+        assert.strictEqual(e.opcoes.sendAudioAsVoice, true, nome);
+        casos++;
+      }
+    } else {
+      console.log('pulado: sem ffmpeg neste ambiente, a conversão para ogg/opus não foi testada');
+    }
+
+    // 8) áudio que o ffmpeg não entende (ou máquina sem ffmpeg): segue o original, como antes
+    r = await chamar('sendAudio', { path: `data:audio/webm;base64,${b64('não é áudio')}` });
+    e = enviados.pop();
+    assert.deepStrictEqual([r.statusCode, e.media.mimetype, e.media.data], [200, 'audio/webm', b64('não é áudio')]);
+
+    console.log(`ok: midia-por-path (${casos} casos)`);
     process.exitCode = 0;
   } catch (err) {
     console.error('FALHOU:', err.message);
