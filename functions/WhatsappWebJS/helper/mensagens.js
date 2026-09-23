@@ -90,7 +90,11 @@ async function comoVoz(media) {
 // CORRIGIDO - Usar Cache.get() igual WPPConnect
 async function buildNumber(req) {
   const number = req.body.number;
-  
+
+  // JID inteiro (ex.: "9775882481727@lid" — cliente @lid, 23/09/2026, loja piloto da Celularis):
+  // já é o destino. Sem isto virava "...@lid@c.us" ou caía no fallback @c.us, que não entrega.
+  if (typeof number === "string" && number.includes("@")) return number;
+
   if (req.body.isGroup) {
     // Para grupos, usar o número diretamente com @g.us
     return number + "@g.us";
@@ -137,7 +141,22 @@ async function formatNumber(rawNumber) {
 // devolvem null em vez de explodir, e o envio continua valendo 200.
 // ---------------------------------------------------------------------------
 function messageId(response) {
-  return response?.id?._serialized ?? null;
+  return idSerializado(response?.id);
+}
+
+// O WhatsApp Web de set/2026 guarda o id serializado em `$1`; na cópia que chega ao Node o
+// `_serialized` pode não vir (23/09/2026, loja piloto da Celularis). Aceita as duas chaves.
+function idSerializado(id) {
+  return id?._serialized ?? id?.$1 ?? null;
+}
+
+// O id serializado é "<fromMe>_<chat>_<id>[_<participante>]" e o chat já traz o servidor (@c.us,
+// @lid, @g.us). O antigo `split('_')[0] + '@c.us'` virava "false@c.us" e a mensagem nunca era
+// achada — nem para citar, reagir, encaminhar ou baixar mídia. Outro formato segue a regra antiga.
+function chatDoId(messageid) {
+  const [inicio, chat] = String(messageid).split("_");
+  if ((inicio === "true" || inicio === "false") && chat?.includes("@")) return chat;
+  return inicio + "@c.us";
 }
 
 function messagePhone(response, fallback = null) {
@@ -825,9 +844,9 @@ module.exports = {
       const data = Sessions.getSession(req.body.session);
       
       // Buscar a mensagem original
-      const chat = await data.client.getChatById(messageid.split('_')[0] + '@c.us');
+      const chat = await data.client.getChatById(chatDoId(messageid));
       const messages = await chat.fetchMessages({ limit: 50 });
-      const originalMessage = messages.find(msg => msg.id._serialized === messageid);
+      const originalMessage = messages.find(msg => idSerializado(msg.id) === messageid);
       
       if (!originalMessage) {
         return res.status(404).json({
@@ -873,9 +892,9 @@ module.exports = {
     registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente'
       
       // Buscar a mensagem para encaminhar
-      const chat = await data.client.getChatById(messageid.split('_')[0] + '@c.us');
+      const chat = await data.client.getChatById(chatDoId(messageid));
       const messages = await chat.fetchMessages({ limit: 50 });
-      const messageToForward = messages.find(msg => msg.id._serialized === messageid);
+      const messageToForward = messages.find(msg => idSerializado(msg.id) === messageid);
       
       if (!messageToForward) {
         return res.status(404).json({
@@ -920,9 +939,9 @@ module.exports = {
       const data = Sessions.getSession(req.body.session);
       
       // Buscar a mensagem com mídia
-      const chat = await data.client.getChatById(messageid.split('_')[0] + '@c.us');
+      const chat = await data.client.getChatById(chatDoId(messageid));
       const messages = await chat.fetchMessages({ limit: 50 });
-      const mediaMessage = messages.find(msg => msg.id._serialized === messageid);
+      const mediaMessage = messages.find(msg => idSerializado(msg.id) === messageid);
       
       if (!mediaMessage) {
         return res.status(404).json({
@@ -976,9 +995,9 @@ module.exports = {
       const data = Sessions.getSession(req.body.session);
       
       // Buscar a mensagem para reagir
-      const chat = await data.client.getChatById(messageid.split('_')[0] + '@c.us');
+      const chat = await data.client.getChatById(chatDoId(messageid));
       const messages = await chat.fetchMessages({ limit: 50 });
-      const targetMessage = messages.find(msg => msg.id._serialized === messageid);
+      const targetMessage = messages.find(msg => idSerializado(msg.id) === messageid);
       
       if (!targetMessage) {
         return res.status(404).json({

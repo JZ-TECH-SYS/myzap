@@ -2,6 +2,19 @@ const moment = require('moment');
 moment.locale('pt-br');
 const MediaDecryptor = require('./mediaDecryptor');
 
+// Telefone do contato @lid (23/09/2026, loja piloto da Celularis: a lista do zap mostrava o LID
+// "193214069866529" no lugar do telefone). O WhatsApp não manda o telefone junto; o
+// whatsapp-web.js resolve com getContactLidAndPhone. Cache em memória por sessão: acerto vale
+// 24 h, falha ou telefone vazio 10 min; a consulta desiste em 3 s e a mensagem segue sem `pn`.
+// ponytail: cache só em memória, teto de 5000 contatos — reinício do pod refaz as consultas.
+const telefonesDoLid = new Map();
+const TELEFONE_OK_MS = 24 * 60 * 60 * 1000;
+const TELEFONE_FALHA_MS = 10 * 60 * 1000;
+const TELEFONE_TIMEOUT_MS = 3000;
+// Aviso do sistema não pede telefone: ao conectar chegam dezenas de uma vez (113 na loja
+// piloto), e cada consulta vai ao servidor do WhatsApp.
+const TIPOS_SEM_CONSULTA = ['notification_template', 'e2e_notification', 'notification', 'gp2', 'protocol', 'ciphertext'];
+
 module.exports = {
   tiposPermitidos: [
     'chat', 'image', 'sticker', 'audio', 'ptt', 'video', 'link',
@@ -86,7 +99,41 @@ module.exports = {
     }
   },
 
+  /** Os dígitos do telefone do contato @lid, ou null. Nunca lança: a mensagem não espera por isto. */
+  async telefoneDoLid(client, session, lid) {
+    const chave = `${session}|${lid}`;
+    const guardado = telefonesDoLid.get(chave);
+    if (guardado && guardado.ate > Date.now()) return guardado.pn;
+
+    let pn = null;
+    if (typeof client?.getContactLidAndPhone === 'function') {
+      let relogio;
+      try {
+        const r = await Promise.race([
+          client.getContactLidAndPhone([lid]),
+          new Promise((_, falha) => { relogio = setTimeout(() => falha(new Error('timeout')), TELEFONE_TIMEOUT_MS); }),
+        ]);
+        pn = String(r?.[0]?.pn || '').replace(/@.*$/, '').replace(/\D/g, '') || null;
+      } catch (e) {
+        console.log(`⚠️ [LID] telefone de ${lid} não veio: ${e?.message || e}`);
+      } finally {
+        clearTimeout(relogio);
+      }
+    }
+
+    telefonesDoLid.delete(chave); // reinsere no fim: o teto descarta o mais antigo
+    if (telefonesDoLid.size >= 5000) telefonesDoLid.delete(telefonesDoLid.keys().next().value);
+    telefonesDoLid.set(chave, { pn, ate: Date.now() + (pn ? TELEFONE_OK_MS : TELEFONE_FALHA_MS) });
+    return pn;
+  },
+
   async montarPayload(message, session, client) {
+    // O WhatsApp Web de set/2026 guarda o id serializado em `$1`, e o `_serialized` não vem na
+    // cópia que chega ao Node (23/09/2026, loja piloto da Celularis): o zap deduplica pelo id e,
+    // sem ele, tratava toda mensagem como repetida. Devolve a chave de sempre (`id` e `data.id`
+    // do payload são o mesmo objeto).
+    if (message?.id && !message.id._serialized && message.id.$1) message.id._serialized = message.id.$1;
+
     const type = this.normalizarTipo(message);   // text, image, …
   const base64 = await this.baixarMidia(type, client, message);
     const timestamp = this.formatarData(message.timestamp);
@@ -114,6 +161,15 @@ module.exports = {
       datetime: timestamp,
       data: message
     };
+
+    // Contato @lid: `lid` é o destino para responder e `pn`, quando o WhatsApp devolve, o
+    // telefone para identificar e exibir. `from`/`to` continuam como sempre.
+    const outraPonta = message.fromMe ? message.to : message.from;
+    if (typeof outraPonta === 'string' && outraPonta.endsWith('@lid')) {
+      base.lid = outraPonta;
+      const pn = TIPOS_SEM_CONSULTA.includes(type) ? null : await this.telefoneDoLid(client, session, outraPonta);
+      if (pn) base.pn = pn;
+    }
 
     /* ---------------- extras específicos ---------------- */
     let extras = {};
