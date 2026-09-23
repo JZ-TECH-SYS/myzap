@@ -109,22 +109,27 @@ jobs:
       - name: Trocar a imagem do pod (só se pedirem)
         if: ${{ inputs.reiniciar_pod }}
         run: |
-          # --wait=true (default) para o pod SUMIR antes de esperar o novo: com
-          # --wait=false o passo seguinte corria e batia em "pods myzap-0 not
-          # found", porque o StatefulSet ainda não tinha recriado.
-          kubectl -n "$NS" delete pod myzap-0 || true
+          # Todas as réplicas: desde o shard (23/09/2026) cada pod é um motor com
+          # os seus números, e todos precisam da imagem nova.
+          REPLICAS=$(kubectl -n "$NS" get statefulset myzap -o jsonpath='{.spec.replicas}')
+          for i in $(seq 0 $((REPLICAS - 1))); do
+            # --wait=true (default) para o pod SUMIR antes de esperar o novo: com
+            # --wait=false o passo seguinte corria e batia em "pods myzap-0 not
+            # found", porque o StatefulSet ainda não tinha recriado.
+            kubectl -n "$NS" delete pod "myzap-$i" --ignore-not-found
 
-          # E o pod tem de EXISTIR antes de `wait --for=condition=Ready` — o wait
-          # falha na hora se o objeto não existe, em vez de esperar por ele.
-          for _ in $(seq 1 60); do
-            kubectl -n "$NS" get pod myzap-0 >/dev/null 2>&1 && break
-            sleep 5
+            # E o pod tem de EXISTIR antes de `wait --for=condition=Ready` — o wait
+            # falha na hora se o objeto não existe, em vez de esperar por ele.
+            for _ in $(seq 1 60); do
+              kubectl -n "$NS" get pod "myzap-$i" >/dev/null 2>&1 && break
+              sleep 5
+            done
+
+            # `rollout status` NÃO funciona com updateStrategy OnDelete ("rollout
+            # status is only available for RollingUpdate strategy type") — espera-se
+            # o pod, que é o que interessa. Um de cada vez: o outro motor segue no ar.
+            kubectl -n "$NS" wait --for=condition=Ready "pod/myzap-$i" --timeout=600s
           done
-
-          # `rollout status` NÃO funciona com updateStrategy OnDelete ("rollout
-          # status is only available for RollingUpdate strategy type") — espera-se
-          # o pod, que é o que interessa.
-          kubectl -n "$NS" wait --for=condition=Ready pod/myzap-0 --timeout=600s
 
       - name: Estado
         run: |
@@ -132,6 +137,6 @@ jobs:
           echo
           echo "Imagem publicada: ${REGISTRY}/myzap:${IMAGE_TAG}"
           if [ "${{ inputs.reiniciar_pod }}" != "true" ]; then
-            echo "O pod NÃO foi trocado (OnDelete). Para subir esta imagem:"
-            echo "  kubectl -n $NS delete pod myzap-0    # derruba as sessões conectadas"
+            echo "Os pods NÃO foram trocados (OnDelete). Para subir esta imagem:"
+            echo "  kubectl -n $NS delete pod myzap-0 myzap-1    # derruba as sessões conectadas"
           fi

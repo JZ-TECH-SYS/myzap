@@ -6,11 +6,23 @@
 # mesmo perfil do Chrome e a mesma sessão, e o WhatsApp derruba o número.
 #
 # Por isso:
-#   - StatefulSet com 1 réplica (nunca 2 — não escala horizontal por desenho)
+#   - StatefulSet em que cada réplica é um motor SEPARADO (shard, ver abaixo):
+#     nunca duas réplicas atendendo o mesmo número — não escala horizontal
 #   - volumeClaimTemplates (o disco é a identidade do pod)
 #   - updateStrategy OnDelete: subir imagem nova NÃO reinicia sozinho. A sessão
 #     só cai quando alguém apagar o pod de propósito. É a mesma lição que o
 #     upstream aprendeu com o pm2 (deploy derrubava chip conectado).
+#
+# SHARD (23/09/2026): 2 réplicas, UM Service por pod. Cada réplica é um motor
+# independente — disco, SQLite e sessões próprias —, e o número conectado num pod
+# só existe nele. Por isso nada pode balancear entre os dois: cada `whatsappconta`
+# do zap aponta para UM pod pelo Service dele (`base_url`), e o número vive na
+# conta do seu pod.
+#
+# O Service `myzap` continua existindo com o mesmo nome, mas preso ao myzap-0: é
+# para onde a conta que já existia aponta, e ela segue funcionando sem mudar dado.
+# Não viramos Service headless porque `clusterIP` e `serviceName` são imutáveis —
+# seria recriar Service e StatefulSet; o seletor por `pod-name` resolve sem isso.
 apiVersion: v1
 kind: Service
 metadata:
@@ -19,7 +31,25 @@ metadata:
   labels: { app: myzap }
 spec:
   type: ClusterIP
-  selector: { app: myzap }
+  selector:
+    app: myzap
+    statefulset.kubernetes.io/pod-name: myzap-0
+  ports:
+    - name: http
+      port: 3333
+      targetPort: 3333
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myzap-1
+  namespace: myzap
+  labels: { app: myzap }
+spec:
+  type: ClusterIP
+  selector:
+    app: myzap
+    statefulset.kubernetes.io/pod-name: myzap-1
   ports:
     - name: http
       port: 3333
@@ -33,7 +63,9 @@ metadata:
   labels: { app: myzap }
 spec:
   serviceName: myzap
-  replicas: 1
+  # 2 = um motor por nó do pool dedicado (jztech-infra/myzap.tf, myzap_node_count).
+  # Subir para 3 é subir os dois juntos e criar o Service `myzap-2`.
+  replicas: 2
   updateStrategy:
     type: OnDelete
   selector:
