@@ -12,8 +12,40 @@ const customLogger = require('../../../util/customLogger.js'); // Logger padroni
 // 🆕 Importar funções de health check para rastrear envios
 const { registerSendSuccess, registerSendFailure, isClientHealthy } = require('../../../jobs/sessionHealthCheck.js');
 
+const mimeTypes = require("mime-types");
+
 const urlExists = util.promisify(urlExistsImport);
 const { MessageMedia, Location, Poll } = whatsappweb;
+
+// `path` das rotas por tipo (sendImage/sendAudio/...) vira MessageMedia sem passar pelo disco:
+// - data-URI: decodificado como o sendFile64 já faz, mas aqui segue pelas opções do tipo — é o
+//   que faz o áudio sair como nota de voz (sendAudioAsVoice) e a figurinha como figurinha;
+// - URL http(s): baixada em memória. Antes ia para files-received/<último pedaço da URL>: dois
+//   envios do mesmo arquivo ao mesmo tempo se sobrescreviam, o download-file avisava "terminou"
+//   antes de o arquivo acabar de ser gravado, e a query de URL assinada entrava no nome;
+// - o resto é caminho local, como sempre foi (a frota das lojas manda arquivo do disco).
+async function midiaDoPath(filePath, filename) {
+  if (filePath.startsWith("data:")) {
+    const [cabecalho, base64 = ""] = filePath.split(",");
+    return new MessageMedia(
+      /^data:([^;,]+)/.exec(cabecalho)?.[1] || "application/octet-stream",
+      base64.replace(/\s/g, ""),
+      filename || "arquivo"
+    );
+  }
+  if (/^https?:\/\//i.test(filePath)) {
+    // 20 s como o download-file: o zap desiste do motor em 30 s e reenviaria em duplicidade.
+    const resp = await fetch(filePath, { signal: AbortSignal.timeout(20000) });
+    if (!resp.ok) throw new Error(`Download da mídia falhou: HTTP ${resp.status}`);
+    const nome = new URL(filePath).pathname.split("/").pop() || "arquivo";
+    return new MessageMedia(
+      mimeTypes.lookup(nome) || resp.headers.get("content-type") || "application/octet-stream",
+      Buffer.from(await resp.arrayBuffer()).toString("base64"),
+      filename || nome
+    );
+  }
+  return MessageMedia.fromFilePath(filePath);
+}
 
 // CORRIGIDO - Usar Cache.get() igual WPPConnect
 async function buildNumber(req) {
@@ -283,19 +315,13 @@ module.exports = {
     const number = await buildNumber(req);
     registerSystemMedia(req.body.session, number); // saída do sistema: fromMe sem texto não vira 'atendente' // CORRIGIDO - Usar buildNumber()
     const filePath = req.body.path;
-    const isURL = await urlExists(filePath);
-    const name = filePath?.split(/[\/]/).pop();
-    const dir = "files-received/";
-    const fullPath = isURL ? dir + name : filePath;
 
     if (!filePath) {
       return res.status(400).send({ status: 400, error: "Path não informado" });
     }
 
     try {
-      if (isURL) await get(filePath, { directory: dir });
-
-      const media = MessageMedia.fromFilePath(fullPath);
+      const media = await midiaDoPath(filePath, req.body.filename);
       const sendOptions =
         type === "sticker"
           ? { sendMediaAsSticker: true, sendSeen: false }
@@ -308,15 +334,14 @@ module.exports = {
         sendOptions
       );
 
-      if (isURL) fs.unlinkSync(fullPath);
-
       return res.status(200).json({
         result: 200,
         type,
         id: messageId(response),
         session: req.body.session,
         phone: messagePhone(response, number),
-        file: filePath,
+        // data-URI não volta: quem chama guarda esta resposta (o zap, na trilha de status)
+        file: filePath.startsWith("data:") ? media.filename : filePath,
         content: response?.body ?? null,
         mimetype: response?.type ?? null,
       });
