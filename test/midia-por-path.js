@@ -101,7 +101,15 @@ servidor.listen(0, async () => {
     assert.strictEqual(r.statusCode, 200);
     assert.strictEqual(enviados.pop().media.mimetype, 'local');
 
-    console.log('ok: midia-por-path (5 casos)');
+    // 6) ...menos no motor de várias empresas do cluster, e o motivo chega a quem chamou
+    process.env.BLOQUEAR_CAMINHO_LOCAL = 'true';
+    r = await chamar('sendFile', { path: '/proc/self/environ' });
+    delete process.env.BLOQUEAR_CAMINHO_LOCAL;
+    assert.strictEqual(r.statusCode, 500);
+    assert.match(String(r.corpo.message), /Caminho local desligado/);
+    assert.strictEqual(enviados.length, 0);
+
+    console.log('ok: midia-por-path (6 casos)');
     process.exitCode = 0;
   } catch (err) {
     console.error('FALHOU:', err.message);

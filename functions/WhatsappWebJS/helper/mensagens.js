@@ -23,7 +23,8 @@ const { MessageMedia, Location, Poll } = whatsappweb;
 // - URL http(s): baixada em memória. Antes ia para files-received/<último pedaço da URL>: dois
 //   envios do mesmo arquivo ao mesmo tempo se sobrescreviam, o download-file avisava "terminou"
 //   antes de o arquivo acabar de ser gravado, e a query de URL assinada entrava no nome;
-// - o resto é caminho local, como sempre foi (a frota das lojas manda arquivo do disco).
+// - o resto é caminho local, como sempre foi (a frota das lojas manda arquivo do disco) — menos
+//   com BLOQUEAR_CAMINHO_LOCAL=true, no motor de várias empresas do cluster.
 async function midiaDoPath(filePath, filename) {
   if (filePath.startsWith("data:")) {
     const [cabecalho, base64 = ""] = filePath.split(",");
@@ -43,6 +44,9 @@ async function midiaDoPath(filePath, filename) {
       Buffer.from(await resp.arrayBuffer()).toString("base64"),
       filename || nome
     );
+  }
+  if (process.env.BLOQUEAR_CAMINHO_LOCAL === "true") {
+    throw new Error("Caminho local desligado neste motor: envie URL http(s) ou data-URI");
   }
   return MessageMedia.fromFilePath(filePath);
 }
@@ -346,7 +350,8 @@ module.exports = {
         mimetype: response?.type ?? null,
       });
     } catch (error) {
-      return res.status(500).json({ status: "error", message: error });
+      // `message: error` virava {} no JSON, e o zap só via "Erro do MyZap (HTTP 500)"
+      return res.status(500).json({ status: "error", message: error?.message ?? error });
     }
   },
 

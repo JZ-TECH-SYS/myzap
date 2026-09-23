@@ -178,6 +178,11 @@ spec:
             # que conhecemos de lá.
             - name: SESSION_KEEPALIVE_ONLY_CONNECTED
               value: "false"
+            # Motor de VÁRIAS empresas: `path` que não é URL nem data-URI (um arquivo do
+            # disco do motor — sessões, env) é recusado. O zap já barra na entrada; isto é a
+            # segunda tranca. A frota das lojas (fora do cluster) não liga e segue igual.
+            - name: BLOQUEAR_CAMINHO_LOCAL
+              value: "true"
           # RESERVA IGUAL AO TETO, de propósito (QoS Guaranteed).
           #
           # Com request == limit o pod nunca cresce além do que reservou: ao passar,
