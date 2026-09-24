@@ -46,9 +46,26 @@ class OutboundMessageProcessor {
       return { processed: true, humano: false };
     }
 
+    // Com agente: ANTES de pausar, ele diz se foi a equipe ou outro sistema
+    // no mesmo número (a cobrança automática que sai pelo computador da loja).
+    // A mesma chamada entrega o texto ao agente como contexto — ele não
+    // responde, só guarda, para retomar a conversa sabendo o que foi dito.
+    if (globalThis.process.env.IA_PROVIDER === 'agente') {
+      const AgenteClient = require('../ia/agenteClient');
+      const sistema = await AgenteClient.ehMensagemDoSistema({
+        sessionkey,
+        numero,
+        texto: outboundText,
+        apiUrlEmpresa: empresa?.api_url || null,
+      });
+      if (sistema) {
+        customLogger.info(`${LOG_PREFIX} fromMe de outro sistema (cobrança) — IA segue ativa`, { session, numero });
+        return { processed: true, humano: false };
+      }
+    }
+
     // Atendente humano digitou: registra (pausa a IA por HUMAN_PAUSE_MINUTES
-    // para este cliente) e manda o texto ao agente só como contexto — ele não
-    // responde, apenas guarda, para retomar a conversa sabendo o que foi dito.
+    // para este cliente).
     await ChatHistoryHelper.registerAgentMessage({
       session,
       sessionkey,
@@ -56,17 +73,6 @@ class OutboundMessageProcessor {
       text: outboundText
     });
     customLogger.info(`${LOG_PREFIX} Agent reply detected`, { session, numero });
-
-    if (globalThis.process.env.IA_PROVIDER === 'agente') {
-      const AgenteClient = require('../ia/agenteClient');
-      AgenteClient.atender({
-        sessionkey,
-        numero,
-        texto: outboundText,
-        origem: 'humano',
-        apiUrlEmpresa: empresa?.api_url || null,
-      }).catch((err) => customLogger.warning(`${LOG_PREFIX} contexto humano não chegou ao agente: ${err.message}`));
-    }
 
     return { processed: true, humano: true };
   }

@@ -166,4 +166,41 @@ async function iaAtivaRemota(sessionkey, apiUrlEmpresa) {
     return cfg ? cfg.iaAtiva : null;
 }
 
-module.exports = { atender, falar, iaAtivaRemota };
+/**
+ * Mensagem que saiu do WhatsApp da loja (fromMe) e nao foi o proprio MyZap:
+ * foi alguem da equipe ou outro SISTEMA no mesmo numero? O caso real e a
+ * cobranca automatica que sai pelo computador da loja (Cobra Rapido): vista
+ * pela sessao do agente, ela parecia a equipe assumindo, e a IA se calava
+ * justo para quem acabou de ser cobrado.
+ *
+ * Quem sabe e o agente: ele recebe o texto (como sempre recebeu, com
+ * origem 'humano') e responde { sistema: true } quando reconhece a mensagem.
+ * Agente que nao conhece o campo responde silencio comum, e tudo segue como
+ * antes (pausa). Qualquer falha tambem: na duvida, pausa.
+ */
+async function ehMensagemDoSistema({ sessionkey, numero, texto, apiUrlEmpresa }) {
+    const cfg = await resolverConfig(sessionkey, apiUrlEmpresa);
+    if (!cfg || !texto) return false;
+    try {
+        const resp = await fetch(`${cfg.url}/atender`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.token}` },
+            body: JSON.stringify({
+                sessionkey,
+                numero: String(numero || '').replace(/@.*$/, ''),
+                texto,
+                origem: 'humano',
+            }),
+            // Curto: enquanto isto roda, a pausa ainda nao foi registrada.
+            signal: AbortSignal.timeout(8000),
+        });
+        if (!resp.ok) return false;
+        const dados = await resp.json();
+        return dados?.sistema === true;
+    } catch (err) {
+        customLogger.warning(`[AGENTE] fromMe sem resposta do agente (${err.message}) — tratando como equipe`);
+        return false;
+    }
+}
+
+module.exports = { atender, falar, iaAtivaRemota, ehMensagemDoSistema };
