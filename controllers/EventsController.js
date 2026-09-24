@@ -36,36 +36,71 @@ module.exports = class Events {
       });
     } else if (typeof client?.on === "function") {
       // WhatsApp Web.js - usando APENAS message_create (captura todas as mensagens)
-      client.on("message_create", async (message) => {
-        // Dedupe: evitar processar mesma mensagem 2x
-        const msgId = message.id?._serialized || message.id?.id;
-        if (!this._processedMessages) this._processedMessages = new Set();
-        if (this._processedMessages.has(msgId)) {
-          return;
-        }
-        this._processedMessages.add(msgId);
-        if (this._processedMessages.size > 100) {
-          const arr = Array.from(this._processedMessages);
-          this._processedMessages = new Set(arr.slice(-50));
-        }
+      client.on("message_create", (message) => this.aoCriar(message, session, client, req));
+    }
+  }
 
-        const allowSelfTest = process.env.ALLOW_SELF_TEST === "true";
+  /** Uma mensagem do whatsapp-web.js (message_create ou filha de álbum), com o dedupe. */
+  static async aoCriar(message, session, client, req) {
+    // Dedupe: evitar processar mesma mensagem 2x. O `id.id` primeiro: desde 17/09/2026 o
+    // `_serialized` pode faltar (o WhatsApp Web passou a serializar em `$1`), e a mesma
+    // mensagem viria com duas chaves — a do evento e a buscada no chat (álbum).
+    const msgId = message.id?.id || message.id?._serialized;
+    if (!this._processedMessages) this._processedMessages = new Set();
+    if (this._processedMessages.has(msgId)) {
+      return;
+    }
+    this._processedMessages.add(msgId);
+    if (this._processedMessages.size > 100) {
+      const arr = Array.from(this._processedMessages);
+      this._processedMessages = new Set(arr.slice(-50));
+    }
 
-        // Se for mensagem própria
-        if (message.fromMe) {
-          // Em modo self-test, verificar se é resposta da IA (evitar loop)
-          if (allowSelfTest && isIAResponse(message.body)) {
-            return;
-          }
-          // Fora do self-test, ignorar mensagens próprias
-          if (!allowSelfTest) {
-            await this.processMessage(message, session, client, req);
-            return;
-          }
-        }
+    if (message.type === "album") this.buscarFilhasDoAlbum(message, session, client, req);
 
+    const allowSelfTest = process.env.ALLOW_SELF_TEST === "true";
+
+    // Se for mensagem própria
+    if (message.fromMe) {
+      // Em modo self-test, verificar se é resposta da IA (evitar loop)
+      if (allowSelfTest && isIAResponse(message.body)) {
+        return;
+      }
+      // Fora do self-test, ignorar mensagens próprias
+      if (!allowSelfTest) {
         await this.processMessage(message, session, client, req);
-      });
+        return;
+      }
+    }
+
+    await this.processMessage(message, session, client, req);
+  }
+
+  /** Quando olhar o chat atrás das filhas do álbum: a segunda pode demorar a descer. */
+  static ESPERAS_ALBUM_MS = [5000, 20000];
+
+  /**
+   * Álbum (duas ou mais fotos mandadas juntas): o whatsapp-web.js 1.34.7 só emite a PRIMEIRA
+   * filha no message_create — a segunda nunca passava por aqui. 24/09/2026, Castanheira: os
+   * dois álbuns do dia chegaram com 1 foto de 2, e frente e verso do documento viravam só a
+   * frente. Depois do álbum, procura as filhas no chat (parentMsgKey = o álbum) e passa todas
+   * pelo aoCriar: o dedupe barra a que já veio.
+   */
+  static buscarFilhasDoAlbum(album, session, client, req) {
+    const idAlbum = album.id?.id;
+    if (!idAlbum || typeof album.getChat !== "function") return;
+    for (const espera of this.ESPERAS_ALBUM_MS) {
+      setTimeout(async () => {
+        try {
+          const chat = await album.getChat();
+          const recentes = await chat.fetchMessages({ limit: 30 });
+          for (const m of recentes) {
+            if (m?._data?.parentMsgKey?.id === idAlbum) await this.aoCriar(m, session, client, req);
+          }
+        } catch (e) {
+          console.error(`[album] filhas do álbum ${idAlbum} não buscadas:`, e?.message || e);
+        }
+      }, espera);
     }
   }
 
