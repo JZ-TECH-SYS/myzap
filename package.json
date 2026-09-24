@@ -9,7 +9,7 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "test": "node test/smoke-ia.js && node test/anexos-padrao.js && node test/loja-assumiu.js && node test/midia-marcador.js && node test/midia-para-agente.js && node test/midia-por-path.js && node test/destino-lid.js && node test/patch-midia.js && node test/album-filhas.js && node test/fromme-cobranca.js",
+    "test": "node test/smoke-ia.js && node test/anexos-padrao.js && node test/loja-assumiu.js && node test/midia-marcador.js && node test/midia-para-agente.js && node test/midia-por-path.js && node test/destino-lid.js && node test/patch-midia.js && node test/album-filhas.js && node test/fromme-cobranca.js && node test/agente-por-produto.js",
     "test:loja": "node test/loja-assumiu.js",
     "test:anexos": "node test/anexos-padrao.js",
     "swagger-autogen": "node swagger.js",

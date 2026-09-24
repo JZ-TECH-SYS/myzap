@@ -22,8 +22,21 @@ const API_CLICKEXPRESS =
     (process.env.API_CLICKEXPRESS_URL || 'https://api-clickexpress.jztech.com.br/public').replace(/\/+$/, '');
 const configCache = new Map(); // sessionkey -> { cfg, ate }
 
+const hostDe = (url) => {
+    try { return new URL(url).hostname; } catch { return ''; }
+};
+
+/**
+ * Sessão de OUTRO produto (ex.: o agente do ClickJoias): o api_url dela aponta
+ * para outra API que não a do ClickExpress. Essa sessão pergunta à API DELA
+ * quem é o seu agente — sem isto, o AGENT_URL global da VPS (o agente do
+ * ClickExpress) atenderia os clientes de uma loja de joias.
+ */
+const ehDeOutroProduto = (apiUrlEmpresa) =>
+    Boolean(apiUrlEmpresa) && hostDe(apiUrlEmpresa) !== '' && hostDe(apiUrlEmpresa) !== hostDe(API_CLICKEXPRESS);
+
 async function resolverConfig(sessionkey, apiUrlEmpresa) {
-    if (AGENT_URL && AGENT_AUTH_TOKEN) {
+    if (AGENT_URL && AGENT_AUTH_TOKEN && !ehDeOutroProduto(apiUrlEmpresa)) {
         return { url: AGENT_URL, token: AGENT_AUTH_TOKEN };
     }
 
@@ -161,7 +174,7 @@ async function falar({ sessionkey, texto, apiUrlEmpresa }) {
  * antiga sem o campo). O guard usa o banco local como fallback no null.
  */
 async function iaAtivaRemota(sessionkey, apiUrlEmpresa) {
-    if (AGENT_URL && AGENT_AUTH_TOKEN) return null;
+    if (AGENT_URL && AGENT_AUTH_TOKEN && !ehDeOutroProduto(apiUrlEmpresa)) return null;
     const cfg = await resolverConfig(sessionkey, apiUrlEmpresa);
     return cfg ? cfg.iaAtiva : null;
 }
@@ -203,4 +216,4 @@ async function ehMensagemDoSistema({ sessionkey, numero, texto, apiUrlEmpresa })
     }
 }
 
-module.exports = { atender, falar, iaAtivaRemota, ehMensagemDoSistema };
+module.exports = { atender, falar, iaAtivaRemota, ehMensagemDoSistema, _resolverConfig: resolverConfig };
