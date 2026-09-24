@@ -4,6 +4,7 @@ const eventsHelper = require("./helper/events/events.js");
 const ChatHistoryHelper = require("./helper/events/chatHistory.js");
 const ContextBuilder = require("./helper/ia/contextBuilder.js");
 const AudioProcessor = require("./helper/ia/audioProcessor.js");
+const MidiaProcessor = require("./helper/ia/midiaProcessor.js");
 const DecisionEngine = require("./helper/ia/decisionEngine.js");
 const SocketWebhookManager = require("./helper/events/socketWebhookManager.js");
 const OutboundMessageProcessor = require("./helper/events/outboundMessageProcessor.js");
@@ -162,6 +163,9 @@ module.exports = class Events {
 
     if (audioResult.message) message = audioResult.message;
     if (audioResult.payload) payload = audioResult.payload;
+
+    // 4b. Foto/figurinha/PDF: o agente VÊ o arquivo (o marcador continua no texto)
+    await MidiaProcessor.processMidia({ message, client, numero, empresa });
 
     // 5. Registrar mensagem do usuário
     // O texto que segue para a IA é o LEGÍVEL (textoMensagem): imagem/vídeo/

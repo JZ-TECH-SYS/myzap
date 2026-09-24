@@ -104,7 +104,7 @@ async function process({
       customLogger.info(`${LOG_PREFIX} Drenando ${fila.length} mensagem(ns) enfileirada(s) de ${numero}`);
       setImmediate(() => {
         process({
-          message: { ...message, body: combinado, agenteAudioBase64: null, agenteAudioMime: null },
+          message: { ...message, body: combinado, agenteAudioBase64: null, agenteAudioMime: null, agenteMidiaBase64: null, agenteMidiaMime: null },
           client,
           session,
           sessionkey,
@@ -309,6 +309,8 @@ async function processIA({
           texto: msgBody,
           audioBase64: message?.agenteAudioBase64 || null,
           audioMime: message?.agenteAudioMime || null,
+          midiaBase64: message?.agenteMidiaBase64 || null,
+          midiaMime: message?.agenteMidiaMime || null,
           // texto primeiro, voz logo atras (ver envio abaixo)
           vozDepois: Boolean(message?.agenteAudioBase64),
           // modo local: a config do agente pode vir da API da empresa (api_url

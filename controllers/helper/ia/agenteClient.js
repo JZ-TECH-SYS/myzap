@@ -68,7 +68,7 @@ async function resolverConfig(sessionkey, apiUrlEmpresa) {
     }
 }
 
-async function atender({ sessionkey, numero, celular, nome, texto, audioBase64, audioMime, origem, apiUrlEmpresa, vozDepois }) {
+async function atender({ sessionkey, numero, celular, nome, texto, audioBase64, audioMime, midiaBase64, midiaMime, origem, apiUrlEmpresa, vozDepois }) {
     const cfg = await resolverConfig(sessionkey, apiUrlEmpresa);
     if (!cfg) {
         customLogger.error('[AGENTE] sem AGENT_URL (env ou config remota) com IA_PROVIDER=agente');
@@ -84,6 +84,11 @@ async function atender({ sessionkey, numero, celular, nome, texto, audioBase64, 
     // telefone REAL (contatos @lid escondem o número no message.from)
     if (celular) corpo.celular = celular;
     if (texto) corpo.texto = texto;
+    // Foto/figurinha/PDF do cliente: o agente vê o arquivo (o texto traz o marcador).
+    if (midiaBase64) {
+        corpo.midia_base64 = midiaBase64;
+        corpo.midia_mime = midiaMime || 'image/jpeg';
+    }
     if (audioBase64) {
         corpo.audio_base64 = audioBase64;
         corpo.audio_mime = audioMime || 'audio/ogg';
