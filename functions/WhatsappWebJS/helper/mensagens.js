@@ -959,7 +959,19 @@ module.exports = {
         });
       }
 
+      // A mensagem do fetchMessages traz o id em `$1`: sem o `_serialized`, o downloadMedia do
+      // whatsapp-web.js consulta o WhatsApp Web com id vazio e quebra com erro minificado.
+      if (mediaMessage.id && !mediaMessage.id._serialized) mediaMessage.id._serialized = idSerializado(mediaMessage.id);
+
       const media = await mediaMessage.downloadMedia();
+      if (!media?.data) {
+        // Antes quebrava em `media.mimetype` e o zap só via "Cannot read properties of undefined".
+        return res.status(500).json({
+          result: 500,
+          status: "FAIL",
+          message: "O WhatsApp Web não entregou a mídia (ainda não pronta, expirada ou apagada)"
+        });
+      }
       
       return res.status(200).json({
         result: 200,
@@ -972,10 +984,13 @@ module.exports = {
         size: media.filesize
       });
     } catch (error) {
+      // O erro do WhatsApp Web vem minificado ("t"): vai com nome e mensagem, nunca vazio.
+      const detalhe = [error?.name, error?.message].filter(Boolean).join(': ') || String(error);
+      customLogger.error(`[DOWNLOAD MEDIA] ${messageid}: ${detalhe}`);
       return res.status(500).json({
         result: 500,
         status: "FAIL",
-        message: error.message
+        message: `Falha ao baixar a mídia no WhatsApp Web: ${detalhe}`
       });
     }
   },

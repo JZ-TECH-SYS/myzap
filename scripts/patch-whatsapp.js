@@ -16,6 +16,15 @@
  *    mantenedor, ainda sem versão publicada:
  *    https://github.com/wwebjs/whatsapp-web.js/commit/78924aea793ddc93e03ddefff8d9da526420ec5a
  *    (issues #201921 e #201922). Sai daqui quando a versão com a correção entrar no lockfile.
+ *
+ * 3. Mídia recebida não baixa às vezes ("Erro ao baixar mídia: t"): o downloadAndMaybeDecrypt
+ *    do WhatsApp Web atual toma o mimetype do argumento e, sem ele, assume
+ *    application/octet-stream — a lista de tipos aceitos recusa isso para imagem, áudio e voz com
+ *    InvalidMediaFileType (a classe minificada "t"). Só acontece quando a mídia não está no cache
+ *    de download do WhatsApp Web (chave: filehash), e por isso é intermitente: o primeiro áudio de
+ *    um cliente novo falhava e o seguinte baixava (loja piloto da Celularis, 24/09/2026). O
+ *    Message.downloadMedia do 1.34.7 não passa o mimetype; o patch passa `msg.mimetype`, como na
+ *    issue #201908 do wwebjs/whatsapp-web.js (testada no 1.34.7, ainda sem correção publicada).
  */
 
 const fs = require('fs');
@@ -25,6 +34,12 @@ const utilsPath = path.join(
   __dirname,
   '..',
   'node_modules/whatsapp-web.js/src/util/Injected/Utils.js'
+);
+
+const messagePath = path.join(
+  __dirname,
+  '..',
+  'node_modules/whatsapp-web.js/src/structures/Message.js'
 );
 
 const CORRECAO_ID_DA_MIDIA = 'delete message.__x_id;';
@@ -46,6 +61,22 @@ function patchIdDaMidia(content) {
     + `        ${CORRECAO_ID_DA_MIDIA}\n\n`
     + ANCORA_ID_DA_MIDIA
     + partes[1];
+}
+
+const ANCORA_MIMETYPE = '                        type: msg.type,\n'
+  + '                        signal: new AbortController().signal,\n';
+const COM_MIMETYPE = '                        type: msg.type,\n'
+  + '                        mimetype: msg.mimetype, // patch do MyZap: sem ele, octet-stream e InvalidMediaFileType\n'
+  + '                        signal: new AbortController().signal,\n';
+
+/** Passa o mimetype da mensagem ao downloadAndMaybeDecrypt do Message.downloadMedia. Idempotente; lança se a forma mudou. */
+function patchMimetypeDoDownload(content) {
+  if (content.includes(COM_MIMETYPE)) return content;
+  const partes = content.split(ANCORA_MIMETYPE);
+  if (partes.length !== 2) {
+    throw new Error(`âncora do mimetype achada ${partes.length - 1} vez(es) em Message.js (esperado: 1)`);
+  }
+  return partes[0] + COM_MIMETYPE + partes[1];
 }
 
 if (require.main === module) {
@@ -74,10 +105,17 @@ if (require.main === module) {
       ? '[patch] ℹ️ id da mídia já corrigido'
       : '[patch] whatsapp-web.js corrigido: mídia sem o __x_id do MediaData');
     fs.writeFileSync(utilsPath, comIdDaMidia, 'utf8');
+
+    const message = fs.readFileSync(messagePath, 'utf8');
+    const comMimetype = patchMimetypeDoDownload(message);
+    console.log(comMimetype === message
+      ? '[patch] ℹ️ mimetype do download já corrigido'
+      : '[patch] whatsapp-web.js corrigido: download de mídia com o mimetype da mensagem');
+    fs.writeFileSync(messagePath, comMimetype, 'utf8');
   } catch (error) {
     console.error('[patch] ❌ Erro ao aplicar patch:', error.message);
     process.exit(1);
   }
 }
 
-module.exports = { patchIdDaMidia };
+module.exports = { patchIdDaMidia, patchMimetypeDoDownload };

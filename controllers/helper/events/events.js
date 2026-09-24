@@ -53,6 +53,34 @@ module.exports = {
     return mapa[ack] || 'UNKNOWN';
   },
 
+  // Mídia recebida às vezes não baixa na primeira vez (24/09/2026, loja piloto da Celularis: o
+  // primeiro áudio de um cliente novo falhou e o seguinte baixou). Tenta de novo com espera curta,
+  // e o erro, que o WhatsApp Web devolve minificado ("t"), vai inteiro para o log.
+  ESPERA_NOVA_TENTATIVA_MS: 1500,
+
+  async baixarComNovaTentativa(baixar, tentativas = 3) {
+    for (let i = 1; i <= tentativas; i++) {
+      try {
+        const media = await baixar();
+        const base64 = media?.data || (typeof media === 'string' ? media : null);
+        if (base64) return base64;
+        console.log(`⚠️ Mídia não veio do WhatsApp Web (tentativa ${i}/${tentativas})`);
+      } catch (e) {
+        console.log(`⚠️ Erro ao baixar mídia (tentativa ${i}/${tentativas}): ${this.descreverErro(e)}`);
+      }
+      if (i < tentativas) await new Promise((ok) => setTimeout(ok, this.ESPERA_NOVA_TENTATIVA_MS));
+    }
+    return null;
+  },
+
+  /** O erro inteiro numa linha: nome e mensagem, o String() quando diz outra coisa e o começo da pilha. */
+  descreverErro(e) {
+    const partes = [e?.name, e?.message].filter(Boolean).join(': ') || String(e);
+    const texto = String(e);
+    const pilha = String(e?.stack || '').split('\n').slice(1, 5).map((l) => l.trim()).filter(Boolean).join(' | ');
+    return partes + (texto !== partes ? ` / ${texto}` : '') + (pilha ? ` [${pilha}]` : '');
+  },
+
   async baixarMidia(type, client, message) {
     const tipos = ['image', 'video', 'audio', 'ptt', 'document', 'sticker'];
     if (!tipos.includes(type) || !message) return null;
@@ -60,8 +88,7 @@ module.exports = {
     try {
       // 1) whatsapp-web.js: método no objeto da mensagem
       if (typeof message.downloadMedia === 'function') {
-        const media = await message.downloadMedia();
-        const base64 = media?.data || (typeof media === 'string' ? media : null);
+        const base64 = await this.baixarComNovaTentativa(() => message.downloadMedia());
         if (base64) return base64;
       } else if (client && typeof client.getMessageById === 'function') {
         // Fallback para caso mensagem tenha sido serializada e perdeu métodos
@@ -94,7 +121,7 @@ module.exports = {
 
       return null;
     } catch (error) {
-      console.log(`⚠️ Erro ao baixar mídia: ${error.message}`);
+      console.log(`⚠️ Erro ao baixar mídia: ${this.descreverErro(error)}`);
       return null;
     }
   },

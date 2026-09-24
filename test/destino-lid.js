@@ -132,5 +132,45 @@ const passar = async (number) => {
   p = await events.montarPayload(msg({ from: '5511999999999@c.us', id: { _serialized: 'false_x_1' } }), 's', comTelefone);
   assert.ok(!('lid' in p) && p.id._serialized === 'false_x_1', 'contato @c.us: nada muda');
 
+  // Download da mídia recebida (24/09/2026): tenta de novo e registra o erro inteiro.
+  events.ESPERA_NOVA_TENTATIVA_MS = 5;
+  const minificado = () => { const e = new Error('t'); e.name = 't'; return e; };
+  let tentativas = 0;
+  const ptt = msg({ type: 'ptt', from: '555@lid', downloadMedia: async () => {
+    tentativas++;
+    if (tentativas < 3) throw minificado();
+    return { data: 'T0dnUw==', mimetype: 'audio/ogg; codecs=opus' };
+  } });
+  p = await events.montarPayload(ptt, 's', comTelefone);
+  assert.ok(tentativas === 3 && p.base64 === 'T0dnUw==', 'duas falhas e a terceira baixa: o payload leva o base64');
+
+  tentativas = 0;
+  const semMidia = msg({ type: 'image', from: '666@lid', downloadMedia: async () => { tentativas++; throw minificado(); } });
+  p = await events.montarPayload(semMidia, 's', comTelefone);
+  assert.ok(tentativas === 3 && !p.base64, 'três falhas: segue sem base64, sem travar');
+  assert.ok(/^t: t \[/.test(events.descreverErro(minificado())), 'o erro minificado sai com nome, mensagem e pilha');
+
+  // Rota /downloadMedia: a mensagem do fetchMessages vem só com `$1`.
+  const idMidia = `false_${LID}_AUD1`;
+  let idNoDownload = null;
+  let resultado = { data: 'QUJD', mimetype: 'audio/ogg', filename: null, filesize: 3 };
+  const guardada = { id: { $1: idMidia, id: 'AUD1', fromMe: false, remote: LID }, hasMedia: true,
+    downloadMedia: async function () { idNoDownload = this.id._serialized; if (resultado instanceof Error) throw resultado; return resultado; } };
+  cliente.getChatById = async (id) => { chats.push(id); return { fetchMessages: async () => [guardada] }; };
+  res = resposta();
+  await mensagens.downloadMediaByMessage({ body: { session: 's', messageid: idMidia } }, res);
+  assert.ok(res.statusCode === 200 && res.corpo.data === 'QUJD', 'acha pelo `$1` e baixa');
+  assert.strictEqual(idNoDownload, idMidia, 'o downloadMedia recebe o id serializado');
+
+  resultado = undefined;
+  res = resposta();
+  await mensagens.downloadMediaByMessage({ body: { session: 's', messageid: idMidia } }, res);
+  assert.ok(res.statusCode === 500 && /não entregou a mídia/.test(res.corpo.message), 'mídia indisponível: erro com detalhe, sem TypeError');
+
+  resultado = minificado();
+  res = resposta();
+  await mensagens.downloadMediaByMessage({ body: { session: 's', messageid: idMidia } }, res);
+  assert.ok(res.statusCode === 500 && /: t: t$/.test(res.corpo.message), 'erro minificado chega ao zap com nome e mensagem');
+
   console.log('destino-lid: ok');
 })().catch((e) => { console.error('destino-lid: QUEBROU —', e.message); process.exit(1); });

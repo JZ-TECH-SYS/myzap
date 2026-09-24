@@ -8,7 +8,7 @@
  */
 const assert = require('assert');
 const path = require('path');
-const { patchIdDaMidia } = require(path.join(__dirname, '..', 'scripts', 'patch-whatsapp.js'));
+const { patchIdDaMidia, patchMimetypeDoDownload } = require(path.join(__dirname, '..', 'scripts', 'patch-whatsapp.js'));
 
 // O trecho do window.WWebJS.sendMessage do 1.34.7, reduzido ao que o patch toca.
 const utils1347 = `
@@ -41,6 +41,29 @@ assert.ok(/\.\.\.extraOptions,\n {8}\};\n\n {8}\/\/ MediaData[^\n]*\n {8}delete 
   'logo depois do objeto da mensagem, antes do canonicalUrl');
 assert.strictEqual(patchIdDaMidia(corrigido), corrigido, 'idempotente');
 assert.throws(() => patchIdDaMidia('window.WWebJS.sendMessage = async () => {};'), /âncora do __x_id/, 'Utils.js de outra forma quebra o build');
+
+// Mimetype no download (Message.js do 1.34.7, reduzido): sem ele o WhatsApp Web assume octet-stream
+// e recusa imagem/áudio/voz fora do cache com InvalidMediaFileType ("t").
+const message1347 = `
+                const decryptedMedia = await window
+                    .require('WAWebDownloadManager')
+                    .downloadManager.downloadAndMaybeDecrypt({
+                        mediaKeyTimestamp: msg.mediaKeyTimestamp,
+                        type: msg.type,
+                        signal: new AbortController().signal,
+                        downloadQpl: mockQpl,
+                    });
+                return {
+                    data,
+                    mimetype: msg.mimetype,
+                };
+`;
+const comMime = patchMimetypeDoDownload(message1347);
+assert.ok(/type: msg\.type,\n {24}mimetype: msg\.mimetype, \/\/ patch do MyZap[^\n]*\n {24}signal: new AbortController/.test(comMime),
+  'o mimetype entra entre o type e o signal do downloadAndMaybeDecrypt');
+assert.strictEqual(comMime.split('mimetype: msg.mimetype').length - 1, 2, 'uma linha nova; a do retorno continua a mesma');
+assert.strictEqual(patchMimetypeDoDownload(comMime), comMime, 'mimetype: idempotente');
+assert.throws(() => patchMimetypeDoDownload('return { mimetype: msg.mimetype };'), /âncora do mimetype/, 'Message.js de outra forma quebra o build');
 
 // O trecho corrigido roda: o modelo da mídia (com `__x_id` enumerável) não leva o id privado junto.
 const window = { WWebJS: {} };
