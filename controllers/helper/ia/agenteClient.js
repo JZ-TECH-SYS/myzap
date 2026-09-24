@@ -131,6 +131,14 @@ async function atender({ sessionkey, numero, celular, nome, texto, audioBase64, 
             audioBase64: dados.audio_base64 || null,
             audioMime: dados.audio_mime || null,
             motivo: dados.motivo || null,
+            // Fotos que o agente quer mostrar (ex.: a peça que o cliente perguntou).
+            // Só https e no máximo 3 — quem manda é o agente, quem baixa é o MyZap.
+            midias: Array.isArray(dados.midias)
+                ? dados.midias
+                    .filter((m) => m && typeof m.url === 'string' && /^https:\/\//.test(m.url))
+                    .slice(0, 3)
+                    .map((m) => ({ url: m.url, legenda: typeof m.legenda === 'string' ? m.legenda.slice(0, 900) : '' }))
+                : [],
         };
     } catch (err) {
         customLogger.error(`[AGENTE] erro na chamada: ${err.message}`);

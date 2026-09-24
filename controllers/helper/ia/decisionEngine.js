@@ -372,6 +372,16 @@ async function processIA({
       // atras, como um complemento.
       await MessageSender.sendText({ client, to: numero, text: r.texto });
 
+      // Fotos que o agente mandou mostrar (a peça, com a legenda). Falhou uma,
+      // as outras seguem — e a conversa já está no texto.
+      for (const m of r.midias || []) {
+        try {
+          await MessageSender.sendFileFromUrl({ client, session, to: numero, url: m.url, caption: m.legenda || undefined });
+        } catch (e) {
+          customLogger.warning(`${LOG_PREFIX} foto do agente não foi (${e.message})`, { session, numero });
+        }
+      }
+
       if (r.audioBase64) {
         // agente ja mandou a voz junto (fluxo antigo / voz_depois desligado)
         await MessageSender.sendPtt({
