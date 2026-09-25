@@ -440,8 +440,13 @@ module.exports = {
           status: status || 'INITIALIZING'
         };
 
-        // Se tem QR Code no banco, incluir na resposta
-        if (data.qrCode && data.status === 'qrCode') {
+        // Se tem QR Code no banco E o Chrome ainda espera a leitura, devolve ele.
+        // QR de um Chrome que já desistiu é QR morto: cai no [QR EXPIRED] e gera outro.
+        const { qrVivo } = require('../../../controllers/helper/core/qrVivo.js');
+        if (data.qrCode && data.status === 'qrCode' && !qrVivo(session)) {
+          customLogger.info(`[QR MORTO] ${session} - QR do banco sem Chrome esperando: gerando outro`);
+        }
+        if (data.qrCode && data.status === 'qrCode' && qrVivo(session)) {
           resposta.qrCode = data.qrCode;  // Base64 da imagem do QR Code  
           resposta.urlCode = data.urlCode; // Como estava antes
           resposta.state = 'QRCODE';

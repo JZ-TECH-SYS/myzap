@@ -181,6 +181,19 @@ class Sessions {
         });
       }
 
+      // QR guardado sem Chrome esperando a leitura (o cliente já desistiu): é QR morto.
+      // Diz "desconectado" — quem mostra o QR para de mostrar e oferece gerar outro.
+      const temQr = (device?.qrCode && device.qrCode !== '') || device?.status === 'qrCode' || device?.state === 'QRCODE';
+      if (temQr && !require('./helper/core/qrVivo.js').qrVivo(session)) {
+        customLogger.info(`[QR MORTO] ${session} - status: QR sem Chrome esperando a leitura`);
+        return http.json(res, 200, {
+          result: 200,
+          status: 'disconnected',
+          state: 'DISCONNECTED',
+          message: 'O QR Code expirou. Chame /start para gerar outro.',
+        });
+      }
+
       // TEM QR CODE DISPONÍVEL - Verificar tanto por status quanto por presença do QR (ou cache para WPPConnect)
       if ((device?.qrCode && device.qrCode !== '') || (device?.status === 'qrCode' || device?.state === 'QRCODE')) {
         let qrToReturn = device.qrCode;
