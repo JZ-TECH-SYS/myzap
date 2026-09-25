@@ -1,5 +1,6 @@
 /**
- * Rajada no primeiro contato: o que chega enquanto a mensagem padrão sai NÃO vai para a IA.
+ * Primeiro contato: "oi" leva só a mensagem padrão; pedido/pergunta leva a padrão E a IA.
+ * Rajada: o que chega enquanto a padrão sai só vai para a IA se tiver conteúdo.
  * Capucho (25/09/2026 17:28): fornecedor mandou "Boa tarde! Já estão valendo as ofertas…" e o
  * panfleto no mesmo segundo. O texto levou a mensagem padrão + cardápio; a imagem ficou na fila
  * do processingLock, foi drenada e a IA respondeu "Não consigo visualizar imagens por aqui!".
@@ -47,17 +48,51 @@ const msg = (texto) => DecisionEngine.process({
 });
 const drenar = () => new Promise((r) => setTimeout(r, 50));
 
-(async () => {
-  durantePadrao = () => msg('[imagem]');
-  await msg('Boa tarde! Já estão valendo as ofertas especiais');
-  durantePadrao = null;
-  await drenar();
-  assert.deepEqual(atendidas, [], 'a imagem que chegou durante a mensagem padrão foi para a IA');
-  console.log('ok   rajada no primeiro contato: a segunda mensagem não vai para a IA');
+const { ehSoCumprimento } = require(resolver('controllers/helper/ia/primeiroContato.js'));
+const nova = () => { lojaJaFalou = false; atendidas.length = 0; };
+let n = 0;
+const outro = () => `55119${String(++n).padStart(8, '0')}@lid`;
+const msgDe = (num, texto) => DecisionEngine.process({
+  message: { body: texto, from: num, type: 'chat', _data: {} },
+  client: { getContactById: async () => ({ pushname: 'Cliente' }) },
+  session: 'CapuchoLanches', sessionkey: 'CapuchoLanches', numero: num, msgBody: texto,
+  empresa, payload: {}, responseDefault: async () => {},
+});
 
-  await msg('quero pedir um x-bacon');
-  await drenar();
-  assert.deepEqual(atendidas, ['quero pedir um x-bacon'], 'depois da mensagem padrão, quem escreve de novo é atendido');
-  console.log('ok   quem insiste depois da mensagem padrão é atendido pela IA');
+(async () => {
+  // frases reais do estudo de 25/09 (298 primeiros contatos)
+  for (const f of ['oi', 'Ola boa noite', 'Oiii nega / Boa tarde', 'Boa noite, tudo bem?', 'Manda o cardápio por favor', 'Qual link 🔗', '[imagem]', '[vídeo] [vídeo]', 'boa noite pessoal 😄'])
+    assert.ok(ehSoCumprimento(f), `devia ser só cumprimento: "${f}"`);
+  for (const f of ['Boa noite gostaria de pedir dois x salada completo para entregar.', 'Quero fazer um pedido', 'Até que horas vocês entregam?', 'Pizza 16 pedaços Borda catupiry', 'Oi, boa noite. Vocês estão pegando free-lancer?', 'Boa noite / Tenho um pedido na fila / Será que demora', 'Comprovante_20260912.pdf'])
+    assert.ok(!ehSoCumprimento(f), `devia ter conteúdo: "${f}"`);
+  console.log('ok   cumprimento x conteúdo nas frases reais');
+
+  nova(); await msgDe(outro(), 'oi'); await drenar();
+  assert.deepEqual(atendidas, [], '"oi" no primeiro contato não vai para a IA');
+  console.log('ok   "oi": só a mensagem padrão, a IA espera');
+
+  nova(); await msgDe(outro(), 'Boa noite gostaria de pedir dois x salada completo para entregar.'); await drenar();
+  assert.deepEqual(atendidas, ['Boa noite gostaria de pedir dois x salada completo para entregar.'], 'pedido na 1ª mensagem vai para a IA');
+  console.log('ok   pedido na primeira mensagem: mensagem padrão e a IA responde (caso do Paulo)');
+
+  nova(); const forn = outro();
+  durantePadrao = () => msgDe(forn, '[imagem]');
+  await msgDe(forn, 'Boa noite');
+  durantePadrao = null; await drenar();
+  assert.deepEqual(atendidas, [], 'panfleto (mídia sem texto) chegando durante a padrão não vai para a IA');
+  console.log('ok   imagem colada no cumprimento: descartada');
+
+  nova(); const rajada = outro();
+  durantePadrao = () => msgDe(rajada, 'quero 2 x-salada');
+  await msgDe(rajada, 'Boa noite');
+  durantePadrao = null; await drenar();
+  assert.deepEqual(atendidas, ['quero 2 x-salada'], '"boa noite" + pedido no mesmo segundo: o pedido vai para a IA');
+  console.log('ok   "boa noite" e o pedido em rajada: a IA recebe o pedido');
+
+  nova(); const volta = outro();
+  await msgDe(volta, 'oi'); await drenar();
+  await msgDe(volta, 'quero pedir um x-bacon'); await drenar();
+  assert.deepEqual(atendidas, ['quero pedir um x-bacon'], 'quem escreve de novo depois do "oi" é atendido');
+  console.log('ok   depois do "oi", a próxima mensagem vai para a IA');
   process.exit(0);
 })().catch((e) => { console.error('QUEBROU:', e.message); process.exit(1); });

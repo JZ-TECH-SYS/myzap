@@ -8,6 +8,7 @@ const ChatHistoryHelper = require('../events/chatHistory');
 const customLogger = require('../../../util/customLogger');
 const { TEMPO_MENSAGEM_PADRAO_DEFAULT, LOG_PREFIX } = require('./iaConfig');
 const processingLock = require('./processingLock');
+const { ehSoCumprimento } = require('./primeiroContato');
 
 // Registrar resposta da IA no cache (usado para evitar loop no self-test)
 const { registerIAResponse } = require('./iaResponseCache');
@@ -201,13 +202,22 @@ async function processInternal({
         if (!['grupo', 'agente_recente', 'aguardando_humano'].includes(result.reason)) {
           await enviarPadrao(result.reason);
         }
-        // O que chegou ENQUANTO a mensagem padrão saía faz parte do primeiro contato:
-        // drenar a fila mandava para a IA a segunda metade da rajada. 25/09/2026, Capucho:
-        // fornecedor mandou texto + panfleto no mesmo segundo, o texto levou a mensagem
-        // padrão e a imagem caiu na IA ("não consigo visualizar imagens"). A IA só entra
-        // se a pessoa escrever de novo depois da mensagem padrão.
         if (result.reason === 'primeiro_contato') {
-          filaPendentes.delete(chaveDaFila(session, sessionkey, numero));
+          // O que chegou ENQUANTO a mensagem padrão saía é parte do primeiro contato. Só
+          // cumprimento/mídia sem texto sai da fila (25/09 17:28: panfleto de fornecedor
+          // colado no texto dele caiu na IA como "[imagem]"); o resto — "boa noite" e,
+          // no mesmo segundo, "quero 2 x-salada" — segue para a IA quando a fila drenar.
+          const chave = chaveDaFila(session, sessionkey, numero);
+          const comConteudo = (filaPendentes.get(chave) || []).filter((t) => !ehSoCumprimento(t));
+          if (comConteudo.length) filaPendentes.set(chave, comConteudo);
+          else filaPendentes.delete(chave);
+          // Primeira mensagem já com o pedido ou com pergunta: a IA responde logo depois
+          // da mensagem padrão, passando pelos guards que faltam (IA ligada, humano na
+          // conversa). Só "oi"/"cardápio" espera a pessoa escrever de novo.
+          if (!ehSoCumprimento(msgBody)) {
+            console.log(`${LOG_PREFIX} Primeiro contato com conteúdo: IA responde depois da mensagem padrão`);
+            continue;
+          }
         }
 
         await responseDefault(payload);
