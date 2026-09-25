@@ -2,6 +2,7 @@ const Guards = require('./guards');
 const { sendDefault } = require('./defaultMessageService');
 const EmpresaIA = require('./empresaIA');
 const AgenteClient = require('./agenteClient');
+const { separarPix } = require('./separarPix');
 const MessageSender = require('../events/messageSender');
 const ChatHistoryHelper = require('../events/chatHistory');
 const customLogger = require('../../../util/customLogger');
@@ -370,7 +371,10 @@ async function processIA({
       // audio...". Pior, link e chave PIX chegavam ditados, sem nada para
       // tocar ou copiar. Agora o texto sai assim que fica pronto e a voz vem
       // atras, como um complemento.
-      await MessageSender.sendText({ client, to: numero, text: r.texto });
+      // PIX copia-e-cola do agente sai numa mensagem só dele (copiar com um toque).
+      for (const parte of separarPix(r.texto)) {
+        await MessageSender.sendText({ client, to: numero, text: parte });
+      }
 
       // Fotos que o agente mandou mostrar (a peça, com a legenda). Falhou uma,
       // as outras seguem — e a conversa já está no texto.
