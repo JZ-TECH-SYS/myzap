@@ -21,6 +21,7 @@ const { registerIAResponse } = require('./iaResponseCache');
 // o bot morreu (caso real: Capucho, 31/08). Agora entram numa fila por número
 // e são drenadas como UMA mensagem combinada ao fim do turno.
 const filaPendentes = new Map();
+const chaveDaFila = (session, sessionkey, numero) => `${session || ''}::${sessionkey || ''}::${numero || ''}`;
 const FILA_MAX = 5;
 
 /**
@@ -70,7 +71,7 @@ async function process({
 }) {
   customLogger.debug(`${LOG_PREFIX} Iniciando para ${numero}`);
 
-  const chaveFila = `${session || ''}::${sessionkey || ''}::${numero || ''}`;
+  const chaveFila = chaveDaFila(session, sessionkey, numero);
 
   if (!processingLock.acquire({ session, sessionkey, numero })) {
     const texto = typeof msgBody === 'string' ? msgBody.trim() : '';
@@ -199,6 +200,14 @@ async function processInternal({
         // conversa (a saudação automática no meio do atendimento confunde)
         if (!['grupo', 'agente_recente', 'aguardando_humano'].includes(result.reason)) {
           await enviarPadrao(result.reason);
+        }
+        // O que chegou ENQUANTO a mensagem padrão saía faz parte do primeiro contato:
+        // drenar a fila mandava para a IA a segunda metade da rajada. 25/09/2026, Capucho:
+        // fornecedor mandou texto + panfleto no mesmo segundo, o texto levou a mensagem
+        // padrão e a imagem caiu na IA ("não consigo visualizar imagens"). A IA só entra
+        // se a pessoa escrever de novo depois da mensagem padrão.
+        if (result.reason === 'primeiro_contato') {
+          filaPendentes.delete(chaveDaFila(session, sessionkey, numero));
         }
 
         await responseDefault(payload);
