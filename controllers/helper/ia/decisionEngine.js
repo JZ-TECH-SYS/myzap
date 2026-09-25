@@ -378,6 +378,9 @@ async function processIA({
       // atras, como um complemento.
       // PIX copia-e-cola do agente sai numa mensagem só dele (copiar com um toque).
       for (const parte of separarPix(r.texto)) {
+        // Cada pedaço é resposta da IA: o eco do código sozinho não bate com o
+        // texto inteiro e virava "atendente digitou" (Sonhare, 25/09).
+        registerIAResponse(parte);
         await MessageSender.sendText({ client, to: numero, text: parte });
       }
 
