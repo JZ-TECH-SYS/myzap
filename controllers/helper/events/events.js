@@ -28,6 +28,16 @@ module.exports = {
   fromBloqueado: ['status', 'status@broadcast'],
   subtypesBloqueado: ['ephemeral_keep_in_chat', 'initial_pHash_mismatch'],
 
+  /**
+   * Aviso do sistema ("o código de segurança mudou", entrou no grupo…) não é o cliente falando.
+   * 24/09/2026, Capucho: a loja trocou de aparelho e TODO cliente passou a receber o
+   * e2e_notification antes da mensagem dele — o aviso virava o "primeiro contato" (saía a
+   * mensagem padrão) e o "oi" de verdade, que chegava logo atrás, caía direto na IA.
+   */
+  ehAvisoDoSistema(message) {
+    return TIPOS_SEM_CONSULTA.includes(message?.type);
+  },
+
   isPermitido(message) {
     return this.tiposPermitidos.includes(message?.type)
       && !this.fromBloqueado.includes(message?.from)

@@ -74,6 +74,9 @@ const casos = [
   [{ type: 'image', body: thumbnail, caption: 'comprovante do pix', from: '5511976919165@c.us' }, '[imagem] comprovante do pix', 'foto com legenda'],
   [{ type: 'document', body: 'Comprovante.pdf', from: '5511976919165@c.us' }, 'Comprovante.pdf', 'PDF continua chegando pelo nome do arquivo'],
   [{ type: 'chat', body: 'Manda o Pix', from: '5511976919165@c.us' }, 'Manda o Pix', 'texto normal não muda'],
+  // Capucho 24/09/2026: trocou de aparelho, o aviso virava o "primeiro contato" e o "oi" ia para a IA
+  [{ type: 'e2e_notification', body: '', from: '152574535688336@lid' }, undefined, 'aviso "o código de segurança mudou" não chega à IA'],
+  [{ type: 'gp2', body: '', from: '152574535688336@lid' }, undefined, 'aviso de grupo não chega à IA'],
 ];
 
 let falhas = 0;

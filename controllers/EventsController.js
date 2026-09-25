@@ -146,6 +146,11 @@ module.exports = class Events {
     // 3. Notificar recebimento de mensagem
     await socketManager.notifyMessageReceived(payload);
 
+    // Aviso do sistema vai para o painel, mas não é conversa: sem mensagem padrão, sem IA.
+    if (eventsHelper.ehAvisoDoSistema(message)) {
+      return socketManager.responseDefault(payload);
+    }
+
     // 4. Processar áudio se necessário
     const audioResult = await AudioProcessor.processAudio({
       message,
