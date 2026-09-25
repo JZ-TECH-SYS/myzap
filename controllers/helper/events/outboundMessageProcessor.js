@@ -14,6 +14,15 @@ class OutboundMessageProcessor {
     const TIPOS_MIDIA = ['ptt', 'audio', 'image', 'video', 'document', 'sticker'];
     const temMidia = Boolean(message.hasMedia) || TIPOS_MIDIA.includes(String(message.type || ''));
 
+    // Mídia que o SISTEMA acabou de mandar a este cliente (voz do bot, anexo, a foto
+    // da peça que o agente mostra) não é o atendente — COM ou sem legenda. Com legenda,
+    // o texto do eco é a legenda, que ninguém registrou como resposta da IA: caía no
+    // caminho do texto e virava "atendente digitou" — as fotos do agente pausavam a IA
+    // (Sonhare, 25/09/2026: "Guard bloqueou! Motivo: agente_recente").
+    if (temMidia && isSystemMedia(session, numero)) {
+      return { processed: true, humano: false };
+    }
+
     if (!outboundText) {
       // Áudio/foto/figurinha sem texto: se o SISTEMA não mandou mídia para
       // este cliente há pouco (voz do bot, anexo, PDF pela API), foi o
