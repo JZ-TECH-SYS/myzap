@@ -269,8 +269,13 @@ module.exports = {
   },
 
   /**
-   * Verifica se já houve qualquer interação HOJE com este número.
+   * Verifica se A LOJA já falou HOJE com este número (mensagem padrão, IA ou atendente).
    * Usado para determinar se é o primeiro contato do dia.
+   *
+   * A fala do cliente não conta: o EventsController grava a mensagem dele ANTES dos guards,
+   * e contar tudo fazia o próprio "oi" parecer interação anterior — o primeiro contato nunca
+   * disparava para texto e a IA respondia no lugar da mensagem padrão. Só "funcionava"
+   * quando chegava antes um aviso do sistema sem texto (Capucho, 24/09/2026).
    * @param {Object} params
    * @param {string} params.session - ID da sessão
    * @param {string} params.sessionkey - Chave da sessão
@@ -284,6 +289,7 @@ module.exports = {
         session,
         sessionkey,
         numero_cliente: numero,
+        role: { [Op.ne]: 'user' },
         created_at: { [Op.gte]: since },
       },
     });
