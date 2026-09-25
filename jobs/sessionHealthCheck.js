@@ -14,6 +14,10 @@ const config = require('../config');
 const DeviceModel = require('../Models/device.js');
 
 const Device = DeviceModel(config.sequelize);
+const { Op } = require('sequelize');
+
+/** Status do banco que já dizem "conectado". */
+const CONECTADOS = ['CONNECTED', 'inChat', 'isLogged', 'isConnected'];
 
 // 📊 Mapas de rastreamento
 const lastMessageTime = new Map();        // Última msg recebida
@@ -364,6 +368,16 @@ async function runHealthCheckCycle() {
         customLogger.warning(`[HEALTH CHECK] ${session}: state=${health.getState}`);
       } else {
         results.healthy++;
+        // O `ready` do whatsapp-web.js 1.34.7 às vezes não dispara (corrida do
+        // hasSynced; corrigida só no main do wwebjs, PR #201653): a sessão atende, mas
+        // o banco fica em INITIALIZING e o painel da loja mostra "inicializando"
+        // (Capucho, 25/09 11h13). Quem responde CONNECTED ao vivo é CONNECTED.
+        await Device.update(
+          { state: 'CONNECTED', status: 'CONNECTED', updated_at: new Date() },
+          { where: { session, status: { [Op.notIn]: CONECTADOS } } }
+        ).then(([n]) => {
+          if (n) customLogger.info(`[HEALTH CHECK] ${session}: banco corrigido para CONNECTED (o ready não tinha disparado)`);
+        }).catch(() => {});
       }
     }
 
@@ -445,6 +459,7 @@ function getHealthStats() {
 }
 
 module.exports = {
+  runHealthCheckCycle, // exposto para o teste (test/status-conectado.js)
   startHealthCheckJob,
   stopHealthCheckJob,
   registerMessageReceived,
