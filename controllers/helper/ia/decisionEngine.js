@@ -155,7 +155,12 @@ async function processInternal({
   const guardSequence = [
     () => Guards.checkGroupMessage({ message }),
     () => Guards.checkCompanyEnabled({ empresa }),
-    () => Guards.checkFirstContactToday({ session, sessionkey, numero }),
+    // Primeiro contato do dia existe para mandar a MENSAGEM PADRÃO antes da IA. Loja
+    // sem mensagem padrão (o agente do ClickJoias responde tudo) não tem o que mandar:
+    // com o guard, a IA era bloqueada, o sendDefault saía sem enviar nada — e como a
+    // loja "não falou hoje", TODA mensagem seguinte era primeiro contato de novo: a IA
+    // nunca respondia (Sonhare, 25/09/2026, depois do 8cf6eff).
+    ...(mensagemPadrao ? [() => Guards.checkFirstContactToday({ session, sessionkey, numero })] : []),
     () => Guards.checkIaEnabled({ empresa, sessionkey }),
     // Modo agente: a detecção de "quero falar com humano" mora no AGENTE
     // (detector melhor, pausa própria e registro do chamado no painel) — os
