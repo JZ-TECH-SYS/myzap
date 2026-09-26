@@ -11,6 +11,17 @@ class OutboundMessageProcessor {
   
   static async processFromMe({ message, session, sessionkey, numero, socketManager, empresa = null }) {
     const outboundText = typeof message.body === 'string' ? message.body.trim() : '';
+
+    // Mensagem ANTIGA da loja que uma sessão recém-conectada sincroniza não é o
+    // atendente digitando agora. Sonhare, 26/09 09:19: reconectaram o WhatsApp pelo
+    // QR, o histórico veio como "fromMe" e a conversa do Junior virou "equipe
+    // atendendo" — 30 min sem IA. Atendente de verdade gera mensagem com a hora de
+    // agora; 2 min de folga cobrem o relógio do WhatsApp.
+    const idadeSeg = Number(message.timestamp) > 0 ? Math.floor(Date.now() / 1000) - Number(message.timestamp) : 0;
+    if (idadeSeg > 120) {
+      return { processed: true, humano: false };
+    }
+
     const TIPOS_MIDIA = ['ptt', 'audio', 'image', 'video', 'document', 'sticker'];
     const temMidia = Boolean(message.hasMedia) || TIPOS_MIDIA.includes(String(message.type || ''));
 

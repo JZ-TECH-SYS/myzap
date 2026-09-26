@@ -41,6 +41,15 @@ const eco = (numero, message) => Outbound.processFromMe({ message, session: 's',
   r = await eco(A, { type: 'chat', hasMedia: false, body: 'Oi! Aqui é a Ana da loja' });
   assert.equal(r.humano, true, 'texto da equipe logo depois da foto do agente ainda pausa');
   console.log('ok   texto da equipe depois da foto do agente: pausa');
+
+  // Sessão reconectada pelo QR sincroniza o histórico: mensagem da loja de horas atrás.
+  const antes = pausas.length;
+  r = await eco(B, { type: 'chat', hasMedia: false, body: 'Seu pedido 9617 está separado!', timestamp: Math.floor(Date.now() / 1000) - 3 * 3600 });
+  assert.equal(r.humano, false, 'histórico sincronizado não é a equipe digitando agora');
+  assert.equal(pausas.length, antes, 'não pausa a IA');
+  r = await eco(B, { type: 'chat', hasMedia: false, body: 'Oi, aqui é a Ana', timestamp: Math.floor(Date.now() / 1000) - 5 });
+  assert.equal(r.humano, true, 'mensagem de agora da equipe continua pausando');
+  console.log('ok   histórico que a sessão nova sincroniza: não pausa; equipe digitando agora: pausa');
   console.log('eco-foto-legenda: tudo ok');
   process.exit(0);
 })().catch((e) => { console.error('QUEBROU:', e); process.exit(1); });
