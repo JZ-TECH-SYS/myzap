@@ -157,6 +157,16 @@ module.exports = class WhatsappWebJS {
           dataPath: path.join('./instances', session) // ✅ Pasta direta com nome da sessão
         });
 
+        // Sem isto o Chrome restaura a aba do WhatsApp da vez anterior (o pm2 mata o
+        // Chrome e o perfil fica "Crashed"): duas abas, "aberto em outra janela", surda.
+        try {
+          if (require('./helper/perfilChrome.js').limparRestauracaoDeAbas(require('path').join('./instances', session, 'session'))) {
+            customLogger.info(`${session} - 🧹 Abas da vez anterior descartadas (sem 2ª aba do WhatsApp)`);
+          }
+        } catch (e) {
+          customLogger.warning(`${session} - não limpou a restauração de abas: ${e.message}`);
+        }
+
         client = new Client(clientOptions);
 
         // ✅ ADICIONADO - Controle de QR Code timeout
