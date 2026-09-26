@@ -244,6 +244,30 @@ async function checkSessionHealth(session, client) {
 /**
  * Executa health check em todas as sessões conectadas
  */
+/**
+ * O `ready` PERDIDO do whatsapp-web.js 1.34.7. O WhatsApp avisa "terminei de
+ * sincronizar" (change:hasSynced) UMA vez; quando a sessão salva sincroniza
+ * rápido, o aviso sai ANTES de a biblioteca escutar — e o handler que carrega os
+ * utilitários, LIGA OS OUVINTES DE MENSAGEM e emite o `ready` nunca roda (o main
+ * do wwebjs corrige, PR #201653). A sessão fica CONNECTED e surda: 26/09, Sonhare
+ * e Capucho 4 h sem receber nada depois do restart das 04h.
+ *
+ * Sem `client.info` (quem o preenche é esse handler) e com a sincronização já
+ * terminada, chama o handler que a própria biblioteca expôs na página. Ainda
+ * sincronizando: espera o próximo ciclo.
+ */
+async function dispararReadyPerdido(session, client) {
+  if (!client?.pupPage || client.info) return false;
+  const disparou = await client.pupPage.evaluate(() => {
+    const Socket = window.require && window.require('WAWebSocketModel').Socket;
+    if (!Socket || !Socket.hasSynced || typeof window.onAppStateHasSyncedEvent !== 'function') return false;
+    window.onAppStateHasSyncedEvent();
+    return true;
+  }).catch(() => false);
+  if (disparou) customLogger.info(`[HEALTH CHECK] ${session}: ready perdido — sincronização já terminada, ouvintes de mensagem ligados à mão`);
+  return disparou === true;
+}
+
 async function runHealthCheckCycle() {
   try {
     const allSessions = SessionsHelper.getAllSessions();
@@ -368,10 +392,10 @@ async function runHealthCheckCycle() {
         customLogger.warning(`[HEALTH CHECK] ${session}: state=${health.getState}`);
       } else {
         results.healthy++;
-        // O `ready` do whatsapp-web.js 1.34.7 às vezes não dispara (corrida do
-        // hasSynced; corrigida só no main do wwebjs, PR #201653): a sessão atende, mas
-        // o banco fica em INITIALIZING e o painel da loja mostra "inicializando"
-        // (Capucho, 25/09 11h13). Quem responde CONNECTED ao vivo é CONNECTED.
+        // `ready` perdido (ver dispararReadyPerdido): liga os ouvintes que faltaram.
+        await dispararReadyPerdido(session, client);
+        // E o banco, que ficou em INITIALIZING sem o `ready`, passa a dizer o que a
+        // sessão é ao vivo (Capucho, 25/09 11h13: o painel mostrava "inicializando").
         await Device.update(
           { state: 'CONNECTED', status: 'CONNECTED', updated_at: new Date() },
           { where: { session, status: { [Op.notIn]: CONECTADOS } } }
@@ -460,6 +484,7 @@ function getHealthStats() {
 
 module.exports = {
   runHealthCheckCycle, // exposto para o teste (test/status-conectado.js)
+  dispararReadyPerdido, // exposto para o teste (test/ready-perdido.js)
   startHealthCheckJob,
   stopHealthCheckJob,
   registerMessageReceived,
