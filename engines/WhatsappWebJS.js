@@ -31,14 +31,21 @@ module.exports = class WhatsappWebJS {
         return resolve({ status: 'INITIALIZING', session });
       }
 
-      // Se já há um client vivo e CONNECTED na memória, não recria (evita 2º Chrome).
+      // Já há um client na memória com o Chrome VIVO: não recria, qualquer que seja o
+      // estado do momento. Antes só o CONNECTED segurava — e bastava o WhatsApp oscilar
+      // (getState ≠ CONNECTED por um instante) para o keepalive subir um 2º Client no
+      // MESMO perfil: o Chrome reaproveita o navegador aberto, abre OUTRA aba do
+      // WhatsApp Web e a primeira vira "O WhatsApp está aberto em outra janela" —
+      // conectada e SURDA (Sonhare, 26/09: 1 h sem receber nada). Sessão que cai de
+      // verdade passa pelo 'disconnected', que destrói o client e fecha o Chrome.
       try {
         const existing = SessionsHelper.getInjectedClient(session);
         if (existing && typeof existing.getState === 'function') {
           const st = await existing.getState().catch(() => null);
-          if (st === 'CONNECTED') {
-            customLogger.info(`${session} - ✅ Já conectado, start duplicado ignorado`);
-            return resolve({ status: 'CONNECTED', session });
+          const chromeVivo = Boolean(existing.pupBrowser && existing.pupBrowser.isConnected && existing.pupBrowser.isConnected());
+          if (st === 'CONNECTED' || chromeVivo) {
+            customLogger.info(`${session} - ✅ Cliente vivo (${st || 'sem estado'}), start duplicado ignorado`);
+            return resolve({ status: st === 'CONNECTED' ? 'CONNECTED' : 'INITIALIZING', session });
           }
         }
       } catch (_) { /* segue para criar */ }
