@@ -405,6 +405,11 @@ module.exports = class WhatsappWebJS {
         });
 
         Events.receiveMessage(session, client, req);
+        // O vigia de surdez (jobs/sessionHealthCheck) compara isto com o que o
+        // WhatsApp Web da sessão recebeu: a hora da última mensagem que CHEGOU aqui.
+        client.on('message', (m) => {
+          if (!m.fromMe) require('../jobs/sessionHealthCheck.js').registerMessageReceived(session);
+        });
         Events.statusMessage(session, client, req);
 
         client.on('change_battery', (batteryInfo) => {

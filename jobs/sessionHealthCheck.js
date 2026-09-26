@@ -268,6 +268,48 @@ async function dispararReadyPerdido(session, client) {
   return disparou === true;
 }
 
+/**
+ * Vigia de SURDEZ: o WhatsApp Web da sessão recebeu mensagem de cliente e o MyZap
+ * não viu. Pega qualquer causa: ready perdido no meio do caminho, aba em "aberto
+ * em outra janela", ouvinte que se perdeu. Em 26/09 a Sonhare ficou surda três
+ * vezes, cada vez por um motivo, e cada vez só se descobriu porque um cliente
+ * reclamou.
+ *
+ * Só conta mensagem chegada DEPOIS de este client ser visto aqui (histórico que
+ * a página carrega não vale) e com 3 min de folga. Surda: fecha o Chrome e tira
+ * o client da memória; o keepalive refaz o /start ("pasta existe mas client
+ * inativo") sem QR. No máximo uma recriação a cada 10 min por sessão.
+ */
+const clienteVistoDesde = new WeakMap();
+const ultimaRecriacao = new Map();
+async function vigiarSurdez(session, client) {
+  if (!client?.pupPage) return false;
+  if (!clienteVistoDesde.has(client)) clienteVistoDesde.set(client, Date.now());
+  const ultimaNaPagina = await client.pupPage.evaluate(() => {
+    const TIPOS = ['chat', 'image', 'video', 'audio', 'ptt', 'document', 'sticker', 'location', 'vcard'];
+    let t = 0;
+    for (const m of window.require('WAWebCollections').Msg.getModelsArray()) {
+      const chat = String(m.id && m.id.remote);
+      if (m.id.fromMe || !m.t || !TIPOS.includes(m.type) || /status|broadcast|@g\.us|@newsletter/.test(chat)) continue;
+      if (m.t > t) t = m.t;
+    }
+    return t;
+  }).catch(() => 0);
+  if (!ultimaNaPagina) return false;
+
+  const chegouEm = ultimaNaPagina * 1000;
+  const referencia = Math.max(lastMessageTime.get(session) || 0, clienteVistoDesde.get(client));
+  const surda = chegouEm > referencia + 60 * 1000 && Date.now() - chegouEm > 3 * 60 * 1000;
+  if (!surda || Date.now() - (ultimaRecriacao.get(session) || 0) < 10 * 60 * 1000) return false;
+
+  ultimaRecriacao.set(session, Date.now());
+  customLogger.warning(`[HEALTH CHECK] ${session}: SURDA — o WhatsApp recebeu mensagem ${new Date(chegouEm).toLocaleTimeString('pt-BR')} e o MyZap não; recriando o client`);
+  try { await client.destroy(); } catch (_) { /* Chrome já morto */ }
+  SessionsHelper.removeClientFromMemory(session);
+  try { delete global.__wwebInit[session]; } catch (_) { /* sem trava */ }
+  return true;
+}
+
 async function runHealthCheckCycle() {
   try {
     const allSessions = SessionsHelper.getAllSessions();
@@ -394,6 +436,8 @@ async function runHealthCheckCycle() {
         results.healthy++;
         // `ready` perdido (ver dispararReadyPerdido): liga os ouvintes que faltaram.
         await dispararReadyPerdido(session, client);
+        // E se mesmo assim a sessão não recebe o que o WhatsApp dela recebeu: recria.
+        if (await vigiarSurdez(session, client)) continue;
         // E o banco, que ficou em INITIALIZING sem o `ready`, passa a dizer o que a
         // sessão é ao vivo (Capucho, 25/09 11h13: o painel mostrava "inicializando").
         await Device.update(
@@ -485,6 +529,7 @@ function getHealthStats() {
 module.exports = {
   runHealthCheckCycle, // exposto para o teste (test/status-conectado.js)
   dispararReadyPerdido, // exposto para o teste (test/ready-perdido.js)
+  vigiarSurdez, // exposto para o teste (test/vigia-surdez.js)
   startHealthCheckJob,
   stopHealthCheckJob,
   registerMessageReceived,
