@@ -23,6 +23,21 @@ async function checkGroupMessage({ message }) {
   return { shouldBlock: false };
 }
 
+/**
+ * Mensagem que chega ATRASADA (mais de 10 min) não vai para a IA. Depois de uma
+ * queda, a sessão recebe de uma vez tudo o que ficou represado, e muito era
+ * conversa com a EQUIPE ("Maria deu certo", "Maria o Nicao passou aí" — Sonhare,
+ * 26/09): a IA respondia, uma hora depois, mensagens que não eram para ela.
+ */
+const ATRASO_MAXIMO_SEG = 10 * 60;
+async function checkMensagemAtrasada({ message }) {
+  const ts = Number(message && message.timestamp) || 0;
+  if (ts > 0 && Math.floor(Date.now() / 1000) - ts > ATRASO_MAXIMO_SEG) {
+    return { shouldBlock: true, reason: 'mensagem_atrasada' };
+  }
+  return { shouldBlock: false };
+}
+
 async function checkCompanyEnabled({ empresa }) {
   if (!empresa) {
     return { shouldBlock: true, reason: 'empresa_nao_encontrada' };
@@ -121,6 +136,7 @@ async function checkFirstContactToday({ session, sessionkey, numero }) {
 
 module.exports = {
   checkGroupMessage,
+  checkMensagemAtrasada,
   checkCompanyEnabled,
   checkIaEnabled,
   checkHumanRequest,

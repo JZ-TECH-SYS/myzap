@@ -156,6 +156,7 @@ async function processInternal({
   // Sequência de guards (ordem importa!)
   const guardSequence = [
     () => Guards.checkGroupMessage({ message }),
+    () => Guards.checkMensagemAtrasada({ message }),
     () => Guards.checkCompanyEnabled({ empresa }),
     // Primeiro contato do dia existe para mandar a MENSAGEM PADRÃO antes da IA. Loja
     // sem mensagem padrão (o agente do ClickJoias responde tudo) não tem o que mandar:
@@ -199,7 +200,7 @@ async function processInternal({
 
         // Manda msg padrão exceto para grupos e quando um humano está na
         // conversa (a saudação automática no meio do atendimento confunde)
-        if (!['grupo', 'agente_recente', 'aguardando_humano'].includes(result.reason)) {
+        if (!['grupo', 'agente_recente', 'aguardando_humano', 'mensagem_atrasada'].includes(result.reason)) {
           await enviarPadrao(result.reason);
         }
         if (result.reason === 'primeiro_contato') {
