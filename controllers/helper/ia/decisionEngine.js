@@ -377,6 +377,8 @@ async function processIA({
             '',
             '_Toque no link para abrir a conversa. O bot já pausou para este cliente._',
           ].join('\n');
+          // saída do sistema: no chat "Você" não pode virar comando do dono
+          registerIAResponse(aviso);
           await MessageSender.sendText({ client, to: donoWid, text: aviso });
         }
       } catch (e) {

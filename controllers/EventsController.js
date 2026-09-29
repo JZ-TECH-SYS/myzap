@@ -8,6 +8,7 @@ const MidiaProcessor = require("./helper/ia/midiaProcessor.js");
 const DecisionEngine = require("./helper/ia/decisionEngine.js");
 const SocketWebhookManager = require("./helper/events/socketWebhookManager.js");
 const OutboundMessageProcessor = require("./helper/events/outboundMessageProcessor.js");
+const ComandoDono = require("./helper/ia/comandoDono.js");
 const StatusAckManager = require("./helper/events/statusAckManager.js");
 const ConnectionStateManager = require("./helper/events/connectionStateManager.js");
 const customLogger = require("../util/customLogger.js");
@@ -129,6 +130,12 @@ module.exports = class Events {
     const allowSelfTest = process.env.ALLOW_SELF_TEST === "true";
     if (message.fromMe) {
       await socketManager.notifyMessageSent(payload);
+      // Chat "Você" da própria loja: comando do dono (abrir/fechar o site).
+      // No autoteste esse chat faz papel de cliente, então fica como estava.
+      if (!allowSelfTest && ComandoDono.ehChatDoDono(message, client, empresa)) {
+        await ComandoDono.processar({ message, client, session, sessionkey, empresa });
+        return;
+      }
       await OutboundMessageProcessor.processFromMe({
         message,
         session,

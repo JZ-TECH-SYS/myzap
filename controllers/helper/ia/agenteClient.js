@@ -139,6 +139,8 @@ async function atender({ sessionkey, numero, celular, nome, texto, audioBase64, 
                     .slice(0, 3)
                     .map((m) => ({ url: m.url, legenda: typeof m.legenda === 'string' ? m.legenda.slice(0, 900) : '' }))
                 : [],
+            // comando do dono (abrir/fechar o site): nova mensagem padrão da loja
+            mensagemPadrao: typeof dados.mensagem_padrao === 'string' ? dados.mensagem_padrao : null,
         };
     } catch (err) {
         customLogger.error(`[AGENTE] erro na chamada: ${err.message}`);
@@ -229,4 +231,4 @@ async function ehMensagemDoSistema({ sessionkey, numero, texto, apiUrlEmpresa })
     }
 }
 
-module.exports = { atender, falar, iaAtivaRemota, ehMensagemDoSistema, _resolverConfig: resolverConfig };
+module.exports = { atender, falar, iaAtivaRemota, ehMensagemDoSistema, ehDeOutroProduto, _resolverConfig: resolverConfig };
