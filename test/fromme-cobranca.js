@@ -37,6 +37,8 @@ const agente = http.createServer((req, res) => {
     recebidos.push(d);
     res.setHeader('Content-Type', 'application/json');
     if (d.texto.startsWith('Olá Islaine, constam 2 parcela')) return res.end(JSON.stringify({ silencio: true, sistema: true, motivo: 'mensagem_do_sistema' }));
+    // Como o agente de verdade: a cobrança é achada pelo TELEFONE — sem celular, não reconhece.
+    if (d.texto.startsWith('Oi Paulo, identificamos 5 parcela') && d.celular === '5544999887766') return res.end(JSON.stringify({ silencio: true, sistema: true, motivo: 'mensagem_do_sistema' }));
     if (d.texto === 'AGENTE LENTO') return setTimeout(() => res.end('{}'), 9000);
     res.end(JSON.stringify({ silencio: true, motivo: 'humano_atendendo' }));
   });
@@ -69,6 +71,18 @@ agente.listen(0, async () => {
     const r = await fromMe('AGENTE LENTO');
     assert.strictEqual(r.humano, true);
     assert.strictEqual(pausas.length, 2);
+  });
+  // Sonhare, 28/09: todo cliente chega como @lid; a cobrança ia sem telefone e pausava a IA.
+  await caso('cobrança para cliente @lid: vai com o celular real e não pausa', async () => {
+    const client = { getContactLidAndPhone: async ([lid]) => [{ lid, pn: '5544999887766@c.us' }] };
+    const r = await Outbound.processFromMe({
+      message: { body: 'Oi Paulo, identificamos 5 parcela(s) em atraso totalizando *1.981,65*', fromMe: true },
+      session: 's', sessionkey: 'k', numero: '32702032003235@lid', socketManager: {}, client,
+    });
+    assert.strictEqual(recebidos.at(-1).celular, '5544999887766');
+    assert.strictEqual(recebidos.at(-1).numero, '32702032003235');
+    assert.strictEqual(r.humano, false);
+    assert.strictEqual(pausas.length, 2, 'não pausou');
   });
 
   agente.close();

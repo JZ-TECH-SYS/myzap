@@ -206,7 +206,7 @@ async function iaAtivaRemota(sessionkey, apiUrlEmpresa) {
  * Agente que nao conhece o campo responde silencio comum, e tudo segue como
  * antes (pausa). Qualquer falha tambem: na duvida, pausa.
  */
-async function ehMensagemDoSistema({ sessionkey, numero, texto, apiUrlEmpresa }) {
+async function ehMensagemDoSistema({ sessionkey, numero, celular, texto, apiUrlEmpresa }) {
     const cfg = await resolverConfig(sessionkey, apiUrlEmpresa);
     if (!cfg || !texto) return false;
     try {
@@ -216,6 +216,8 @@ async function ehMensagemDoSistema({ sessionkey, numero, texto, apiUrlEmpresa })
             body: JSON.stringify({
                 sessionkey,
                 numero: String(numero || '').replace(/@.*$/, ''),
+                // telefone REAL do @lid: é por ele que o agente acha a cobrança que saiu
+                ...(celular ? { celular } : {}),
                 texto,
                 origem: 'humano',
             }),

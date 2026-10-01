@@ -143,6 +143,7 @@ module.exports = class Events {
         numero,
         socketManager,
         empresa,
+        client,
       });
 
       if (!allowSelfTest) {

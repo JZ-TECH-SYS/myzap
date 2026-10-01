@@ -9,7 +9,7 @@ const { LOG_PREFIX } = require('../ia/iaConfig.js');
  */
 class OutboundMessageProcessor {
   
-  static async processFromMe({ message, session, sessionkey, numero, socketManager, empresa = null }) {
+  static async processFromMe({ message, session, sessionkey, numero, socketManager, empresa = null, client = null }) {
     const outboundText = typeof message.body === 'string' ? message.body.trim() : '';
 
     // Mensagem ANTIGA da loja que uma sessão recém-conectada sincroniza não é o
@@ -72,9 +72,13 @@ class OutboundMessageProcessor {
     // responde, só guarda, para retomar a conversa sabendo o que foi dito.
     if (globalThis.process.env.IA_PROVIDER === 'agente') {
       const AgenteClient = require('../ia/agenteClient');
+      const { celularDoLid } = require('../ia/celularDoLid');
       const sistema = await AgenteClient.ehMensagemDoSistema({
         sessionkey,
         numero,
+        // O agente acha a cobrança pelo TELEFONE; sem este, todo cliente @lid
+        // cobrado virava "equipe atendendo" e a IA calava 30 min (Sonhare, 28/09).
+        celular: await celularDoLid(client, numero),
         texto: outboundText,
         apiUrlEmpresa: empresa?.api_url || null,
       });

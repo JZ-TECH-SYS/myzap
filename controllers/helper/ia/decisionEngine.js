@@ -9,6 +9,7 @@ const customLogger = require('../../../util/customLogger');
 const { TEMPO_MENSAGEM_PADRAO_DEFAULT, LOG_PREFIX } = require('./iaConfig');
 const processingLock = require('./processingLock');
 const { ehSoCumprimento } = require('./primeiroContato');
+const { celularDoLid } = require('./celularDoLid');
 
 // Registrar resposta da IA no cache (usado para evitar loop no self-test)
 const { registerIAResponse } = require('./iaResponseCache');
@@ -24,6 +25,17 @@ const { registerIAResponse } = require('./iaResponseCache');
 const filaPendentes = new Map();
 const chaveDaFila = (session, sessionkey, numero) => `${session || ''}::${sessionkey || ''}::${numero || ''}`;
 const FILA_MAX = 5;
+
+// ponytail: espera por polling (0,5 s, até 90 s — o teto do turno do agente);
+// fila de áudio própria só se um dia a ordem entre dois áudios seguidos importar.
+const esperarVez = async (chave) => {
+  for (let i = 0; i < 180; i++) {
+    await new Promise((r) => setTimeout(r, 500));
+    if (processingLock.acquire(chave)) return true;
+  }
+  customLogger.warning(`${LOG_PREFIX} áudio de ${chave.numero} esperou 90s o turno anterior e ficou sem IA`);
+  return false;
+};
 
 /**
  * Nome exibido do cliente (pushname), independente do engine.
@@ -81,8 +93,12 @@ async function process({
       if (fila.length < FILA_MAX) fila.push(texto);
       filaPendentes.set(chaveFila, fila);
       customLogger.debug(`${LOG_PREFIX} Em atendimento; mensagem enfileirada (${fila.length}) para ${numero}`);
+      return true;
     }
-    return true;
+    // Áudio chega com o texto vazio e não cabe na fila de texto: era DESCARTADO
+    // enquanto a IA respondia a mensagem anterior ("bom dia" e o áudio logo em
+    // seguida — Sonhare, 28/09). Espera o turno em andamento e segue.
+    if (!message?.agenteAudioBase64 || !(await esperarVez({ session, sessionkey, numero }))) return true;
   }
 
   try {
@@ -293,38 +309,13 @@ async function processIA({
           MessageSender.sendText({ client, to: numero, text: 'Quase pronto! Finalizando os últimos detalhes… 😉' });
         }, 65000),
       ];
-      // WhatsApp novo esconde o telefone atrás de @lid — sem traduzir, o
-      // pedido era gravado com o ID interno (caso real: #73067) e a loja não
-      // conseguia ligar de volta. getContactById resolve LID -> número; se a
-      // página do WA quebrar (o famoso "r"), segue sem — igual antes.
-      let celularReal = null;
+      // WhatsApp novo esconde o telefone atrás de @lid (ver celularDoLid).
+      const celularReal = await celularDoLid(client, numero);
       // Nome do cliente: no whatsapp-web.js o pushname vem em `_data.notifyName`
       // (message.notifyName/sender.pushname são campos do Venom/WPPConnect) —
       // por isso o agente perguntava o nome em TODA conversa (01/09: 37 de 37
       // conversas sem nome). Fallback: o contato do WhatsApp.
       const nomeCliente = await resolverNomeCliente(message, client, numero);
-      if (String(numero).endsWith('@lid')) {
-        // aceita só um telefone DIFERENTE do lid: getContactById devolvia o
-        // próprio lid como "number" (15 dígitos passavam no filtro — pedido
-        // #73072 saiu com o ID de novo). getContactLidAndPhone é a API certa.
-        const validar = (bruto) => {
-          const n = String(bruto || '').replace(/@.*$/, '').replace(/\D/g, '');
-          return n.length >= 10 && !String(numero).includes(n) ? n : null;
-        };
-        try {
-          if (typeof client?.getContactLidAndPhone === 'function') {
-            const [r] = (await client.getContactLidAndPhone([numero])) || [];
-            celularReal = validar(r?.pn);
-          }
-          if (!celularReal && typeof client?.getContactById === 'function') {
-            const contato = await client.getContactById(numero);
-            celularReal = validar(contato?.number);
-          }
-          if (!celularReal) customLogger.warning(`${LOG_PREFIX} lid sem telefone resolvível: ${numero}`);
-        } catch (e) {
-          customLogger.warning(`${LOG_PREFIX} lid->numero falhou: ${e.message}`);
-        }
-      }
 
       try {
         respostaIA = await AgenteClient.atender({
