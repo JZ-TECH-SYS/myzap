@@ -14,7 +14,7 @@
 | Cluster | `jztech-gke-prod`, zona `southamerica-east1-a` |
 | Namespace | `myzap` |
 | Nó | pool **`myzap-pool`** (e2-standard-4), taint `workload=myzap:NoSchedule` |
-| Carga | `StatefulSet/myzap`, **1 réplica**, `updateStrategy: OnDelete` |
+| Carga | `StatefulSet/myzap`, **2 réplicas** (shard: cada pod tem os seus números e o seu Service), `updateStrategy: OnDelete` |
 | Disco | PVC de 20Gi → `/app/instances` (sessões) e `/app/database` (SQLite) |
 | Serviço | `myzap.myzap.svc.cluster.local:3333` (ClusterIP — **não** exposto na internet) |
 | Imagem | `southamerica-east1-docker.pkg.dev/jztech-490722/jztech-docker-prod/myzap` |
@@ -88,6 +88,32 @@ curl -s localhost:3333/health | jq '{sessions_total, sessions_connected, db}'
 4. Pod `Pending` e nenhum evento? Confira se o pool `myzap-pool` tem nó
    (`kubectl get nodes -l workload=myzap`). O pool existe com `node_count` controlado pelo
    Terraform, e um pool a zero deixa o pod esperando para sempre.
+
+## Reinício diário (4h, um pod por vez)
+
+Cada sessão é um Chrome inteiro e o serviço **vaza memória ao longo do dia**: medido em
+27/09–03/10/2026, o `myzap-0` foi de 1,0 para 5,0 GB e de 0,25 para 1,6 core com as mesmas
+sessões. Sem reinício, bate o limite de 10 GiB em ~5 dias e cai sozinho (OOMKill) em horário
+aleatório. Por isso o CronJob `myzap-reinicio-diario` (`k8s/reinicio-diario.yaml`, aplicado pelo
+workflow) apaga os pods às **4h de Brasília, um por vez**: espera o pod novo ficar Ready e dá
+2 min para as sessões reconectarem antes do próximo. Se o primeiro não voltar em 10 min, para
+e não derruba o segundo.
+
+É seguro porque a sessão vive no disco: o pod volta e reconecta pelos tokens, sem QR. **O
+reinício não limpa sessão zumbi** — desconectada ou esperando QR, ela volta do disco no mesmo
+estado e segue segurando um Chrome. Zumbi se apaga pela API, de dentro do pod (não há curl na
+imagem, use o node):
+
+```bash
+# estado de cada sessão
+kubectl -n myzap exec myzap-0 -- node -e 'fetch("http://127.0.0.1:3333/health/sessions").then(r=>r.text()).then(console.log)'
+# apagar (sessionkey vem do /health/sessions); a rota costuma demorar, mas conclui
+kubectl -n myzap exec myzap-0 -- node -e 'fetch("http://127.0.0.1:3333/deleteSession",{method:"POST",headers:{"Content-Type":"application/json",sessionkey:"<sessionkey>"},body:JSON.stringify({session:"emp4_numN"})}).then(r=>r.text()).then(console.log)'
+```
+
+Conferir a rotina: `kubectl -n myzap get jobs` (últimos 3 sucessos e 3 falhas ficam) e
+`kubectl -n myzap logs job/<nome>`. Rodar fora de hora, se precisar:
+`kubectl -n myzap create job --from=cronjob/myzap-reinicio-diario reinicio-manual`.
 
 ## O que preservar num incidente
 

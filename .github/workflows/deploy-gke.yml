@@ -105,6 +105,7 @@ jobs:
       - name: Aplica manifests
         run: |
           sed -e "s|__REGISTRY__|${REGISTRY}|g" -e "s|__TAG__|${IMAGE_TAG}|g" k8s/myzap.yaml | kubectl apply -f -
+          kubectl apply -f k8s/reinicio-diario.yaml
 
       - name: Trocar a imagem do pod (só se pedirem)
         if: ${{ inputs.reiniciar_pod }}
