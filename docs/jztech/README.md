@@ -10,7 +10,7 @@ o upstream, e o `README.md` da raiz continua valendo para ele.
 
 | Arquivo | Tipo | O que é |
 |---|---|---|
-| [deploy-no-gke.md](deploy-no-gke.md) | guia | Coordenadas no cluster, como o zap fala com o motor, deploy manual (e por que é manual), parear o chip, recuperar sessão e as variáveis que fazem o motor subir ou falhar calado. |
+| [deploy-no-gke.md](deploy-no-gke.md) | guia | Coordenadas no cluster, como o zap fala com o motor, deploy manual (e por que é manual), parear o chip, recuperar sessão e as variáveis que fazem o motor subir ou falhar calado. O reinício diário às 4h e como apagar sessão zumbi |
 
 ## O essencial, em quatro linhas
 

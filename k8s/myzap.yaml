@@ -137,6 +137,12 @@ spec:
             # existe no whatsapp-web.js. Com ENGINE=2 toda sessão era declarada
             # zumbi ("client.getState is not a function") e o auto-reconnect a
             # derrubava no meio do pareamento — QR renovando sem nunca conectar.
+            # IA das sessões que pedem IA (ia_ativa no ia-manager) vai para o AGENTE de cada produto, não para a
+            # OpenAI: o MyZap pergunta {api_url}/myzap/agente-config/{sessão} e chama o /atender de lá (agenteClient.js).
+            # Primeiro usuário: o assistente do Excavatrack (04/10/2026). As sessões do JZ TECH ZAP não pedem IA
+            # (sem empresa no ia-manager, checkCompanyEnabled barra antes), então nada muda para elas.
+            - name: IA_PROVIDER
+              value: "agente"
             - name: ENGINE
               value: "1"
             # A versão do WhatsApp Web fixada na VPS (engines/helper/wweb.js lê
