@@ -67,10 +67,15 @@ module.exports = class WhatsappWebJS {
         const number = req?.body?.number || '';
         const body = req?.body || [];
 
-        const wh_connect = req?.body?.wh_connect || '';
-        const wh_status = req?.body?.wh_status || '';
-        const wh_message = req?.body?.wh_message || '';
-        const wh_qrcode = req?.body?.wh_qrcode || '';
+        // O upsert abaixo GRAVA os wh_*, e nem todo /start os manda (keepalive, painel; o
+        // reconectar do zap até 06/10/2026). Sem eles valem os que já estão gravados: senão a
+        // sessão volta conectada e SURDA, sem mandar nada para quem a usa.
+        const anterior = await Device.findOne({ where: { session } }).catch(() => null);
+        const webhook = (campo) => req?.body?.[campo] || anterior?.[campo] || '';
+        const wh_connect = webhook('wh_connect');
+        const wh_status = webhook('wh_status');
+        const wh_message = webhook('wh_message');
+        const wh_qrcode = webhook('wh_qrcode');
 
         customLogger.whatsapp(`🚀 Starting WhatsApp WebJS - Session: ${session}`);
 
@@ -337,10 +342,14 @@ module.exports = class WhatsappWebJS {
           global.__wwebInit = global.__wwebInit || {};
           global.__wwebInit[session] = Date.now();
 
-          // Atualiza o banco; o sessionKeepAlive reconecta a partir daqui.
+          // Atualiza o banco; o sessionKeepAlive reconecta a partir daqui — menos quem só volta
+          // com QR novo: LOGOUT (tiraram o aparelho no celular, ou o WhatsApp derrubou) e QR que
+          // ninguém leu. Esses ficam `notLogged` ("aguardando QR"), e o keepalive não sobe Chrome
+          // para mostrar QR a ninguém (Valparaíso e Guarulhos, LOGOUT em 30/09/2026).
+          const precisaQr = ['LOGOUT', 'UNPAIRED', 'UNPAIRED_IDLE', 'Max qrcode retries reached'].includes(String(reason));
           Device.update({
             state: 'DISCONNECTED',
-            status: 'disconnected',
+            status: precisaQr ? 'notLogged' : 'disconnected',
             updated_at: new Date(),
             last_disconnect: new Date()
           }, { where: { session, sessionkey } }).catch(err => {
