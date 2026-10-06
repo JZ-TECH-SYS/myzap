@@ -168,10 +168,14 @@ spec:
             # boot logava "[SESSION KEEPALIVE] Job desabilitado nas configuracoes".
             # Ficamos com a única rota que estava quebrada e sem a que funciona.
             #
-            # Ele NÃO atropela ninguém (jobs/sessionKeepAlive.js:45): pula sessão
-            # sem `session`, pula quem está esperando QR (a menos que parada há mais
-            # de 10 min), respeita teto de 10 tentativas e só age em quem estava
-            # conectado ou caiu. Com os chips ainda por parear, ele roda em vazio.
+            # Ele NÃO atropela ninguém (jobs/sessionKeepAlive.js, isEligible): pula
+            # sessão sem `session`, pula quem está esperando QR (a menos que parada há
+            # mais de 10 min) e pula quem só volta com QR novo (LOGOUT, QR que ninguém
+            # leu: `notLogged`; AUTH_FAIL). Em sessão viva o /start é no-op.
+            # ATÉ 06/10/2026 ELE NÃO RODAVA: sem HOST/HOST_SSL o config.js montava a
+            # URL "undefined:3333" e todo ciclo falhava calado ("Unsupported protocol
+            # undefined:"). Sessão derrubada pelo vigia de surdez ficava morta até o
+            # próximo reinício do pod.
             - name: SESSION_KEEPALIVE_ENABLED
               value: "true"
             # 3 min — o valor rodando na VPS, que é a referência de estabilidade.
