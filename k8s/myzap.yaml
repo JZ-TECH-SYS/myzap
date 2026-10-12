@@ -145,6 +145,11 @@ spec:
               value: "agente"
             - name: ENGINE
               value: "1"
+            # O painel do zap mostra o vídeo recebido ao atendente; o motor da VPS (ClickExpress,
+            # ClickJoias) não precisa dele e por padrão não o baixa (events.js deveBaixar, 12/10/2026).
+            # Aqui segue baixando inline — senão o worker do zap buscaria depois por /downloadMedia.
+            - name: MIDIA_BAIXAR_VIDEO
+              value: "1"
             # A versão do WhatsApp Web fixada na VPS (engines/helper/wweb.js lê
             # esta variável e recomenda fixar uma versão testada; ausente, a lib
             # segue a corrente — que muda sob nossos pés).
