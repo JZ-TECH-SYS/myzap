@@ -324,8 +324,10 @@ class Sessions {
       const { logout, close } = await SessionsHelper.fecharSessaoComLogout(data, session);
       customLogger.info(`[DELETE SESSION] ${session} - WhatsApp logout: ${logout}, close: ${close}`);
 
-      // 2. Apagar session do banco de dados
-      await SessionsHelper.deleteSessionAndCleanup(session);
+      // 2. Apagar session do banco de dados (a memória já saiu; o banco falhando, quem chamou repete)
+      if (!(await SessionsHelper.deleteSessionAndCleanup(session))) {
+        return http.fail(res, null, 500, `${session}: sessão fechada, mas o banco não a apagou — repita a exclusão`);
+      }
       customLogger.info(`[DELETE SESSION] ${session} - Removida do banco de dados`);
 
       // 3. Apagar session do cache
