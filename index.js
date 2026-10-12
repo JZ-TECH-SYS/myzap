@@ -20,7 +20,7 @@ const emailAlertService = require("./services/emailAlertService"); // 📧 Alert
 // fim, o gerenciador matava o processo no meio do aquecimento e re-extraía o
 // zip — loop de morte da frota (incidente real, 01/09). Com o listen cedo, o
 // /health responde "starting" em ~2s em qualquer máquina.
-let startAllSessions, startCleanupJobs, SessionsHelper, startSessionKeepAliveJob;
+let startAllSessions, startCleanupJobs, SessionsHelper, startSessionKeepAliveJob, startDailyRestartJob;
 let authApi, chatRouter;
 
 // Verifica se o diretório de instâncias existe, senão cria
@@ -134,6 +134,7 @@ const carregarNucleo = () => {
   ({ startAllSessions, startCleanupJobs } = require("./startup"));
   SessionsHelper = require("./controllers/helper/core/sessions.js");
   ({ startSessionKeepAliveJob } = require("./jobs/sessionKeepAlive"));
+  ({ startDailyRestartJob } = require("./jobs/dailyRestart"));
   authApi = require("./routers/Auth");
   chatRouter = require("./routers/Chat");
 
@@ -345,6 +346,10 @@ server.listen(config.port, async (error) => {
     startCleanupJobs();
 
     startSessionKeepAliveJob();
+
+    // Reinício diário pelo próprio processo (o cron com `pm2 restart` não achava o pm2):
+    // na hora marcada chama o mesmo desligamento limpo do SIGTERM e o PM2 religa.
+    startDailyRestartJob(gracefulShutdown);
   }
 });
 
