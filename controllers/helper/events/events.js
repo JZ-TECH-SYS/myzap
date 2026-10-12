@@ -91,9 +91,30 @@ module.exports = {
     return partes + (texto !== partes ? ` / ${texto}` : '') + (pilha ? ` [${pilha}]` : '');
   },
 
+  /**
+   * Vídeo não é baixado por padrão, e nada acima de MIDIA_MAX_MB (8 MB) é. Medido na VPS em
+   * 11/10/2026: cada vídeo recebido era baixado inteiro, em base64 na memória do Node, e jogado
+   * fora — quem lê a mídia (midiaProcessor, audioProcessor) só usa imagem, figurinha e documento
+   * até 8 MB e áudio; e o Chrome da sessão guarda cada blob pedido em disco (CapuchoLanches:
+   * 14 GB em blob_storage, +2 GB por dia). O payload do webhook sai igual, com os metadados e
+   * `base64` null; quem precisa do arquivo busca depois por /downloadMedia.
+   * MIDIA_BAIXAR_VIDEO=1 volta a baixar vídeo; MIDIA_MAX_MB muda o teto.
+   */
+  deveBaixar(type, message) {
+    if (type === 'video' && process.env.MIDIA_BAIXAR_VIDEO !== '1') return false;
+    const maxMb = parseFloat(process.env.MIDIA_MAX_MB) || 8;
+    // whatsapp-web.js: `_data.size` (bytes); wppconnect/venom: `size`/`filesize`. Sem tamanho, baixa.
+    const bytes = Number(message?._data?.size ?? message?.size ?? message?._data?.filesize ?? message?.filesize);
+    return !(bytes > maxMb * 1024 * 1024);
+  },
+
   async baixarMidia(type, client, message) {
     const tipos = ['image', 'video', 'audio', 'ptt', 'document', 'sticker'];
     if (!tipos.includes(type) || !message) return null;
+    if (!this.deveBaixar(type, message)) {
+      console.log(`⏭️ ${type} não baixado (vídeo só com MIDIA_BAIXAR_VIDEO=1; teto MIDIA_MAX_MB=${parseFloat(process.env.MIDIA_MAX_MB) || 8})`);
+      return null;
+    }
 
     try {
       // 1) whatsapp-web.js: método no objeto da mensagem
@@ -221,7 +242,8 @@ module.exports = {
         break;
 
       case 'video':
-        extras = { caption: message.caption || '', content: message.body, base64 };
+        // Sem base64 por padrão (ver deveBaixar): os metadados têm de bastar para quem baixa depois.
+        extras = { caption: message.caption || '', content: message.body, mimetype: message.mimetype, filename: message.filename || message._data?.filename || null, base64 };
         break;
 
       case 'sticker':
@@ -234,7 +256,7 @@ module.exports = {
         break;
 
       case 'document':
-        extras = { mimetype: message.mimetype, caption: message.caption || '', base64 };
+        extras = { mimetype: message.mimetype, filename: message.filename || message._data?.filename || null, caption: message.caption || '', base64 };
         break;
 
       case 'location':
