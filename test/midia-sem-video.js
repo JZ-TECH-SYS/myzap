@@ -11,6 +11,7 @@ const assert = require('assert');
 
 const events = require(path.join(__dirname, '..', 'controllers/helper/events/events.js'));
 const MB = 1024 * 1024;
+process.exitCode = 1; // o loop esvaziar no meio não pode passar por "ok"
 
 // Mensagem do whatsapp-web.js: o tamanho vem em `_data.size`; o download conta as chamadas.
 const msg = (type, size, extra = {}) => {
