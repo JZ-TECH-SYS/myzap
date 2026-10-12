@@ -100,7 +100,17 @@ jobs:
 
             echo "[INFO] Reiniciando aplicação via PM2"
             if command -v pm2 >/dev/null 2>&1; then
-              pm2 reload myzap || pm2 restart myzap || pm2 start index.js --name myzap
+              # PELO ecosystem.config.js, sempre: é ele que dá o kill_timeout de 20 s para o
+              # gracefulShutdown fechar os Chromes (o padrão de 1,6 s matava o Node antes e
+              # deixava o Chrome órfão — sessão presa em INITIALIZING depois do deploy).
+              #
+              # A PRIMEIRA execução depois desta mudança ainda mata com o timeout antigo: o
+              # processo que está no ar subiu sem o ecosystem e não tem o kill_timeout novo.
+              # Os Chromes podem ficar órfãos uma última vez. Recuperação, por sessão presa:
+              #   pkill -f 'user-data-dir=/var/www/myzap/instances/<sessão>'
+              #   rm -f /var/www/myzap/instances/<sessão>/session/Singleton{Lock,Cookie,Socket}
+              #   POST /start na sessão (com apitoken e sessionkey)
+              pm2 startOrReload ecosystem.config.js --env production --update-env
               pm2 save || true
             else
               echo "[ERRO] pm2 não encontrado. Instale com: npm install -g pm2" >&2

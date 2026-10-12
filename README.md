@@ -242,8 +242,8 @@ pnpm dev
 ### Produção
 
 ```bash
-# Iniciar com PM2
-pm2 start index.js --name myzap
+# Iniciar com PM2 — pelo ecosystem (é ele que dá tempo de fechar os Chromes no restart)
+pm2 start ecosystem.config.js --env production
 
 # Ou usar o script
 bash ./scripts/start.sh
@@ -361,8 +361,8 @@ A IA pode consultar documentos específicos (manuais, catálogos, políticas) at
 # Instalar PM2
 npm install -g pm2
 
-# Iniciar aplicação
-pm2 start index.js --name myzap
+# Iniciar aplicação (sempre pelo ecosystem: kill_timeout para fechar os Chromes)
+pm2 start ecosystem.config.js --env production
 
 # Configurar inicialização automática
 pm2 startup
