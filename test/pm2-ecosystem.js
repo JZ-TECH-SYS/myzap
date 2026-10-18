@@ -2,7 +2,7 @@
  * PM2 pelo ecosystem (VPS, 11/10/2026): a produção rodava com `pm2 start index.js`, sem o
  * ecosystem.config.js — kill_timeout no padrão de 1,6 s, e o PM2 matava o Node antes de o
  * gracefulShutdown fechar os Chromes (sessão presa em INITIALIZING depois de todo deploy).
- * Aqui se garante que o ecosystem dá tempo ao desligamento e que o deploy sobe por ele.
+ * Aqui se garante que o ecosystem dá tempo ao desligamento (o deploy da VPS saiu em 18/10/2026).
  *
  * Uso: node test/pm2-ecosystem.js  (exit 0 = ok, 1 = quebrou)
  */
@@ -27,13 +27,6 @@ const mb = /^(\d+)G$/i.test(mem) ? Number(RegExp.$1) * 1024 : /^(\d+)M$/i.test(m
 assert.ok(!mem || mb >= 2048, `max_memory_restart ${mem}: o Node usa ~570 MB e cada mídia passa pela memória — 1G reiniciava por pico`);
 assert.deepEqual([app.exec_mode, app.instances], ['fork', 1], 'uma instância em fork: as sessões vivem na memória do processo');
 console.log(`ok   max_memory_restart ${mem || 'ausente'}, fork com 1 instância`);
-
-// 3) o deploy sobe/recarrega PELO ecosystem — sem ele o kill_timeout não vale
-const deploy = fs.readFileSync(path.join(raiz, '.github/workflows/deploy.yml'), 'utf8')
-  .split('\n').filter((l) => !l.trim().startsWith('#')).join('\n');
-assert.match(deploy, /pm2 startOrReload ecosystem\.config\.js --env production --update-env/, 'deploy pelo ecosystem');
-assert.doesNotMatch(deploy, /pm2 (start|restart|reload) (index\.js|myzap)\b/, 'deploy não pode subir o index.js sem o ecosystem');
-console.log('ok   deploy.yml sobe pelo ecosystem (startOrReload --env production --update-env)');
 
 console.log('pm2-ecosystem: tudo ok');
 process.exit(0);

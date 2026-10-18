@@ -12,8 +12,9 @@ o upstream, e o `README.md` da raiz continua valendo para ele.
 |---|---|---|
 | [deploy-no-gke.md](deploy-no-gke.md) | guia | Coordenadas no cluster, como o zap fala com o motor, deploy manual (e por que é manual), parear o chip, recuperar sessão e as variáveis que fazem o motor subir ou falhar calado. O reinício diário às 4h e como apagar sessão zumbi |
 
-## O essencial, em quatro linhas
+## O essencial, em cinco linhas
 
+- A VPS (pm2) saiu de uso em 18/10/2026: o deploy é só o do GKE, e a VPS não recebe mais nada daqui.
 - O deploy é **manual de propósito**: trocar a imagem derruba a sessão, e o QR é presencial.
 - O `TOKEN` é **chave-mestra do servidor inteiro**, não uma senha qualquer.
 - `EMAIL` e `OPENAI_API_KEY` ausentes fazem o motor falhar **em silêncio** — leia a tabela.

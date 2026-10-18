@@ -19,7 +19,7 @@ Node 22) monta e publica `myzap-pack-win32-x64.zip` + `.manifest.json` em ~3 min
 gerenciadores comparam o manifest de `releases/latest` (boot+2min, a cada 6h, botão) e
 aplicam com rollback automático se a versão nova não ficar saudável.
 
-> ⚠️ **Push na `main` NÃO publica motor** (e o deploy da VPS é manual). Só a tag libera.
+> ⚠️ **Push na `main` NÃO publica motor**. Só a tag libera.
 > ⚠️ A major do Node no workflow = ABI do sqlite3 embarcado em TODOS os clientes.
 
 ## Build local / detalhes

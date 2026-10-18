@@ -131,7 +131,7 @@ As três primeiras não são opcionais — sem elas o motor **sobe e falha calad
 
 | Variável | Observação |
 |---|---|
-| `TOKEN` | **chave-mestra do servidor** — quem a tem administra e apaga TODAS as sessões, de todas as empresas. ⚠️ o `.envcopy` do upstream traz um valor de exemplo (`@Juliana137@137`); jamais usar. É o mesmo valor que vai no `MYZAP_ADMIN_TOKEN` do zap |
+| `TOKEN` | **chave-mestra do servidor** — quem a tem administra e apaga TODAS as sessões, de todas as empresas. ⚠️ nunca reaproveite o valor que estava no `.envcopy` e no `insomnia_collection.json` (tirados em 18/10/2026): ele segue público no histórico do Git. É o mesmo valor que vai no `MYZAP_ADMIN_TOKEN` do zap |
 | `EMAIL` | **obrigatória para CRIAR SESSÃO.** Os engines fazem `User.findOne({ where: { email: process.env.EMAIL } })` para vincular o device ao usuário do sistema (`engines/WhatsappWebJS.js:76`). Sem ela o Sequelize aborta com `WHERE parameter "email" has invalid "undefined" value` e a sessão morre calada: `/start` responde `STARTING` e o `getConnectionStatus` diz que a sessão "não existe" |
 | `OPENAI_API_KEY` | **obrigatória para o processo SUBIR**, mesmo sem usar IA: `controllers/helper/events/audioTranscriber.js` instancia o cliente OpenAI no `require`, e sem a variável o Node morre no boot (`CrashLoopBackOff`). Ponha um valor inócuo — este servidor só manda texto e mídia; se alguém ligar transcrição, toma 401 da OpenAI, que é o certo |
 | `JWT_SECRET` | sessão do painel |
