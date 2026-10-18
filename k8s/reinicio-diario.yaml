@@ -73,7 +73,7 @@ spec:
                 limits: { cpu: 100m, memory: 64Mi }
               env:
                 - name: PODS
-                  value: "myzap-0 myzap-1"
+                  value: "myzap-0" # uma réplica desde 18/10/2026 (reserva); com a segunda de volta, "myzap-0 myzap-1"
               command: ["/bin/sh", "-c"]
               args:
                 - |
