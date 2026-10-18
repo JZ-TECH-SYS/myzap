@@ -63,9 +63,11 @@ metadata:
   labels: { app: myzap }
 spec:
   serviceName: myzap
-  # 2 = um motor por nó do pool dedicado (jztech-infra/myzap.tf, myzap_node_count).
-  # Subir para 3 é subir os dois juntos e criar o Service `myzap-2`.
-  replicas: 2
+  # 1 desde 18/10/2026: a Celularis levou os 10 chips das lojas para o wuzapi e o MyZap
+  # ficou de RESERVA, num nó só e menor (jztech-infra/myzap.tf). O Service `myzap-1` fica
+  # sem pod (e as contas do zap que apontam para ele, DESCONECTADA) até a réplica voltar.
+  # Voltar para 2 é subir junto o `myzap_node_count` e o tamanho da máquina.
+  replicas: 1
   updateStrategy:
     type: OnDelete
   selector:
@@ -229,13 +231,18 @@ spec:
           # Referência do dono, comparando com o servidor MyZap da VPS
           # (8 vCPU / 31 GB): "pelo menos metade disso ele precisa ter de folga" —
           # daí o e2-standard-4, e daí dar a ele quase tudo o que o nó tem.
+          #
+          # RESERVA (18/10/2026): sem chip de loja, o nó virou e2-standard-2 (alocável
+          # ~1930m / ~6.100 MiB; os DaemonSets pedem 344m / 560 MiB, medido no mesmo dia).
+          # 1,5 CPU / 5 GiB cabe com folga e segura de 3 a 4 sessões — o que se espera de
+          # um motor de reserva. Voltar a ter loja aqui é voltar para os 3 CPU / 10 GiB.
           resources:
             requests:
-              cpu: "3"
-              memory: "10Gi"
+              cpu: "1500m"
+              memory: "5Gi"
             limits:
-              cpu: "3"
-              memory: "10Gi"
+              cpu: "1500m"
+              memory: "5Gi"
           # /health responde sem depender de I/O de banco (o upstream tomou
           # cuidado com isso de propósito), então serve de liveness sem risco de
           # matar o pod por SQLite lento.
