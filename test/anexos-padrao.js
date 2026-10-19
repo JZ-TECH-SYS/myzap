@@ -17,10 +17,11 @@ const stub = (rel, exports) => {
   require.cache[arquivo] = { id: arquivo, filename: arquivo, loaded: true, exports };
 };
 
-const enviados = { textos: [], arquivos: [] };
+const enviados = { textos: [], arquivos: [], registrados: [] };
 stub('controllers/helper/events/chatHistory.js', {
-  jaEnvieiMensagemPadraoHoje: async () => false,
-  registerAssistantMessage: async () => {},
+  // a padrão "nunca saiu hoje" (cada caso manda de novo); o aviso de fechada vale o que foi registrado
+  jaEnvieiMensagemPadraoHoje: async ({ tipo }) => tipo === 'aviso_fechada' && enviados.registrados.includes('aviso_fechada'),
+  registerAssistantMessage: async ({ messageType }) => { enviados.registrados.push(messageType); },
 });
 stub('controllers/helper/events/messageSender.js', {
   sendText: async ({ text }) => { enviados.textos.push(text); return true; },
@@ -55,7 +56,7 @@ const servidor = http.createServer((req, res) => {
 servidor.listen(0, async () => {
   const base = `http://127.0.0.1:${servidor.address().port}/public`;
   const apiUrlEmpresa = `${base}/api/pedido-venda-ia/3`;
-  const { sendDefault } = require(resolver('controllers/helper/ia/defaultMessageService.js'));
+  const { sendDefault, AVISO_LOJA_FECHADA } = require(resolver('controllers/helper/ia/defaultMessageService.js'));
   const { baseDaApi, mimeDoAnexo } = require(resolver('controllers/helper/ia/anexosPadrao.js'));
   const enviar = (sessionkey) => sendDefault({
     client: {}, session: 's', sessionkey, numero: '5511999990000@c.us',
@@ -78,12 +79,18 @@ servidor.listen(0, async () => {
     assert.strictEqual(enviados.arquivos[0].mimetype, 'application/pdf');
   });
 
-  enviados.textos.length = 0; enviados.arquivos.length = 0;
-  assert.strictEqual(await enviar('fechada'), true);
-  caso('loja fechada: só o texto', () => {
-    assert.deepStrictEqual(enviados.textos, ['Olá! Bem-vindo.']);
+  // regra do dono (19/10/2026): o link de "faça seu pedido" com a loja fechada leva a um site fechado
+  enviados.textos.length = 0; enviados.arquivos.length = 0; enviados.registrados.length = 0;
+  const saiuPadrao = await enviar('fechada');
+  caso('loja fechada: sai o aviso no lugar da padrão, sem anexos, e a padrão não conta como enviada', () => {
+    assert.deepStrictEqual(enviados.textos, [AVISO_LOJA_FECHADA]);
     assert.deepStrictEqual(enviados.arquivos, []);
+    assert.deepStrictEqual(enviados.registrados, ['aviso_fechada']);
+    assert.strictEqual(saiuPadrao, false);
   });
+  enviados.textos.length = 0;
+  await enviar('fechada');
+  caso('loja fechada: o aviso sai uma vez por dia', () => assert.deepStrictEqual(enviados.textos, []));
 
   enviados.textos.length = 0; enviados.arquivos.length = 0;
   await enviar('vazia');
@@ -91,7 +98,7 @@ servidor.listen(0, async () => {
 
   enviados.textos.length = 0; enviados.arquivos.length = 0;
   await enviar('inexistente');
-  caso('API fora do ar: texto sai, anexo não', () => {
+  caso('API fora do ar: a padrão de sempre sai (nunca o aviso de fechada), anexo não', () => {
     assert.deepStrictEqual(enviados.textos, ['Olá! Bem-vindo.']);
     assert.deepStrictEqual(enviados.arquivos, []);
   });
