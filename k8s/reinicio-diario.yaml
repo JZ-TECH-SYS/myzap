@@ -52,6 +52,8 @@ metadata:
   namespace: myzap
 spec:
   schedule: "0 4 * * *"
+  # Suspenso desde 19/10/2026 junto com a reserva fria (myzap.yaml, replicas: 0). Volta junto.
+  suspend: true
   timeZone: America/Sao_Paulo
   concurrencyPolicy: Forbid
   startingDeadlineSeconds: 3600

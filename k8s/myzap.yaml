@@ -67,7 +67,12 @@ spec:
   # ficou de RESERVA, num nó só e menor (jztech-infra/myzap.tf). O Service `myzap-1` fica
   # sem pod (e as contas do zap que apontam para ele, DESCONECTADA) até a réplica voltar.
   # Voltar para 2 é subir junto o `myzap_node_count` e o tamanho da máquina.
-  replicas: 1
+  # 0 desde 19/10/2026: reserva FRIA. Todos os números estão no wuzapi e o MyZap não tinha
+  # nenhuma sessão; o pool myzap-pool tem autoscaling 0–1 (jztech-infra, myzap.tf). Para usar:
+  # `kubectl -n myzap scale statefulset myzap --replicas=1` (o nó sobe sozinho em ~3 min),
+  # `kubectl -n myzap patch cronjob myzap-reinicio-diario -p '{"spec":{"suspend":false}}'`,
+  # e parear os números por QR.
+  replicas: 0
   updateStrategy:
     type: OnDelete
   selector:
