@@ -46,7 +46,8 @@ async function buscarAnexosPadrao({ sessionkey, apiUrlEmpresa }) {
     return dados;
   } catch (err) {
     customLogger.warning(`[ANEXOS] falha ao buscar anexos da mensagem padrão: ${err.message}`);
-    return { aberto: false, anexos: [] };
+    // aberto: null = não deu para saber; a padrão de sempre sai (sem anexos), nunca o aviso de fechada
+    return { aberto: null, anexos: [] };
   }
 }
 

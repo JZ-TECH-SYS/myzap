@@ -45,6 +45,20 @@ const caso = async (nome, fn) => {
     await ChatHistoryHelper.registerAgentMessage({ ...outro, text: 'boa noite, já te atendo' });
     assert.strictEqual(await ChatHistoryHelper.jaInteragiuHoje(outro), true);
   });
+  // Loja fechada (19/10/2026): o aviso sai no lugar da padrão, e a padrão tem de sair quando abrir
+  await caso('aviso de loja fechada não conta como interação: a próxima ainda é primeiro contato', async () => {
+    const fechada = { ...k, numero: '777@lid' };
+    await ChatHistoryHelper.registerUserMessage({ ...fechada, text: 'oi' });
+    await ChatHistoryHelper.registerAssistantMessage({ ...fechada, text: 'No momento estamos fechados', messageType: 'aviso_fechada' });
+    assert.strictEqual(await ChatHistoryHelper.jaInteragiuHoje(fechada), false);
+    assert.strictEqual(await ChatHistoryHelper.jaEnvieiMensagemPadraoHoje(fechada), false);
+    assert.strictEqual(await ChatHistoryHelper.jaEnvieiMensagemPadraoHoje({ ...fechada, tipo: 'aviso_fechada' }), true);
+  });
+  await caso('mensagem do sistema sem tipo ainda conta como interação', async () => {
+    const semTipo = { ...k, numero: '888@lid' };
+    await sequelize.models.ChatHistory.create({ session: k.session, sessionkey: k.sessionkey, numero_cliente: semTipo.numero, role: 'assistant', msg: 'x', message_type: null, created_at: new Date() });
+    assert.strictEqual(await ChatHistoryHelper.jaInteragiuHoje(semTipo), true);
+  });
 
   console.log(falhas === 0 ? '\ntudo certo' : `\n${falhas} caso(s) falharam`);
   process.exit(falhas === 0 ? 0 : 1);

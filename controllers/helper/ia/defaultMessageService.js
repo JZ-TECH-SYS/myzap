@@ -4,8 +4,13 @@ const { registerIAResponse } = require('./iaResponseCache');
 const { LOG_PREFIX } = require('./iaConfig');
 const { buscarAnexosPadrao, mimeDoAnexo } = require('./anexosPadrao');
 
+/** O que sai no lugar da mensagem padrão com a loja fechada: o link dela é de "faça seu pedido". */
+const AVISO_LOJA_FECHADA = 'Olá! No momento estamos fechados e não estamos atendendo. Assim que abrirmos, é só mandar uma mensagem por aqui 🙂';
+
 /**
- * Envia mensagem padrão para o cliente
+ * Envia mensagem padrão para o cliente. Com a loja fechada (chave ou expediente, a API
+ * decide) sai o aviso de fechada no lugar, uma vez por dia, e a padrão não conta como
+ * enviada: a primeira mensagem com a loja aberta ainda leva o link (regra do dono, 19/10/2026).
  * @param {Object} params
  * @param {Object} params.client - Cliente WhatsApp
  * @param {string} params.session - ID da sessão
@@ -40,7 +45,20 @@ async function sendDefault({
     }
 
     const sender = require('../events/messageSender');
-    
+
+    const { aberto } = await buscarAnexosPadrao({ sessionkey, apiUrlEmpresa });
+    if (aberto === false) {
+      if (await ChatHistoryHelper.jaEnvieiMensagemPadraoHoje({ session, sessionkey, numero, tipo: 'aviso_fechada' })) {
+        return false;
+      }
+      registerIAResponse(AVISO_LOJA_FECHADA);
+      if (await sender.sendText({ client, to: numero, text: AVISO_LOJA_FECHADA })) {
+        await ChatHistoryHelper.registerAssistantMessage({ session, sessionkey, numero, text: AVISO_LOJA_FECHADA, messageType: 'aviso_fechada' });
+        customLogger.info(`${LOG_PREFIX} Loja fechada: aviso no lugar da mensagem padrao`, { session, numero, motivo });
+      }
+      return false;
+    }
+
     // Registrar mensagem padrão no cache (evitar loop no self-test)
     registerIAResponse(mensagemPadrao);
     
@@ -91,4 +109,4 @@ async function enviarAnexos({ client, session, sessionkey, numero, apiUrlEmpresa
   return enviados;
 }
 
-module.exports = { sendDefault, enviarAnexos };
+module.exports = { sendDefault, enviarAnexos, AVISO_LOJA_FECHADA };
