@@ -4,6 +4,23 @@ Todas as mudanças notáveis neste fork serão documentadas neste arquivo.
 
 ---
 
+## [3.0.23] - 2026-10-19
+
+### 🛠️ Loja fechada recebe o aviso de fechada, não a mensagem padrão com o link
+
+Regra do dono: com a loja fechada (chave "Está aberto?" desligada ou fora do
+expediente, quem decide é a API do ClickExpress), a mensagem padrão de "faça seu
+pedido" levava o cliente a um site fechado. Agora sai "No momento estamos fechados
+e não estamos atendendo. Assim que abrirmos, é só mandar uma mensagem por aqui",
+uma vez por dia por número, e a padrão não conta como enviada: a primeira mensagem
+com a loja aberta ainda leva o link e os anexos. Sem resposta da API, a padrão de
+sempre sai, nunca o aviso.
+
+Versão de correção em cima da v3.0.22: leva só isto para a frota (a `main` tem
+outras mudanças que ainda não foram liberadas para as máquinas de lojista).
+
+Teste: `node test/anexos-padrao.js` — reprova sem o conserto.
+
 ## [3.0.22] - 2026-09-19
 
 ### 🛠️ O marcador de mídia finalmente chega ao agente
