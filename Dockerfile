@@ -11,7 +11,7 @@
 # ⚠️ ESTADO EM DISCO: `instances/` (perfil do Chrome + tokens de cada sessão) e
 # `database/` (SQLite). Os dois são montados como volume no StatefulSet — sem
 # isso, cada restart exige escanear o QR de novo.
-FROM node:20-bookworm-slim
+FROM node:22.23.4-bookworm-slim
 
 ENV NODE_ENV=production \
     PUPPETEER_SKIP_DOWNLOAD=true \
