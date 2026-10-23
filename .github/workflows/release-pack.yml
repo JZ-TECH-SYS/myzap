@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - name: Smoke IA (bloqueia pack quebrado)
         run: node test/smoke-ia.js
 
@@ -48,7 +48,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: "22.23.4"
 
       - name: Build Runtime Pack
         run: node scripts/build-pack.js
