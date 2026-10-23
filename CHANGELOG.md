@@ -4,6 +4,19 @@ Todas as mudanças notáveis neste fork serão documentadas neste arquivo.
 
 ---
 
+## [3.0.24] - 2026-10-23
+
+### 🔒 Node 22.23.4 embutido, com a correção do Brotli
+
+O código é o mesmo da 3.0.23; muda só o Node que o pack leva para as máquinas.
+A 3.0.23 saiu com o 22.23.3, sem a correção da CVE-2026-111497 (escrita fora
+dos limites no decodificador Brotli, que pode levar a execução remota de
+código) da release de segurança do Node.js de 21/10/2026. O workflow do pack
+passa a pedir a versão exata: com `22`, o `setup-node` aceitava o Node mais
+antigo que já vinha no runner do Windows.
+
+---
+
 ## [3.0.23] - 2026-10-19
 
 ### 🛠️ Loja fechada recebe o aviso de fechada, não a mensagem padrão com o link
